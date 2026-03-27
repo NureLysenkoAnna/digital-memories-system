@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const postRoutes = require('./routes/postRoutes');
+const groupMemberRoutes = require('./routes/groupMemberRoutes');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/groups', groupRoutes);
+app.use('/api/groups/:groupId/members', groupMemberRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/posts', postRoutes);
 
