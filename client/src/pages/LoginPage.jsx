@@ -46,7 +46,12 @@ const LoginPage = () => {
       }
 
       localStorage.setItem('token', data.token);
-      navigate('/profile');
+      const pendingToken = localStorage.getItem('pendingInviteToken');
+      if (pendingToken) {
+        navigate(`/invite/${pendingToken}`);
+      } else {
+        navigate('/profile');
+      }
 
     } catch (err) {
       setErrors({ general: err.message });
