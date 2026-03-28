@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, LogOut, User, Mail, Calendar, Plus, Users, Image as ImageIcon, Star } from 'lucide-react';
 import StarBackground from '../components/StarBackground';
-import Header from '../components/Header';
+import MainHeader from '../components/MainHeader';
 import CreateGroupModal from '../components/CreateGroupModal';
 import EditProfileModal from '../components/EditProfileModal';
 
@@ -146,7 +146,7 @@ const ProfilePage = () => {
         onProfileUpdated={loadData}
       />
       
-      <Header pageType="profile" onLogout={handleLogout} />
+      <MainHeader pageType="profile" onLogout={handleLogout} />
 
       <div className="glass-panel user-card">
         <div className="avatar-container">

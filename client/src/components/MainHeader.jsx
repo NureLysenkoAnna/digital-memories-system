@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sparkles, LogOut, Users } from 'lucide-react';
 
-const Header = ({ pageType, onLogout }) => {
+const MainHeader = ({ pageType, onLogout }) => {
   const navigate = useNavigate();
 
   return (
@@ -38,4 +38,4 @@ const Header = ({ pageType, onLogout }) => {
   );
 };
 
-export default Header;
+export default MainHeader;

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import StarBackground from '../components/StarBackground';
-import Header from '../components/Header';
+import MainHeader from '../components/MainHeader';
 import { Star } from 'lucide-react';
 
 const MainPage = () => {
@@ -9,7 +9,7 @@ const MainPage = () => {
     <div className="landing-container">
       <StarBackground />
       
-      <Header pageType="main" />
+      <MainHeader pageType="main" />
 
       <main className="hero-section">
         <div className="glass-panel hero-glass-card">
