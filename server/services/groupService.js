@@ -82,7 +82,7 @@ class GroupService {
     const stats = statsResult.rows[0];
 
     let topMember = null;
-    if (parseInt(stats.members_count) > 2) {
+    if (parseInt(stats.members_count) >= 2) {
       const topMemberResult = await pool.query(`
         SELECT u.username as name, COUNT(p.id) as post_count
         FROM posts p
