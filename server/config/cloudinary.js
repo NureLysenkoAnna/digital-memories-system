@@ -16,7 +16,15 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'starlace_memories',
     allowed_formats: ['jpg', 'jpeg', 'png', 'webp'], // Дозволені формати
-    // transformation: [{ width: 1000, crop: 'limit' }] // автоматичне стиснення
+
+    // Створення нової безпечної назви файлу
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      return 'photo_' + uniqueSuffix; 
+    },
+
+    // Автоматичне стиснення
+    transformation: [{ width: 1920, crop: 'limit', quality: 'auto', fetch_format: 'auto' }] 
   },
 });
 
