@@ -84,6 +84,11 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
           body: imageFormData
         });
 
+        const contentType = uploadRes.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Файл не підтримується. Оберіть інший!");
+        }
+
         const uploadData = await uploadRes.json();
         if (!uploadRes.ok) throw new Error(uploadData.error || 'Помилка завантаження фото');
         

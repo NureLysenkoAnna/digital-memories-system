@@ -65,6 +65,11 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
           body: imageFormData
         });
 
+        const contentType = uploadRes.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Файл не підтримується. Оберіть інший!");
+        }
+
         const uploadData = await uploadRes.json();
         if (!uploadRes.ok) throw new Error(uploadData.error || 'Помилка завантаження фото');
         
@@ -101,8 +106,8 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
   };
 
   return (
-      <div className="modal-overlay" onClick={onClose}>
-        <div className="glass-panel modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-overlay">
+        <div className="glass-panel modal-content">
           
           <button className="btn-close-modal" onClick={onClose}>
             <X size={24} />
