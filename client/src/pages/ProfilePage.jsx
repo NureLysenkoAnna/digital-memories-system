@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, LogOut, User, Mail, Calendar, Plus, Users, Image as ImageIcon, Star } from 'lucide-react';
+import { Sparkles, LogOut, User, Mail, Calendar, Plus, Image as ImageIcon, Star, Circle } from 'lucide-react';
 import StarBackground from '../components/StarBackground';
 import MainHeader from '../components/MainHeader';
 import CreateGroupModal from '../components/CreateGroupModal';
@@ -227,14 +227,34 @@ const ProfilePage = () => {
               </div>
               <div className="group-content">
                 <h3 className="group-card-title">{group.name}</h3>
-                <span className="group-card-members">
-                  <Users size={14} style={{ display: 'inline', marginRight: '6px' }}/>
-                  Моя група ({group.role === 'admin' ? 'Власник' : 'Учасник'})
+
+                <span className="group-card-members"
+                  style={{ 
+                    color: group.hasNewPosts ? 'var(--text-main)' : 'var(--text-muted)',
+                    fontWeight: group.hasNewPosts ? '500' : 'normal',
+                    marginTop: 'auto'
+                  }}
+                >
+                  {group.hasNewPosts ? (
+                    <>
+                      <Circle size={10} color="#10b981" fill='#10b981' 
+                      style={{ display: 'inline', marginRight: '6px' }}/>
+                      Перегляньте нові спогади!
+                    </>
+                  ) : (
+                    group.postsCount > 0 ? (
+                      <>
+                        <ImageIcon size={14} style={{ display: 'inline', marginRight: '6px', marginBottom: '-2px' }}/>
+                        Спогадів: {group.postsCount}
+                      </>
+                    ) : (
+                      'Спогадів ще немає. Створіть перші!'
+                    )
+                  )}
                 </span>
               </div>
             </div>
           ))}
-
         </div>
       </div>
     </div>
