@@ -6,6 +6,7 @@ import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import GroupPage from './pages/GroupPage';
+import InvitePage from './pages/InvitePage';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -19,6 +20,8 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/group/:groupId" element={<GroupPage />} />
+          <Route path="/invite/:token" element={<InvitePage />} />
+          <Route path="/groups/:groupId" element={<GroupPage />} />
         </Routes>
       </Router>
     </GoogleOAuthProvider>
