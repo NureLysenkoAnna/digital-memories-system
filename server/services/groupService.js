@@ -33,7 +33,13 @@ class GroupService {
 
   static async getUserGroups(userId) {
     const result = await pool.query(`
-      SELECT g.id, g.name, g.description, g.cover_image_url, g.created_at, gm.role, gm.is_favorite 
+      SELECT g.id, g.name, g.description, g.cover_image_url, g.created_at, gm.role, gm.is_favorite,
+        (SELECT COUNT(*) FROM posts WHERE group_id = g.id)::int as "postsCount",
+        EXISTS (
+          SELECT 1 FROM posts p 
+          WHERE p.group_id = g.id 
+          AND p.created_at > gm.last_visited_at
+        ) as "hasNewPosts"
       FROM groups g
       JOIN group_members gm ON g.id = gm.group_id
       WHERE gm.user_id = $1
@@ -56,6 +62,11 @@ class GroupService {
 
   // Отримання повної інформації про групу зі статистикою
   static async getGroupDetails(groupId, userId) {
+    await pool.query(`
+      UPDATE group_members 
+      SET last_visited_at = CURRENT_TIMESTAMP 
+      WHERE group_id = $1 AND user_id = $2
+    `, [groupId, userId]);
 
     const groupResult = await pool.query(`
       SELECT g.id, g.name, g.description, g.cover_image_url, g.created_at,
