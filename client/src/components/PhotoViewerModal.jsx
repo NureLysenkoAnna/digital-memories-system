@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0 }) => {
@@ -39,7 +40,7 @@ const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0 }) => {
 
   const hasMultipleImages = images.length > 1;
 
-  return (
+  return createPortal(
     <div className="photo-viewer-overlay" onClick={onClose}>
       <button className="photo-viewer-close" onClick={onClose} title="Закрити (Esc)">
         <X size={32} />
@@ -71,7 +72,8 @@ const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0 }) => {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
