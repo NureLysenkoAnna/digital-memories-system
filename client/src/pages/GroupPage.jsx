@@ -10,6 +10,7 @@ import EditGroupModal from '../components/EditGroupModal';
 import DeleteGroupModal from '../components/DeleteGroupModal';
 import CreatePostModal from '../components/CreatePostModal';
 import PostCard from '../components/PostCard';
+import PinnedPostsSlider from '../components/PinnedPostsSlider';
 import GroupMembersModal from '../components/GroupMembersModal';
 import DeletePostModal from '../components/DeletePostModal';
 import PostDetailModal from '../components/PostDetailModal';
@@ -197,7 +198,8 @@ const GroupPage = () => {
     return (
       <div className="profile-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <StarBackground />
-        <div style={{ color: 'var(--text-main)', fontSize: '1.2rem', zIndex: 1 }}><Sparkles className="logo-icon spin" /> Завантаження сузір'я...</div>
+        <div style={{ color: 'var(--text-main)', fontSize: '1.2rem', zIndex: 1 }}>
+          <Sparkles className="logo-icon spin" /> Завантаження сузір'я...</div>
       </div>
     );
   }
@@ -233,6 +235,9 @@ const GroupPage = () => {
 
     return textMatch || tagMatch || authorMatch || eventDateMatch || publishDateMatch;
   });
+
+  const pinnedPosts = filteredPosts.filter(post => post.is_pinned);
+  const regularPosts = filteredPosts.filter(post => !post.is_pinned);
 
   return (
     <div className="profile-container">
@@ -284,8 +289,10 @@ const GroupPage = () => {
       />
 
       <div className="group-tabs">
-        <button className={`tab-btn ${activeTab === 'posts' ? 'active' : ''}`} onClick={() => setActiveTab('posts')}>Всі публікації</button>
-        <button className={`tab-btn ${activeTab === 'timeline' ? 'active' : ''}`} onClick={() => setActiveTab('timeline')}>Таймлайн</button>
+        <button className={`tab-btn ${activeTab === 'posts' ? 'active' : ''}`} onClick={() => setActiveTab('posts')}>
+          Всі публікації</button>
+        <button className={`tab-btn ${activeTab === 'timeline' ? 'active' : ''}`} onClick={() => setActiveTab('timeline')}>
+          Таймлайн</button>
       </div>
 
       {activeTab === 'posts' && (
@@ -323,18 +330,31 @@ const GroupPage = () => {
 
           <hr className="section-divider" />
 
+          {pinnedPosts.length > 0 && (
+            <PinnedPostsSlider 
+              posts={pinnedPosts} 
+              currentUserId={currentUserId}
+              userRole={groupData?.userRole}
+              onPinToggle={handleTogglePin}
+              onDeleteClick={openDeletePostModal}
+              onPostUpdated={loadPosts}
+              onTagClick={setSearchQuery}
+              onCommentClick={openPostDetail}
+            />
+          )}
+
           <div>
-            {filteredPosts.length === 0 ? (
+            {regularPosts.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                {searchQuery ? 'За вашим запитом нічого не знайдено.' : 'Тут ще немає спогадів. Створіть перший!'}
+                {searchQuery ? 'За вашим запитом нічого не знайдено.' : (pinnedPosts.length > 0 ? 'Більше немає публікацій.' : 'Тут ще немає спогадів. Створіть перший!')}
               </div>
             ) : (
-              filteredPosts.map((post) => (
+              regularPosts.map((post) => (
                 <PostCard 
                   key={post.id} 
                   post={post} 
                   currentUserId={currentUserId}
-                  userRole={groupData.userRole || 'reader'} // Якщо ролі нема, він читач
+                  userRole={groupData?.userRole || 'reader'}
                   onPinToggle={handleTogglePin}
                   onDeleteClick={openDeletePostModal}
                   onTagClick={setSearchQuery}

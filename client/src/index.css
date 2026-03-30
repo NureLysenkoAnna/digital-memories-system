@@ -63,14 +63,26 @@ a {
   background-color: #ffffff;
   border-radius: 50%;
   opacity: 0.3;
-  transition: all 1s ease-out;
+  transition: all 1.5s ease-out;
+}
+
+.interactive-star::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 15px; /* Ширина невидимої зони */
+  height: 15px; /* Висота невидимої зони */
+  border-radius: 50%;
+  background: transparent;
 }
 
 .interactive-star:hover {
   opacity: 1;
-  transform: scale(3);
+  transform: scale(2);
   box-shadow: 0 0 10px 2px #fff, 0 0 20px 8px var(--silver-glow);
-  transition: all 0.5s ease-in;
+  transition: all 0.8s ease-in;
 }
 
 /* --- СТИЛІ ГОЛОВНОЇ СТОРІНКИ --- */
@@ -428,8 +440,6 @@ a {
 }
 
 .btn-edit-profile:hover {
-  /*background: rgba(255, 255, 255, 0.1);
-  border-color: var(--accent-silver);*/
   background: var(--accent-silver);
   color: var(--bg-dark);
   box-shadow: 0 0 20px var(--silver-glow);
@@ -2006,8 +2016,6 @@ a {
 
 .success-text {
   color: #10b981 !important;
-  /*background: rgba(16, 185, 129, 0.1) !important;
-  border: 1px solid rgba(16, 185, 129, 0.3);*/
 }
 
 .loading-text {
@@ -2069,7 +2077,7 @@ a {
 }
 
 .member-item.is-me {
-  border-color: var(--accent-silver); /* Підсвічуємо свій акаунт */
+  border-color: var(--accent-silver);
 }
 
 .member-info {
@@ -2257,4 +2265,116 @@ a {
 .limit-alert span {
   font-size: 0.95rem;
   line-height: 1.4;
+}
+
+/* СЛАЙДЕР ЗАКРІПЛЕНИХ ПОСТІВ */
+.pinned-slider-container {
+  border: 1px solid var(--glass-border);
+  background: #1F232B;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+/* Шапка слайдера */
+.pinned-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+  background: #070b14e0;
+}
+
+.pinned-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--accent-silver);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Навігація */
+.pinned-navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pinned-counter {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 35px;
+  text-align: center;
+}
+
+.btn-nav {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-nav:hover {
+  border-color: var(--accent-silver);
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pinned-slider-content {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Прив'язка класів до анімацій */
+.slide-next {
+  animation: slideInRight 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+.slide-prev {
+  animation: slideInLeft 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+/* Анімація "Вперед" (картка виїжджає справа наліво) */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Анімація "Назад" (картка виїжджає зліва направо) */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.post-card.in-slider {
+  border: none;
+  background: transparent;
+  margin-bottom: 0;
+  border-radius: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
