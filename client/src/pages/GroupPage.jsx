@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Sparkles, Search, X, Plus, Dices, Image as ImageIcon, AlertCircle
-} from 'lucide-react';
+import {Sparkles, Search, X, Plus, Dices, Image as ImageIcon, AlertCircle} from 'lucide-react';
 import StarBackground from '../components/StarBackground';
 import MainHeader from '../components/MainHeader';
 import GroupHeader from '../components/GroupHeader';
@@ -15,6 +13,8 @@ import GroupMembersModal from '../components/GroupMembersModal';
 import DeletePostModal from '../components/DeletePostModal';
 import PostDetailModal from '../components/PostDetailModal';
 import LeaveGroupModal from '../components/LeaveGroupModal';
+import MemoriesTab from '../components/MemoriesTab';
+import TimelineFeed from '../components/TimelineFeed';
 
 const GroupPage = () => {
   const { groupId } = useParams();
@@ -293,6 +293,9 @@ const GroupPage = () => {
           Всі публікації</button>
         <button className={`tab-btn ${activeTab === 'timeline' ? 'active' : ''}`} onClick={() => setActiveTab('timeline')}>
           Таймлайн</button>
+        <button className={`tab-btn ${activeTab === 'memories' ? 'active' : ''}`} onClick={() => setActiveTab('memories')}>
+          Спогади
+        </button>
       </div>
 
       {activeTab === 'posts' && (
@@ -367,9 +370,20 @@ const GroupPage = () => {
       )}
 
       {activeTab === 'timeline' && (
-        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-          <h3>Таймлайн у розробці</h3>
-          <p>Тут буде відображено хронологічну лінію ваших спогадів.</p>
+        <div className="timeline-section" style={{ padding: '1rem 0' }}>
+          <TimelineFeed 
+            posts={posts}
+            onPostClick={openPostDetail}
+          />
+        </div>
+      )}
+
+      {activeTab === 'memories' && (
+        <div className="memories-section" style={{ padding: '1rem 0' }}>
+          <MemoriesTab 
+            posts={posts} 
+            onPostClick={openPostDetail} 
+          />
         </div>
       )}
 
