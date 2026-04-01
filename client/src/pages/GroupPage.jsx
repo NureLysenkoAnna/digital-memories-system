@@ -178,7 +178,7 @@ const GroupPage = () => {
   // Оновлення стрічки та статистики (після створення/видалення)
   const handlePostsChanged = () => {
     loadPosts();
-    loadGroupData(); // Завантажує нові лічильники постів та фотографій
+    loadGroupData();
   };
 
   const handleRandomMemory = () => {
@@ -196,7 +196,11 @@ const GroupPage = () => {
 
   if (isLoading) {
     return (
-      <div className="profile-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div className="profile-container" style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' }}>
         <StarBackground />
         <div style={{ color: 'var(--text-main)', fontSize: '1.2rem', zIndex: 1 }}>
           <Sparkles className="logo-icon spin" /> Завантаження сузір'я...</div>
@@ -380,8 +384,11 @@ const GroupPage = () => {
 
       {activeTab === 'memories' && (
         <div className="memories-section" style={{ padding: '1rem 0' }}>
-          <MemoriesTab 
-            posts={posts} 
+          <MemoriesTab
+            groupId={groupId}
+            posts={posts}
+            currentUserId={currentUserId}
+            userRole={groupData?.userRole || 'reader'}
             onPostClick={openPostDetail} 
           />
         </div>
