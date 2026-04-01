@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sparkles, LogOut, Users } from 'lucide-react';
+import customLogo from '../assets/starlace-logo.png';
 
 const MainHeader = ({ pageType, onLogout }) => {
   const navigate = useNavigate();
@@ -10,7 +11,12 @@ const MainHeader = ({ pageType, onLogout }) => {
         
       <div className="logo-container">
         <span>Starlace</span>
-        <Sparkles className="logo-icon" size={32} />
+        <img 
+          src={customLogo} 
+          alt="Starlace Logo" 
+          className="logo-icon" 
+          style={{ width: '55px', height: '55px' }} 
+        />
         <span>Memories</span>
       </div>
 
