@@ -8,6 +8,7 @@ class GroupMemberService {
       SELECT 
         u.id, 
         u.username as name, 
+        u.email, 
         u.avatar_url as avatar, 
         gm.role 
       FROM group_members gm

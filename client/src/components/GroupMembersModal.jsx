@@ -209,6 +209,17 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
                     )}
                     <div>
                       <span className="member-name">{member.name}</span>
+                      {(isAdmin) && member.email && (
+                        <span className="member-email" style={{ 
+                          fontSize: '0.8rem', 
+                          color: 'var(--text-muted)', 
+                          opacity: 0.7,
+                          marginTop: '0.1rem',
+                          marginLeft: '0.5rem'
+                        }}>
+                          [ {member.email} ]
+                        </span>
+                      )}
                     </div>
                   </div>
 
