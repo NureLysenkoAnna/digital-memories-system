@@ -111,6 +111,7 @@ class PostService {
         json_build_object('id', u.id, 'name', u.username, 'avatar', u.avatar_url) as author,
         COALESCE((SELECT json_agg(image_url) FROM post_images WHERE post_id = p.id), '[]'::json) as images,
         (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id)::int as "commentsCount",
+        COALESCE((SELECT json_agg(author_id) FROM post_comments WHERE post_id = p.id), '[]'::json) as commentators,
         COALESCE((SELECT json_agg(json_build_object('user_id', user_id, 'reaction', reaction)) FROM post_reactions WHERE post_id = p.id), '[]'::json) as reactions
       FROM posts p
       JOIN users u ON p.author_id = u.id
@@ -222,6 +223,63 @@ class PostService {
       );
       return { action: 'added', reaction };
     }
+  }
+
+  static async getPersonalMilestones(groupId, userId, userRole) {
+    const posts = await this.getGroupPosts(groupId, 'new_published');
+    const photoPostsOnly = posts.filter(post => post.images && post.images.length > 0);
+    const sortByCreatedAt = (arr) => [...arr].sort((a, b) => new Date(a.created_at || a.date) - new Date(b.created_at || b.date));
+    
+    const milestones = [];
+    const isParticipant = userRole === 'admin' || userRole === 'member';
+
+    if (isParticipant) {
+      const userPosts = photoPostsOnly.filter(p => p.author.id === userId);
+      
+      if (userPosts.length > 0) {
+        const sortedByCreation = sortByCreatedAt(userPosts);
+        const firstPost = sortedByCreation[0];
+        const latestPost = sortedByCreation[sortedByCreation.length - 1];
+        
+        const sortedByComments = [...userPosts].sort((a, b) => b.commentsCount - a.commentsCount);
+        const mostDiscussed = sortedByComments[0];
+
+        milestones.push({ id: 'first-post', post: firstPost });
+        
+        if (mostDiscussed && mostDiscussed.commentsCount > 0) {
+          milestones.push({ id: 'most-discussed', post: mostDiscussed });
+        }
+        
+        if (latestPost.id !== firstPost.id) {
+          milestones.push({ id: 'latest-post', post: latestPost });
+        }
+      }
+    } else {
+      const commentedPosts = photoPostsOnly.filter(p => p.commentators.includes(userId));
+      
+      const reactedPosts = photoPostsOnly.filter(p => p.reactions.some(r => r.user_id === userId));
+      
+      const sortedCommented = sortByCreatedAt(commentedPosts);
+      const sortedReacted = sortByCreatedAt(reactedPosts);
+      const allInteracted = sortByCreatedAt([...new Set([...commentedPosts, ...reactedPosts])]);
+
+      const firstComment = sortedCommented[0];
+      const firstReaction = sortedReacted[0];
+      const latestInteraction = allInteracted[allInteracted.length - 1];
+
+      // чи збігається публікація для першого коментаря та реакції
+      if (firstComment && firstReaction && firstComment.id === firstReaction.id) {
+        milestones.push({ id: 'first-comment-reaction', post: firstComment });
+      } else {
+        if (firstComment) milestones.push({ id: 'first-comment', post: firstComment });
+        if (firstReaction) milestones.push({ id: 'first-reaction', post: firstReaction });
+      }
+      if (latestInteraction && latestInteraction.id !== firstComment?.id && latestInteraction.id !== firstReaction?.id) {
+        milestones.push({ id: 'latest-interaction', post: latestInteraction });
+      }
+    }
+
+    return milestones;
   }
 }
 

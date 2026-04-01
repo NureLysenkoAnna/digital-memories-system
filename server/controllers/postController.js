@@ -99,6 +99,25 @@ class PostController {
       res.json(result);
     } catch (error) { res.status(400).json({ error: error.message }); }
   }
+
+  static async getPersonalMilestones(req, res) {
+    try {
+      const { groupId } = req.params;
+      const userId = req.user.id; 
+      const userRole = req.query.role || 'reader'; 
+
+      if (!groupId) {
+        return res.status(400).json({ error: 'ID групи є обов\'язковим' });
+      }
+
+      const milestones = await PostService.getPersonalMilestones(groupId, userId, userRole);
+      
+      res.json(milestones);
+    } catch (error) {
+      console.error('Помилка отримання персональної статистики:', error);
+      res.status(500).json({ error: 'Помилка сервера' });
+    }
+  }
 }
 
 module.exports = PostController;
