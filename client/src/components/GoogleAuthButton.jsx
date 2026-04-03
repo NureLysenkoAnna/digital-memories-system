@@ -29,7 +29,7 @@ const GoogleAuthButton = ({ onError }) => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.1rem' }}>
       <GoogleLogin 
         onSuccess={handleGoogleSuccess} 
         onError={() => onError('Помилка зв\'язку з Google')}

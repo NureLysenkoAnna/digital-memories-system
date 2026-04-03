@@ -65,9 +65,8 @@ const LoginPage = () => {
       <StarBackground />
       <div className="glass-panel auth-glass-card">
         <h2 className="auth-title">
-          <Sparkles className="logo-icon" size={28} />
           З поверненням 
-          <Sparkles className="logo-icon" size={28} style={{ transform: "scaleX(-1)" }} /> 
+          <Sparkles className="logo-icon" size={28} style={{ marginLeft: '0.5rem' }} /> 
         </h2>
         
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -85,7 +84,7 @@ const LoginPage = () => {
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
 
-          <button type="submit" className="cta-button" style={{ width: '100%', justifyContent: 'center' }} disabled={isLoading}>
+          <button type="submit" className="cta-button" style={{ width: '100%', justifyContent: 'center', marginTop: '0' }} disabled={isLoading}>
             {isLoading ? 'Завантаження...' : 'Увійти'}
           </button>
         </form>
@@ -94,7 +93,7 @@ const LoginPage = () => {
         
         <GoogleAuthButton onError={(msg) => setErrors({ general: msg })} />
 
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0', marginBottom: '0'  }}>
           Ще не маєте власного профілю? <Link to="/register" className="auth-link">Зареєструватися</Link>
         </p>
       </div>

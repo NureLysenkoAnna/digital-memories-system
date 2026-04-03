@@ -75,7 +75,7 @@ const RegisterPage = () => {
     <div className="auth-page">
       <StarBackground />
       <div className="glass-panel auth-glass-card">
-        <h2 className="auth-title">Створити профіль <Sparkles className="logo-icon" size={28} /></h2>
+        <h2 className="auth-title">Створити свій профіль</h2>
         
         <form className="auth-form" onSubmit={handleSubmit}>
 
@@ -89,8 +89,14 @@ const RegisterPage = () => {
 
           <div className="input-group">
             <label>Електронна пошта</label>
-
-            <input type="email" name="email" className="glass-input" placeholder="example@gmail.com" value={formData.email} onChange={handleChange} />
+            <input 
+              type="email" 
+              name="email" 
+              className="glass-input" 
+              placeholder="example@gmail.com" 
+              value={formData.email} 
+              onChange={handleChange} 
+            />
             {errors.email && <span className="error-message">{errors.email}</span>}
           </div>
 
@@ -102,11 +108,20 @@ const RegisterPage = () => {
 
           <div className="input-group">
             <label>Підтвердіть пароль</label>
-            <input type="password" name="confirmPassword" className="glass-input" value={formData.confirmPassword} onChange={handleChange} />
+            <input 
+              type="password" 
+              name="confirmPassword" 
+              className="glass-input" 
+              value={formData.confirmPassword} 
+              onChange={handleChange} 
+            />
             {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
           </div>
 
-          <button type="submit" className="cta-button" style={{ width: '100%', justifyContent: 'center' }} disabled={isLoading}>
+          <button 
+            type="submit" 
+            className="cta-button" 
+            style={{ width: '100%', justifyContent: 'center', marginTop: '1rem'}} disabled={isLoading}>
             {isLoading ? 'Збереження...' : 'Зареєструватися'}
           </button>
         </form>
@@ -115,7 +130,7 @@ const RegisterPage = () => {
 
         <GoogleAuthButton onError={(msg) => setErrors({ general: msg })} />
         
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0', marginBottom: '0' }}>
           Вже маєте зареєстрований профіль? <Link to="/login" className="auth-link">Увійти</Link>
         </p>
       </div>
