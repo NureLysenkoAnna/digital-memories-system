@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {Sparkles, Search, X, Plus, Dices, Image as ImageIcon, AlertCircle} from 'lucide-react';
+import {Sparkles, Search, X, Plus, Dices, Image as ImageIcon, AlertCircle, ArrowUp} from 'lucide-react';
 import StarBackground from '../components/StarBackground';
 import MainHeader from '../components/MainHeader';
 import GroupHeader from '../components/GroupHeader';
@@ -15,6 +15,7 @@ import PostDetailModal from '../components/PostDetailModal';
 import LeaveGroupModal from '../components/LeaveGroupModal';
 import MemoriesTab from '../components/MemoriesTab';
 import TimelineFeed from '../components/TimelineFeed';
+import { getUserFriendlyError } from '../utils/errorUtils';
 
 const GroupPage = () => {
   const { groupId } = useParams();
@@ -25,6 +26,7 @@ const GroupPage = () => {
   const [activeTab, setActiveTab] = useState('posts');
   const [showGroupMenu, setShowGroupMenu] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [showScrollTop, setShowScrollTop] = useState(false);
   
   // Стани модалок
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -124,6 +126,23 @@ const GroupPage = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 500) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleToggleFavorite = async () => {
     const token = localStorage.getItem('token');
     try {
@@ -210,12 +229,15 @@ const GroupPage = () => {
 
   if (error) {
     return (
-      <div className="profile-container" style={{ display: 'flex', justifyContent: 'center',
-        alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '1rem' }}>
+      <div className="profile-container error-page-wrapper">
         <StarBackground />
-        <div style={{ color: '#ef4444', zIndex: 1, fontSize: '1.2rem' }}>{error}</div>
-        <button className="btn-profile" onClick={() => navigate('/profile')}
-        style={{ zIndex: 1 }}>Повернутися до профілю</button>
+        <div className="error-state-content">
+          <AlertCircle size={40} opacity={0.8} />
+          {getUserFriendlyError(error)}
+        </div>
+        <button className="btn-profile" onClick={() => navigate('/profile')} style={{ zIndex: 1, marginTop: '1rem' }}>
+          Повернутися до профілю
+        </button>
       </div>
     );
   }
@@ -395,6 +417,14 @@ const GroupPage = () => {
       )}
 
       <div className="fab-container">
+        <button 
+          className={`fab fab-scroll-top ${showScrollTop ? 'visible' : 'hidden'}`} 
+          title="Нагору" 
+          onClick={scrollToTop}
+        >
+          <ArrowUp size={32} />
+        </button>
+
         {posts && posts.length > 0 && (
           <button className="fab fab-random" title="Випадковий спогад" onClick={handleRandomMemory}>
             <Dices size={28} className="dice-icon" />
