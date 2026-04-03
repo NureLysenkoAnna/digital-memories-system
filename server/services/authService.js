@@ -16,7 +16,7 @@ class AuthService {
 
     const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (userExists.rows.length > 0) {
-      throw new Error('Користувач з таким email вже зареєстрований');
+      throw new Error('Користувач з такою поштою вже зареєстрований');
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -38,14 +38,14 @@ class AuthService {
   static async loginUser(email, password) {
     const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (userResult.rows.length === 0) {
-      throw new Error('Невірний email або пароль');
+      throw new Error('Невірна пошта або пароль!');
     }
 
     const user = userResult.rows[0];
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
     
     if (!isValidPassword) {
-      throw new Error('Невірний email або пароль');
+      throw new Error('Невірна пошта або пароль!');
     }
 
     const token = generateToken(user.id);
