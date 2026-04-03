@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, LogOut, User, Mail, Calendar, Plus, Image as ImageIcon, Star, Circle } from 'lucide-react';
+import { Sparkles, User, Mail, Calendar, Plus, Image as ImageIcon, Star, Circle, AlertCircle } from 'lucide-react';
 import StarBackground from '../components/StarBackground';
 import MainHeader from '../components/MainHeader';
 import CreateGroupModal from '../components/CreateGroupModal';
 import EditProfileModal from '../components/EditProfileModal';
+import { getUserFriendlyError } from '../utils/errorUtils';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -122,9 +123,12 @@ const ProfilePage = () => {
 
   if (error) {
     return (
-      <div className="profile-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div className="profile-container error-page-wrapper">
         <StarBackground />
-        <div style={{ color: '#ef4444', zIndex: 1 }}>{error}</div>
+        <div className="error-state-content">
+          <AlertCircle size={40} opacity={0.8} />
+          {getUserFriendlyError(error)}
+        </div>
       </div>
     );
   }
