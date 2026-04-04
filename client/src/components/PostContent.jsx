@@ -164,7 +164,7 @@ const PostContent = ({
         </div>
       </div>
 
-      <p className="post-text" style={{ fontSize: isModalView ? '0.95rem' : '1rem' }}>{post.text}</p>
+      <p className="post-text">{post.text}</p>
 
       {hasPhotos && (
         <div className={
