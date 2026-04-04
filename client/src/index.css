@@ -1273,12 +1273,24 @@ a {
 
 /* 2 фото */
 .grid-2 { grid-template-columns: 1fr 1fr; }
-.grid-2 img { height: 300px; }
+.grid-2 img { height: 400px; }
 
-/* 3 фото: одне велике зверху, два знизу */
-.grid-3 { grid-template-columns: 1fr 1fr; }
-.grid-3 img:first-child { grid-column: span 2; height: 350px; }
-.grid-3 img:not(:first-child) { height: 200px; }
+/* 3 фото: одне велике зліва, два менших справа */
+.grid-3 { 
+  grid-template-columns: 1.5fr 1fr; 
+  grid-template-rows: repeat(2, 1fr); 
+  height: 400px; /* Загальна висота для всього блоку з фотографіями */
+}
+
+.grid-3 img {
+  height: 100% !important; /* Картинка має займати всі 100% своєї клітинки */
+  width: 100%;
+  object-fit: cover;
+}
+
+.grid-3 img:first-child { grid-column: 1; grid-row: 1 / span 2; }
+.grid-3 img:nth-child(2) { grid-column: 2; grid-row: 1; }
+.grid-3 img:nth-child(3) { grid-column: 2; grid-row: 2; }
 
 /* 4 фото: квадрат 2х2 */
 .grid-4 { grid-template-columns: 1fr 1fr; }
@@ -1794,16 +1806,18 @@ a {
   flex-shrink: 0;
 }
 
+/* Галерея при розширеному перегляді публікації*/
 .modal-photo-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
   margin-top: 1rem;
 }
 
 .modal-photo-grid img {
-  height: 90px;
-  flex-grow: 1;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2; 
   object-fit: cover;
   border-radius: 12px;
   border: 1px solid var(--glass-border);
@@ -1815,13 +1829,19 @@ a {
   transform: scale(1.02);
 }
 
+.modal-photo-grid.single-image {
+  display: flex;
+  justify-content: center;
+}
+
 .modal-photo-grid.single-image img {
+  width: auto;
+  max-width: 100%;
   height: auto;
   max-height: 200px;
-  width: auto;
-  flex-grow: 0;
-  display: block;
-  margin: 0 auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+  margin: 0;
 }
 
 /* Частина коментарів */
