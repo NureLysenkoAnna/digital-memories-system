@@ -21,9 +21,17 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     let newErrors = {};
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
     if (!formData.username) newErrors.username = "Введіть ім'я користувача.";
-    if (!formData.email) newErrors.email = "Введіть електронну пошту.";
+
+    if (!formData.email) {
+      newErrors.email = "Введіть електронну пошту.";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Невірний формат запису пошти.";
+    }
+
     if (!formData.password) {
       newErrors.password = "Введіть пароль.";
     } else if (formData.password.length < 6) {
@@ -77,7 +85,7 @@ const RegisterPage = () => {
       <div className="glass-panel auth-glass-card">
         <h2 className="auth-title">Створити свій профіль</h2>
         
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
 
           <div className="general-error">{errors.general}</div>
 

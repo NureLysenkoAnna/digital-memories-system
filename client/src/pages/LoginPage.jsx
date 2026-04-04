@@ -23,7 +23,14 @@ const LoginPage = () => {
     e.preventDefault();
     let newErrors = {};
 
-    if (!formData.email) newErrors.email = 'Введіть електронну пошту.';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formData.email) {
+      newErrors.email = 'Введіть електронну пошту.';
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Невірний формат запису пошти.';
+    }
+
     if (!formData.password) newErrors.password = 'Введіть пароль.';
 
     if (Object.keys(newErrors).length > 0) {
@@ -69,23 +76,40 @@ const LoginPage = () => {
           <Sparkles className="logo-icon" size={28} style={{ marginLeft: '0.5rem' }} /> 
         </h2>
         
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className="general-error">{errors.general}</div>
 
           <div className="input-group">
             <label>Електронна пошта</label>
-            <input type="email" name="email" className="glass-input" placeholder="example@gmail.com" value={formData.email} onChange={handleChange} />
+            <input 
+              type="email" 
+              name="email" 
+              className="glass-input" 
+              placeholder="example@gmail.com" 
+              value={formData.email} 
+              onChange={handleChange} 
+            />
             {errors.email && <span className="error-message">{errors.email}</span>}
           </div>
 
           <div className="input-group">
             <label>Пароль</label>
-            <input type="password" name="password" className="glass-input" value={formData.password} onChange={handleChange} />
+            <input 
+              type="password" 
+              name="password" 
+              className="glass-input" 
+              value={formData.password} 
+              onChange={handleChange} 
+            />
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
 
-          <button type="submit" className="cta-button" style={{ width: '100%', justifyContent: 'center', marginTop: '0' }} disabled={isLoading}>
-            {isLoading ? 'Завантаження...' : 'Увійти'}
+          <button 
+            type="submit" 
+            className="cta-button" 
+            style={{ width: '100%', justifyContent: 'center', marginTop: '0' }} 
+            disabled={isLoading}
+          > {isLoading ? 'Завантаження...' : 'Увійти'}
           </button>
         </form>
 
