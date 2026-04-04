@@ -224,7 +224,11 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
             />
           </div>
 
-          <button type="submit" className="cta-button" style={{ width: '100%', justifyContent: 'center' }} disabled={isLoading}>
+          <button 
+            type="submit" 
+            className="cta-button" 
+            style={{ width: '100%', justifyContent: 'center', marginTop: '0.1rem'  }} 
+            disabled={isLoading}>
             {isLoading ? 'Збереження змін...' : 'Зберегти зміни'}
           </button>
         </form>

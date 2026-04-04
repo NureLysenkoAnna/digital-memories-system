@@ -37,6 +37,15 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (errors.general) {
+      const timer = setTimeout(() => {
+        setErrors((prev) => ({ ...prev, general: '' }));
+      }, 4000);
+      return () => clearTimeout(timer); // Очищення таймера, при закритті компонента
+    }
+  }, [errors.general]);
+
   if (!isOpen) return null;
 
   // Блокування вибору майбутньої дати
@@ -165,13 +174,13 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
           <X size={24} />
         </button>
 
-        <h2 className="modal-title" style={{ marginBottom: '0.5rem' }}>
+        <h2 className="modal-title" style={{ marginBottom: '0' }}>
           <Sparkles size={24} className="logo-icon" />
           Зберегти спогад
         </h2>
 
-        <form className="auth-form" onSubmit={handleSubmit} style={{ gap: '0.8rem' }}>
-          {errors.general && <div className="general-error">{errors.general}</div>}
+        <form className="auth-form" onSubmit={handleSubmit} style={{ gap: '0.8rem', marginTop: '-1rem' }}>
+          <div className="general-error">{errors.general}</div>
 
           <div className="input-group">
             <label className="big-label">
@@ -235,7 +244,11 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
               <textarea 
                 className="glass-textarea big-textarea"
                 value={content} 
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  
+                  if (errors.general) setErrors({ ...errors, general: '' }); 
+                }}
                 placeholder="Розкажіть, як це було..."
                 maxLength={500}
               />
@@ -287,7 +300,11 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
             {errors.tags && <span className="error-message">{errors.tags}</span>}
           </div>
 
-          <button type="submit" className="cta-button" style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem' }} disabled={isLoading}>
+          <button 
+            type="submit" 
+            className="cta-button" 
+            style={{ width: '100%', justifyContent: 'center', marginTop: '0.1rem' }} 
+            disabled={isLoading}>
             {isLoading ? 'Збереження...' : 'Поділитися спогадом'}
           </button>
         </form>
