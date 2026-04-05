@@ -255,25 +255,50 @@ class PostService {
         }
       }
     } else {
-      const commentedPosts = photoPostsOnly.filter(p => p.commentators.includes(userId));
-      
-      const reactedPosts = photoPostsOnly.filter(p => p.reactions.some(r => r.user_id === userId));
-      
-      const sortedCommented = sortByCreatedAt(commentedPosts);
-      const sortedReacted = sortByCreatedAt(reactedPosts);
-      const allInteracted = sortByCreatedAt([...new Set([...commentedPosts, ...reactedPosts])]);
+      const commentsRes = await pool.query(`
+        SELECT c.post_id 
+        FROM post_comments c
+        JOIN posts p ON c.post_id = p.id
+        WHERE c.author_id = $1 AND p.group_id = $2
+        ORDER BY c.created_at ASC
+      `, [userId, groupId]);
 
-      const firstComment = sortedCommented[0];
-      const firstReaction = sortedReacted[0];
-      const latestInteraction = allInteracted[allInteracted.length - 1];
+      const reactionsRes = await pool.query(`
+        SELECT r.post_id 
+        FROM post_reactions r
+        JOIN posts p ON r.post_id = p.id
+        WHERE r.user_id = $1 AND p.group_id = $2
+        ORDER BY r.id ASC
+      `, [userId, groupId]);
 
-      // чи збігається публікація для першого коментаря та реакції
+      const findValidPost = (rows) => {
+        const found = rows.find(row => photoPostsOnly.some(p => p.id === row.post_id));
+        return found ? found.post_id : null;
+      };
+
+      // Знаходження першої взаємодії (з початку списку)
+      const firstCommentId = findValidPost(commentsRes.rows);
+      const firstReactionId = findValidPost(reactionsRes.rows);
+
+      // Знаходження останньої взаємодії (перевертання масиву, пошук з кінця)
+      const latestCommentId = findValidPost([...commentsRes.rows].reverse());
+      const latestReactionId = findValidPost([...reactionsRes.rows].reverse());
+
+      const firstComment = photoPostsOnly.find(p => p.id === firstCommentId);
+      const firstReaction = photoPostsOnly.find(p => p.id === firstReactionId);
+      
+      // Для останньої взаємодії - останній коментар або останню реакцію
+      const latestInteraction = photoPostsOnly.find(p => p.id === latestCommentId) || photoPostsOnly.find(p => p.id === latestReactionId);
+
+      // Чи збігається публікація для першого коментаря та реакції
       if (firstComment && firstReaction && firstComment.id === firstReaction.id) {
         milestones.push({ id: 'first-comment-reaction', post: firstComment });
       } else {
         if (firstComment) milestones.push({ id: 'first-comment', post: firstComment });
         if (firstReaction) milestones.push({ id: 'first-reaction', post: firstReaction });
       }
+      
+      // Додавання останньої взаємодії (якщо вона не дублює першу)
       if (latestInteraction && latestInteraction.id !== firstComment?.id && latestInteraction.id !== firstReaction?.id) {
         milestones.push({ id: 'latest-interaction', post: latestInteraction });
       }
