@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Users, Trash2, Mail, User, AlertCircle, UserRoundPlus} from 'lucide-react';
+import { X, Users, Trash2, Mail, User, UserRoundPlus} from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
 
 const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUserRole, onMembersUpdated }) => {
@@ -189,7 +189,7 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
             <Users size={28} color="var(--accent-silver)" />
             Учасники групи
           </h2>
-          <div className={`members-count-badge ${isLimitReached ? 'limit-reached' : ''}`}>
+          <div className={`members-count-badge ${isLimitReached && isAdmin ? 'limit-reached' : ''}`}>
             {members.length} / {MAX_MEMBERS}
           </div>
         </div>
@@ -284,9 +284,9 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
 
               {isLimitReached ? (
                 <div className="limit-alert">
-                  <AlertCircle size={24} className="limit-icon" />
                   <span>
-                    У цій групі вже досягнуто ліміт у <b>{MAX_MEMBERS} учасників</b>. Ви не можете відправляти нові запрошення, поки не видалите когось зі списку.
+                    У цій групі вже досягнуто ліміт у <b>{MAX_MEMBERS} учасників</b>. 
+                    Ви не можете відправляти нові запрошення, поки не видалите когось зі списку.
                   </span>
                 </div>
               ) : (
