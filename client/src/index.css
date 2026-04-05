@@ -1245,6 +1245,15 @@ a {
   text-decoration: underline;
 }
 
+.post-tag.static-tag {
+  cursor: default;
+}
+
+.post-tag.static-tag:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
 /* РОЗУМНА СІТКА ДЛЯ ФОТО (1-5 шт) */
 .post-photo-grid {
   display: grid;
@@ -2071,14 +2080,15 @@ a {
 
 .members-count-badge {
   margin-top: 0.5rem;
+  margin-bottom: -0.6rem;
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 
 .members-count-badge.limit-reached {
   color: #ef4444;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 /* Фіксований плейсхолдер для повідомлень, щоб уникнути стрибків */
@@ -2271,7 +2281,7 @@ a {
 }
 
 .invite-title {
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -2352,6 +2362,7 @@ a {
 .limit-alert {
   display: flex;
   align-items: center;
+  margin-top: -1.5rem; 
   gap: 0.8rem;
   padding: 1rem;
   background: rgba(239, 68, 68, 0.1);
@@ -2360,12 +2371,9 @@ a {
   color: #ef4444;
 }
 
-.limit-icon {
-  flex-shrink: 0;
-}
-
 .limit-alert span {
-  font-size: 0.95rem;
+  font-size: 1rem;
+  text-align: center;
   line-height: 1.4;
 }
 
