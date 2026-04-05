@@ -29,6 +29,18 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
     }
   }, [isOpen, groupId]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   const showMessage = (text, type = 'success') => {
     setMessage({ text, type });
     setTimeout(() => setMessage({ text: '', type: '' }), 4000);
@@ -217,7 +229,7 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
                           marginTop: '0.1rem',
                           marginLeft: '0.5rem'
                         }}>
-                          [ {member.email} ]
+                          {member.email}
                         </span>
                       )}
                     </div>
