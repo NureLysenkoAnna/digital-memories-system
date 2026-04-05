@@ -2142,6 +2142,25 @@ a {
   padding-right: 0.5rem;
 }
 
+.members-list-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.members-list-container::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0;
+}
+
+.members-list-container::-webkit-scrollbar-thumb {
+  background: var(--glass-border); 
+  border-radius: 10px; 
+  transition: background 0.5s;
+}
+
+.members-list-container::-webkit-scrollbar-thumb:hover {
+  background: var(--silver-glow);
+}
+
 /* Картка одного учасника */
 .member-item {
   display: flex;
