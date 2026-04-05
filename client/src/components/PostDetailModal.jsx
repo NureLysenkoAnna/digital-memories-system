@@ -20,6 +20,18 @@ const PostDetailModal = (props) => {
     if (commentsEndRef.current) commentsEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [comments]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen || !post) return null;
 
   const loadComments = async () => {
@@ -90,7 +102,7 @@ const PostDetailModal = (props) => {
             <div ref={commentsEndRef} />
           </div>
 
-          <form className="comment-input-area" onSubmit={handleSendComment}>
+          <form className="comment-input-area" onSubmit={handleSendComment} spellCheck={false}>
             <div className="comment-input-wrapper">
               <input type="text" placeholder="Напишіть ваш коментар..." value={newComment} onChange={(e) => setNewComment(e.target.value)} disabled={isLoading} />
               <button type="submit" className="btn-send-comment" disabled={!newComment.trim() || isLoading}><Send size={20} /></button>
