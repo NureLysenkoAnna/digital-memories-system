@@ -256,7 +256,7 @@ class PostService {
       }
     } else {
       const commentsRes = await pool.query(`
-        SELECT c.post_id 
+        SELECT c.post_id, c.created_at 
         FROM post_comments c
         JOIN posts p ON c.post_id = p.id
         WHERE c.author_id = $1 AND p.group_id = $2
@@ -264,31 +264,48 @@ class PostService {
       `, [userId, groupId]);
 
       const reactionsRes = await pool.query(`
-        SELECT r.post_id 
+        SELECT r.post_id, r.created_at 
         FROM post_reactions r
         JOIN posts p ON r.post_id = p.id
         WHERE r.user_id = $1 AND p.group_id = $2
-        ORDER BY r.id ASC
+        ORDER BY r.created_at ASC
       `, [userId, groupId]);
 
-      const findValidPost = (rows) => {
-        const found = rows.find(row => photoPostsOnly.some(p => p.id === row.post_id));
-        return found ? found.post_id : null;
+      const findValidRow = (rows) => {
+        return rows.find(row => photoPostsOnly.some(p => p.id === row.post_id));
       };
 
       // Знаходження першої взаємодії (з початку списку)
-      const firstCommentId = findValidPost(commentsRes.rows);
-      const firstReactionId = findValidPost(reactionsRes.rows);
+      const firstCommentRow = findValidRow(commentsRes.rows);
+      const firstReactionRow = findValidRow(reactionsRes.rows);
 
       // Знаходження останньої взаємодії (перевертання масиву, пошук з кінця)
-      const latestCommentId = findValidPost([...commentsRes.rows].reverse());
-      const latestReactionId = findValidPost([...reactionsRes.rows].reverse());
+      const lastCommentRow = findValidRow([...commentsRes.rows].reverse());
+      const lastReactionRow = findValidRow([...reactionsRes.rows].reverse());
 
-      const firstComment = photoPostsOnly.find(p => p.id === firstCommentId);
-      const firstReaction = photoPostsOnly.find(p => p.id === firstReactionId);
+      const firstComment = firstCommentRow ? photoPostsOnly.find(p => p.id === firstCommentRow.post_id) : null;
+      const firstReaction = firstReactionRow ? photoPostsOnly.find(p => p.id === firstReactionRow.post_id) : null;
       
-      // Для останньої взаємодії - останній коментар або останню реакцію
-      const latestInteraction = photoPostsOnly.find(p => p.id === latestCommentId) || photoPostsOnly.find(p => p.id === latestReactionId);
+      let latestInteractionId = null;
+
+      // Якщо є і коментар, і реакція — порівняння дати
+      if (lastCommentRow && lastReactionRow) {
+        const commentTime = new Date(lastCommentRow.created_at).getTime();
+        const reactionTime = new Date(lastReactionRow.created_at).getTime();
+        
+        if (reactionTime > commentTime) {
+          latestInteractionId = lastReactionRow.post_id;
+        } else {
+          latestInteractionId = lastCommentRow.post_id;
+        }
+      } 
+      else if (lastCommentRow) {
+        latestInteractionId = lastCommentRow.post_id;
+      } else if (lastReactionRow) {
+        latestInteractionId = lastReactionRow.post_id;
+      }
+
+      const latestInteraction = photoPostsOnly.find(p => p.id === latestInteractionId);
 
       // Чи збігається публікація для першого коментаря та реакції
       if (firstComment && firstReaction && firstComment.id === firstReaction.id) {
