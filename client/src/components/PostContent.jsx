@@ -183,7 +183,13 @@ const PostContent = ({
       <div className="post-footer" style={{ borderTop: isModalView ? 'none' : '', paddingTop: isModalView ? '0' : '' }}>
         <div className="post-tags">
           {post.tags && post.tags.map((tag, idx) => (
-            <span key={idx} className="post-tag" onClick={() => onTagClick && onTagClick(tag)}>{tag}</span>
+            <span 
+              key={idx} 
+              className={`post-tag ${isModalView ? 'static-tag' : ''}`}
+              onClick={() => !isModalView && onTagClick && onTagClick(tag)}
+            >
+              {tag}
+            </span>
           ))}
         </div>
         
