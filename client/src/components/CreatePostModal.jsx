@@ -179,7 +179,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
           Зберегти спогад
         </h2>
 
-        <form className="auth-form" onSubmit={handleSubmit} style={{ gap: '0.8rem', marginTop: '-1rem' }}>
+        <form className="auth-form" onSubmit={handleSubmit} style={{ gap: '0.8rem', marginTop: '-1rem' }} spellCheck={false}>
           <div className="general-error">{errors.general}</div>
 
           <div className="input-group">

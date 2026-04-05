@@ -145,7 +145,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
           Оновлення профілю
         </h2>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit} spellCheck={false}>
           {errors.general && <div className="general-error">{errors.general}</div>}
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.8rem' }}>

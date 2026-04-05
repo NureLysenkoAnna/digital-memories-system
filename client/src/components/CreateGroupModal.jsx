@@ -115,7 +115,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
 
           <h2 className="modal-title"><Sparkles size={24} className="logo-icon" />Створити сузір'я</h2>
 
-          <form className="auth-form" onSubmit={handleSubmit} style={{marginTop: '-1rem' }}>
+          <form className="auth-form" onSubmit={handleSubmit} style={{marginTop: '-1rem' }} spellCheck={false}>
             <div className="general-error">{errors.general}</div>
 
               <div className="input-group">

@@ -143,7 +143,7 @@ const EditGroupModal = ({ isOpen, onClose, groupData, onGroupUpdated }) => {
 
         <h2 className="modal-title"><Sparkles size={24} className="logo-icon" />Редагувати групу</h2>
 
-        <form className="auth-form" onSubmit={handleSubmit} style={{ marginTop: '-1rem' }}>
+        <form className="auth-form" onSubmit={handleSubmit} style={{ marginTop: '-1rem' }} spellCheck={false}>
           <div className="general-error">{errors.general}</div>
 
           <div className="input-group">
