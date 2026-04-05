@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {Sparkles, Search, X, Plus, Dices, Image as ImageIcon, AlertCircle, ArrowUp} from 'lucide-react';
 import StarBackground from '../components/StarBackground';
@@ -47,6 +47,23 @@ const GroupPage = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const searchBarRef = useRef(null);
+
+  const handleTagClick = (tag) => {
+    setSearchQuery(tag);
+    
+    if (searchBarRef.current) {
+      // Отримання точної Y-координати поля пошуку на сторінці
+      const elementPosition = searchBarRef.current.getBoundingClientRect().top + window.scrollY;
+      const offsetPosition = elementPosition - 100; //додатковий відступ
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const loadGroupData = async () => {
     try {
@@ -326,8 +343,10 @@ const GroupPage = () => {
 
       {activeTab === 'posts' && (
         <>
-          <div className="search-filter-bar">
-            <div className="search-input-wrapper" style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+          <div className="search-filter-bar" ref={searchBarRef}>
+            <div className="search-input-wrapper" 
+              style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}
+            >
               <Search className="search-icon" size={20} />
               <input 
                 type="text" 
@@ -367,7 +386,7 @@ const GroupPage = () => {
               onPinToggle={handleTogglePin}
               onDeleteClick={openDeletePostModal}
               onPostUpdated={loadPosts}
-              onTagClick={setSearchQuery}
+              onTagClick={handleTagClick}
               onCommentClick={openPostDetail}
             />
           )}
@@ -386,7 +405,7 @@ const GroupPage = () => {
                   userRole={groupData?.userRole || 'reader'}
                   onPinToggle={handleTogglePin}
                   onDeleteClick={openDeletePostModal}
-                  onTagClick={setSearchQuery}
+                  onTagClick={handleTagClick}
                   onCommentClick={openPostDetail}
                 />
               ))
