@@ -216,6 +216,13 @@ a {
   box-shadow: 0 0 30px var(--silver-glow);
 }
 
+.cta-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 /* --- СТИЛІ ФОРМ АВТОРИЗАЦІЇ --- */
 .auth-page {
   min-height: 100vh;
@@ -1976,7 +1983,7 @@ a {
   cursor: pointer; 
 }
 
-.photo-viewer-close {
+.photo-viewer-button {
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
@@ -1985,11 +1992,11 @@ a {
   color: var(--accent-silver);
   opacity: 0.7;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.2s;
+  transition: all 0.2s ease;
   z-index: 2010;
   padding: 0.5rem;
 }
-.photo-viewer-close:hover {
+.photo-viewer-button:hover {
   opacity: 1;
   transform: scale(1.15);
 }
