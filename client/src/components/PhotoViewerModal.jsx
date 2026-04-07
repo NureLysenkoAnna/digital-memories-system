@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import ConfirmModal from './ConfirmModal';
 
-const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0 }) => {
+const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0, postId}) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  const [isDownloadConfirmOpen, setIsDownloadConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -40,10 +43,47 @@ const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0 }) => {
 
   const hasMultipleImages = images.length > 1;
 
+  const executeDownload = async () => {
+    const imageUrl = images[currentIndex];
+    
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `starlace_photo_${postId}_${currentIndex + 1}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (fetchErr) {
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = `starlace_photo_${postId}_${currentIndex + 1}.jpg`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } finally {
+      setIsDownloadConfirmOpen(false);
+    }
+  };
+
   return createPortal(
     <div className="photo-viewer-overlay" onClick={onClose}>
-      <button className="photo-viewer-close" onClick={onClose} title="Закрити (Esc)">
+      <button className="photo-viewer-button" onClick={onClose} title="Закрити (Esc)">
         <X size={32} />
+      </button>
+
+      <button 
+        className="photo-viewer-button" style={{ right: '5rem' }}
+        onClick={(e) => { e.stopPropagation(); setIsDownloadConfirmOpen(true); }} 
+        title="Завантажити поточне фото"
+      >
+        <Download size={28} />
       </button>
 
       <div className="photo-viewer-container" onClick={(e) => e.stopPropagation()}>
@@ -72,6 +112,18 @@ const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0 }) => {
           </div>
         )}
       </div>
+
+      <ConfirmModal 
+        isOpen={isDownloadConfirmOpen}
+        onClose={() => setIsDownloadConfirmOpen(false)}
+        onConfirm={executeDownload}
+        title="Завантажити фото?"
+        description="Ви впевнені, що хочете зберегти цю фотографію на свій пристрій?"
+        confirmText="Так, зберегти"
+        Icon={Download}
+        isDanger={false} 
+      />
+
     </div>,
     document.body
   );

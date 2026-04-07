@@ -242,8 +242,11 @@ const PostContent = ({
       </div>
 
       <PhotoViewerModal 
-        isOpen={isPhotoViewerOpen} onClose={() => setIsPhotoViewerOpen(false)} 
-        images={post.images} initialIndex={selectedPhotoIndex} 
+        isOpen={isPhotoViewerOpen} 
+        onClose={() => setIsPhotoViewerOpen(false)} 
+        images={post.images} 
+        initialIndex={selectedPhotoIndex} 
+        postId={post.id}
       />
 
       <DownloadPhotosModal 
