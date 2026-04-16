@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, User, Mail, Calendar, Plus, Image as ImageIcon, Star, Circle, AlertCircle } from 'lucide-react';
 import StarBackground from '../components/StarBackground';
@@ -69,6 +70,29 @@ const ProfilePage = () => {
 
   useEffect(() => {
     loadData();
+
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const SOCKET_URL = API_URL.replace('/api', '');
+    
+    const socket = io(SOCKET_URL);
+
+    socket.on('new_post', async (data) => {
+      console.log('Знайдено новий спогад у групі:', data.groupId);
+      
+      try {
+        const updatedGroups = await fetchGroups(token);
+        
+        setUserGroups(updatedGroups);
+      } catch (err) {
+        console.error('Помилка фонового оновлення груп:', err);
+      }
+    });
+
+    return () => {
+      if (socket) socket.disconnect();
+    };
   }, [navigate, API_URL]);
 
   const handleLogout = () => {

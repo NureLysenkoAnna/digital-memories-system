@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { io } from 'socket.io-client';
 import { useParams, useNavigate } from 'react-router-dom';
 import {Sparkles, Search, X, Plus, Dices, Image as ImageIcon, AlertCircle, ArrowUp} from 'lucide-react';
 import StarBackground from '../components/StarBackground';
@@ -155,6 +156,47 @@ const GroupPage = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // WebSockets: видалення та зміна доступу
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const SOCKET_URL = API_URL.replace('/api', '');
+    const socket = io(SOCKET_URL);
+
+    const forceCloseAllModals = () => {
+      setIsEditModalOpen(false);
+      setIsDeleteModalOpen(false);
+      setIsCreatePostModalOpen(false);
+      setIsDeletePostModalOpen(false);
+      setIsPostDetailModalOpen(false);
+      setIsMembersModalOpen(false);
+      setIsLeaveModalOpen(false);
+    };
+
+    socket.on('member_removed', (data) => {
+      if (String(data.groupId) === String(groupId)) {
+        if (String(data.removedUserId) === String(currentUserId)) {
+          forceCloseAllModals(); 
+          setError('Ваш доступ було змінено, або вас виключили з цього сузір\'я.'); 
+        } else {
+          loadGroupData(); 
+        }
+      }
+    });
+
+    socket.on('group_deleted', (data) => {
+      if (String(data.groupId) === String(groupId)) {
+        forceCloseAllModals();
+        setError('Це сузір\'я було назавжди видалено власником.');
+      }
+    });
+
+    return () => {
+      if (socket) socket.disconnect();
+    };
+  }, [groupId, currentUserId, API_URL]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
