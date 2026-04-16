@@ -118,7 +118,14 @@ const PostContent = ({
             </div>
           )}
           <div>
-            <h4 style={{ margin: '0 0 0.3rem 0', fontSize: '1.1rem' }}>{post.author.name}</h4>
+            <h4 style={{ margin: '0 0 0.3rem 0', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              {post.author.name}
+              {post.author.is_member === false && (
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '400', opacity: '0.5' }}>
+                  | колишній учасник
+                </span>
+              )}
+            </h4>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: isModalView ? '0.85rem' : '0.9rem', color: 'var(--text-muted)' }}>
               <span title="Дата події" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text-main)', fontWeight: '500' }}>
                 Дата події: {new Date(post.date).toLocaleDateString('uk-UA')}

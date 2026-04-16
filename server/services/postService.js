@@ -108,7 +108,12 @@ class PostService {
         p.event_date as date, 
         p.is_pinned, 
         p.created_at,
-        json_build_object('id', u.id, 'name', u.username, 'avatar', u.avatar_url) as author,
+        json_build_object(
+          'id', u.id, 
+          'name', u.username, 
+          'avatar', u.avatar_url,
+          'is_member', EXISTS(SELECT 1 FROM group_members gm WHERE gm.user_id = u.id AND gm.group_id = p.group_id)
+        ) as author,
         COALESCE((SELECT json_agg(image_url) FROM post_images WHERE post_id = p.id), '[]'::json) as images,
         (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id)::int as "commentsCount",
         COALESCE((SELECT json_agg(author_id) FROM post_comments WHERE post_id = p.id), '[]'::json) as commentators,
@@ -168,7 +173,16 @@ class PostService {
     const query = `
       SELECT 
         c.id, c.content, c.created_at,
-        json_build_object('id', u.id, 'name', u.username, 'avatar', u.avatar_url) as author
+        json_build_object(
+          'id', u.id, 
+          'name', u.username, 
+          'avatar', u.avatar_url,
+          'is_member', EXISTS(
+            SELECT 1 FROM group_members gm 
+            JOIN posts p ON p.group_id = gm.group_id 
+            WHERE gm.user_id = u.id AND p.id = c.post_id
+          )
+        ) as author
       FROM post_comments c
       JOIN users u ON c.author_id = u.id
       WHERE c.post_id = $1

@@ -88,8 +88,13 @@ const PostDetailModal = (props) => {
                             <Users size={16} color="var(--text-muted)" />
                           </div>
                         )}
-                        <span style={{ fontWeight: isMyComment ? '700' : '600', color: isMyComment ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                        <span style={{ fontWeight: isMyComment ? '700' : '600', color: isMyComment ? 'var(--text-main)' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                           {isMyComment ? 'Ви' : c.author.name}
+                          {c.author.is_member === false && !isMyComment && (
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '400', opacity: '0.5' }}>
+                              | колишній учасник
+                            </span>
+                          )}
                         </span>
                       </div>
                       <span className="comment-date">{new Date(c.created_at).toLocaleDateString('uk-UA')}</span>
