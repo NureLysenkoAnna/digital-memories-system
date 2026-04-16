@@ -19,6 +19,10 @@ class PostController {
         imageUrls
       );
 
+      // Відправка сповіщення через WebSockets
+      const io = req.app.get('io');
+      io.emit('new_post', { groupId: groupId });
+
       res.status(201).json(newPost);
     } catch (error) {
       console.error('Помилка створення публікації:', error);

@@ -32,6 +32,11 @@ class GroupMemberController {
       const requesterId = req.user.id;
 
       const result = await GroupMemberService.removeMember(groupId, requesterId, userId);
+
+      // WebSockets сповіщення про видалення учасника 
+      const io = req.app.get('io');
+      io.emit('member_removed', { groupId, removedUserId: userId });
+
       res.json(result);
     } catch (error) {
       console.error('Помилка видалення учасника:', error);

@@ -85,6 +85,10 @@ class GroupController {
       const userId = req.user.id;
 
       await GroupService.deleteGroup(groupId, userId);
+
+      // WebSockets сповіщення про видалення групи
+      const io = req.app.get('io');
+      io.emit('group_deleted', { groupId });
       
       res.json({ message: 'Групу успішно видалено назавжди' });
     } catch (error) {
