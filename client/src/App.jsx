@@ -7,6 +7,8 @@ import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import GroupPage from './pages/GroupPage';
 import InvitePage from './pages/InvitePage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -22,6 +24,8 @@ function App() {
           <Route path="/group/:groupId" element={<GroupPage />} />
           <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/groups/:groupId" element={<GroupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         </Routes>
       </Router>
     </GoogleOAuthProvider>
