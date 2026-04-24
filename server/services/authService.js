@@ -1,7 +1,9 @@
 const pool = require('../config/db');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
+const EmailService = require('./emailService');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -78,6 +80,77 @@ class AuthService {
 
     const token = generateToken(user.id);
     return { user: { id: user.id, username: user.username, email: user.email }, token };
+  }
+
+  // Створення запиту на відновлення
+  static async requestPasswordReset(email) {
+    const userRes = await pool.query('SELECT id, username FROM users WHERE email = $1', [email]);
+    
+    // Якщо користувача немає, ми все одно повертаємо успіх (щоб не розкривати базу хакерам)
+    if (userRes.rows.length === 0) {
+      return { message: 'На пошту було успішно надіслано лист з інструкціями.' };
+    }
+
+    const user = userRes.rows[0];
+
+    // Генерація безпечного випадкового токена (для листа)
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    
+    // Створення SHA-256 хешу (для БД)
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1);
+
+    // Видалення старого токену
+    await pool.query('DELETE FROM password_resets WHERE email = $1', [email]);
+    
+    // Збереження захешованого токену у бд
+    await pool.query(
+      'INSERT INTO password_resets (email, token, expires_at) VALUES ($1, $2, $3)',
+      [email, hashedToken, expiresAt]
+    );
+
+    // Відправлення листа
+    const FRONTEND_URL = process.env.FRONTEND_URL;
+    const resetLink = `${FRONTEND_URL}/reset-password/${resetToken}`;
+    
+    await EmailService.sendPasswordReset(email, user.username, resetLink);
+
+    return { message: 'На пошту було успішно надіслано лист з інструкціями.' };
+  }
+
+  // Перевірка дійсності токена
+  static async verifyResetToken(token) {
+    // Хешування отриманого з фронтенду токену
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const tokenRes = await pool.query(
+      'SELECT email FROM password_resets WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP',
+      [hashedToken]
+    );
+
+    if (tokenRes.rows.length === 0) {
+      throw new Error('Посилання недійсне або час його дії вичерпано. Спробуйте надіслати запит ще раз.');
+    }
+
+    return { valid: true, email: tokenRes.rows[0].email }; 
+  }
+
+  // Встановлення нового пароля
+  static async resetPassword(token, newPassword) {
+    const verification = await AuthService.verifyResetToken(token);
+    const email = verification.email;
+
+    // Хешування нового паролю
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await pool.query('UPDATE users SET password_hash = $1 WHERE email = $2', [hashedPassword, email]);
+
+    await pool.query('DELETE FROM password_resets WHERE email = $1', [email]);
+
+    return { message: 'Ваш пароль успішно оновлено! Тепер Ви можете увійти до системи.' };
   }
 }
 
