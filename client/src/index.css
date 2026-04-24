@@ -344,6 +344,9 @@ a {
 .auth-divider::before { margin-right: 0.5em; }
 .auth-divider::after { margin-left: 0.5em; }
 
+.auth-divider:empty::before { margin-right: 0; }
+.auth-divider:empty::after { margin-left: 0; }
+
 .auth-link {
   color: var(--accent-silver);
   text-decoration: underline;
