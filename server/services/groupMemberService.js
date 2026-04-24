@@ -1,5 +1,6 @@
 const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const EmailService = require('./emailService');
 
 class GroupMemberService {
@@ -112,7 +113,12 @@ class GroupMemberService {
       throw new Error('Запрошення на цю пошту вже надіслано та очікує підтвердження.');
     }
 
-    const token = uuidv4();
+    // Генерація оригінального токена (UUID)
+    const rawToken = uuidv4();
+    
+    // ХЕШ токена для БД
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+    
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 48);
 
@@ -121,9 +127,10 @@ class GroupMemberService {
       VALUES ($1, $2, $3, $4, $5)
       ON CONFLICT (group_id, email) 
       DO UPDATE SET token = $3, role = $4, expires_at = $5, created_at = CURRENT_TIMESTAMP
-    `, [groupId, email, token, role, expiresAt]);
+    `, [groupId, email, hashedToken, role, expiresAt]);
 
-    const inviteLink = `${process.env.FRONTEND_URL}/invite/${token}`;
+    // Відправка оригінального токена у посиланні
+    const inviteLink = `${process.env.FRONTEND_URL}/invite/${rawToken}`;
     await EmailService.sendInvitation(email, groupName, inviteLink, role);
 
     return { message: 'Запрошення успішно надіслано!' };
@@ -131,43 +138,39 @@ class GroupMemberService {
 
   // Публічна перевірка запрошення
   static async verifyInvitation(token) {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
     const inviteRes = await pool.query(`
-      SELECT gi.group_id, g.name as group_name, gi.role
+      SELECT gi.id, gi.group_id, g.name as group_name, gi.role
       FROM group_invitations gi
       JOIN groups g ON gi.group_id = g.id
       WHERE gi.token = $1 AND gi.expires_at > CURRENT_TIMESTAMP
-    `, [token]);
+    `, [hashedToken]);
 
     if (inviteRes.rows.length === 0) {
       throw new Error('Запрошення недійсне, вже використане або його термін дії закінчився.');
     }
 
-    return inviteRes.rows[0]; // Повертаємо дані, включно з назвою групи
+    return inviteRes.rows[0]; 
   }
 
   static async acceptInvitation(token, userId) {
-    const inviteRes = await pool.query(
-      'SELECT * FROM group_invitations WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP',
-      [token]
-    );
+    const invite = await GroupMemberService.verifyInvitation(token);
 
-    if (inviteRes.rows.length === 0) {
-      throw new Error('Запрошення недійсне, вже використане або його термін дії закінчився.');
-    }
-
-    const invite = inviteRes.rows[0];
-
+    // чи немає вже користувача в групі
     const checkMember = await pool.query(
       'SELECT user_id FROM group_members WHERE group_id = $1 AND user_id = $2',
       [invite.group_id, userId]
     );
 
-    if (checkMember.rows.length === 0) {
-      await pool.query(
-        'INSERT INTO group_members (group_id, user_id, role) VALUES ($1, $2, $3)',
-        [invite.group_id, userId, invite.role]
-      );
+    if (checkMember.rows.length > 0) {
+      throw new Error('Ви вже є учасником цієї групи!');
     }
+
+    await pool.query(
+      'INSERT INTO group_members (group_id, user_id, role) VALUES ($1, $2, $3)',
+      [invite.group_id, userId, invite.role]
+    );
 
     await pool.query('DELETE FROM group_invitations WHERE id = $1', [invite.id]);
 
