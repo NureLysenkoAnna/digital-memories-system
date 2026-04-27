@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, User, Mail, Calendar, Plus, Image as ImageIcon, Star, Circle, AlertCircle } from 'lucide-react';
 import StarBackground from '../components/StarBackground';
@@ -7,6 +6,8 @@ import MainHeader from '../components/MainHeader';
 import CreateGroupModal from '../components/CreateGroupModal';
 import EditProfileModal from '../components/EditProfileModal';
 import { getUserFriendlyError } from '../utils/errorUtils';
+import { useDelayedLoader } from '../hooks/useDelayedLoader';
+import { useProfileSockets } from '../hooks/useProfileSockets';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [userGroups, setUserGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const showLoader = useDelayedLoader(isLoading, 300);
   const [error, setError] = useState('');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,30 +72,20 @@ const ProfilePage = () => {
 
   useEffect(() => {
     loadData();
+  }, [navigate, API_URL]);
 
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    const SOCKET_URL = API_URL.replace('/api', '');
-    
-    const socket = io(SOCKET_URL);
-
-    socket.on('new_post', async (data) => {
-      console.log('Знайдено новий спогад у групі:', data.groupId);
-      
+  // Відслідковування нових публікацій через WebSockets
+  useProfileSockets(API_URL, {
+    onNewPost: async () => {
       try {
+        const token = localStorage.getItem('token');
         const updatedGroups = await fetchGroups(token);
-        
         setUserGroups(updatedGroups);
       } catch (err) {
         console.error('Помилка фонового оновлення груп:', err);
       }
-    });
-
-    return () => {
-      if (socket) socket.disconnect();
-    };
-  }, [navigate, API_URL]);
+    }
+  });
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -136,11 +128,21 @@ const ProfilePage = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !userData) {
+    if (!showLoader) {
+      return (
+        <div className="profile-container">
+          <StarBackground />
+        </div>
+      );
+    }
+
     return (
       <div className="profile-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <StarBackground />
-        <div style={{ color: 'var(--text-main)', fontSize: '1.2rem', zIndex: 1 }}>Завантаження сузір'я...</div>
+        <div style={{ color: 'var(--text-main)', fontSize: '1.2rem', zIndex: 1 }}>
+          Завантаження сузір'я...
+        </div>
       </div>
     );
   }
