@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Sparkles, UploadCloud, Calendar, Hash, Image as ImageIcon, Plus } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -23,6 +24,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -34,6 +36,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
       previewUrls.forEach(url => URL.revokeObjectURL(url));
       setPreviewUrls([]);
       setErrors({});
+      setIsCompressing(false);
     }
   }, [isOpen]);
 
@@ -63,30 +66,54 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
     }
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
+    
     if (selectedFiles.length + files.length > 5) {
       setErrors({ ...errors, images: 'Можна завантажити максимум 5 фотографій.' });
       return;
     }
-    const newFiles = [];
-    const newPreviews = [];
-    let hasSizeError = false;
-    files.forEach(file => {
-      if (file.size > 10 * 1024 * 1024) {
-        hasSizeError = true;
-      } else {
-        newFiles.push(file);
-        newPreviews.push(URL.createObjectURL(file));
+
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setPreviewUrls(prev => [...prev, ...newPreviews]);
+    setErrors({ ...errors, images: '' });
+
+    setIsCompressing(true);
+
+    const options = {
+      maxSizeMB: 1,            // до 1 МБ
+      maxWidthOrHeight: 1280,  // 1280px
+      useWebWorker: true,      // фонові потоки
+    };
+
+    try {
+      // Стиснення файлів одночасно (паралельно, Promise.all)
+      const compressedFilesPromises = files.map(async (file) => {
+        if (file.size > 10 * 1024 * 1024) return file; // Пропускаємо надто великі для помилки
+        
+        try {
+          return await imageCompression(file, options);
+        } catch (error) {
+          console.error("Помилка стиснення 1 файлу:", error);
+          return file;
+        }
+      });
+
+      // Чекаємо, поки всі файли стиснуться разом
+      const compressedFiles = await Promise.all(compressedFilesPromises);
+      
+      setSelectedFiles(prev => [...prev, ...compressedFiles]);
+
+      // Перевірка розмірів для повідомлення про помилку
+      if (files.some(f => f.size > 10 * 1024 * 1024)) {
+        setErrors(prev => ({ ...prev, images: 'Деякі файли занадто великі. Максимум 10 МБ кожен.' }));
       }
-    });
-    if (hasSizeError) {
-      setErrors({ ...errors, images: 'Деякі файли занадто великі. Максимум 10 МБ кожен.' });
-    } else {
-      setErrors({ ...errors, images: '' });
+    } catch (error) {
+      console.error("Загальна помилка стиснення:", error);
+      setSelectedFiles(prev => [...prev, ...files]); // Резервний варіант, збереження як є
+    } finally {
+      setIsCompressing(false);
     }
-    setSelectedFiles([...selectedFiles, ...newFiles]);
-    setPreviewUrls([...previewUrls, ...newPreviews]);
   };
 
   const removeFile = (indexToRemove) => {
@@ -304,8 +331,8 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
             type="submit" 
             className="cta-button" 
             style={{ width: '100%', justifyContent: 'center', marginTop: '0.1rem' }} 
-            disabled={isLoading}>
-            {isLoading ? 'Збереження...' : 'Поділитися спогадом'}
+            disabled={isLoading || isCompressing}>
+            {isCompressing ? 'Обробка зображення...' : (isLoading ? 'Збереження...' : 'Поділитися спогадом!')}
           </button>
         </form>
       </div>

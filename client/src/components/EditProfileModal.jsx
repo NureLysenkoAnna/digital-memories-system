@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Sparkles, UploadCloud, User, Trash2 } from 'lucide-react';
+import { compressSingleImage } from '../utils/imageUtils';
 
 const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -7,6 +8,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
   const [formData, setFormData] = useState({ username: '', bio: '' });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -24,6 +26,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
       setSelectedFile(null);
       setIsAvatarRemoved(false);
       setErrors({});
+      setIsCompressing(false);
     }
   }, [isOpen, currentUserData]);
 
@@ -34,17 +37,24 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
     setErrors({ ...errors, [e.target.name]: '', general: '' });
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        return setErrors({ ...errors, avatar: 'Файл занадто великий. Максимум 10 МБ.' });
-      }
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setIsAvatarRemoved(false);
-      setErrors({ ...errors, avatar: '', general: '' });
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      return setErrors({ ...errors, avatar: 'Файл занадто великий. Максимум 10 МБ.' });
     }
+
+    setPreviewUrl(URL.createObjectURL(file));
+    setIsAvatarRemoved(false);
+    setErrors({ ...errors, avatar: '', general: '' });
+
+    setIsCompressing(true);
+    
+    const compressedFile = await compressSingleImage(file, { maxWidthOrHeight: 1024 }); 
+    setSelectedFile(compressedFile);
+    
+    setIsCompressing(false);
   };
 
   const handleRemoveAvatar = () => {
@@ -228,8 +238,8 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
             type="submit" 
             className="cta-button" 
             style={{ width: '100%', justifyContent: 'center', marginTop: '0.1rem'  }} 
-            disabled={isLoading}>
-            {isLoading ? 'Збереження змін...' : 'Зберегти зміни'}
+            disabled={isLoading || isCompressing}>
+            {isCompressing ? 'Обробка зображення...' : (isLoading ? 'Збереження змін...' : 'Зберегти зміни')}
           </button>
         </form>
       </div>

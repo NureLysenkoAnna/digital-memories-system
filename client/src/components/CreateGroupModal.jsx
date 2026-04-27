@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { X, Sparkles, UploadCloud, Image as ImageIcon } from 'lucide-react';
+import { compressSingleImage } from '../utils/imageUtils';
 
 const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -7,6 +8,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   
   // Cтани для файлу
   const [selectedFile, setSelectedFile] = useState(null);
@@ -21,16 +23,22 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
   };
 
   // Обробка вибору файлу
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        return setErrors({ ...errors, image: 'Файл занадто великий. Максимум 10 МБ.' });
-      }
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setErrors({ ...errors, image: '', general: '' });
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      return setErrors({ ...errors, image: 'Файл занадто великий. Максимум 10 МБ.' });
     }
+
+    setPreviewUrl(URL.createObjectURL(file));
+    setErrors({ ...errors, image: '', general: '' });
+
+    // Фонове стиснення
+    setIsCompressing(true);
+    const compressedFile = await compressSingleImage(file, { maxWidthOrHeight: 1280 });
+    setSelectedFile(compressedFile);
+    setIsCompressing(false);
   };
 
   const handleContainerClick = () => {
@@ -175,8 +183,8 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
               type="submit" 
               className="cta-button" 
               style={{ width: '100%', justifyContent: 'center', marginTop: '0.1rem' }} 
-              disabled={isLoading}>
-              {isLoading ? 'Створення...' : 'Запалити нове сузір\'я'}
+              disabled={isLoading || isCompressing}>
+              {isCompressing ? 'Обробка зображення...' : (isLoading ? 'Створення...' : 'Запалити нове сузір\'я')}
             </button>
           </form>
         </div>
