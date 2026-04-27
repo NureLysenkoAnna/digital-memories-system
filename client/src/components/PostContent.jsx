@@ -22,17 +22,17 @@ const PostContent = ({
   
   const [showMenu, setShowMenu] = useState(false);
   const [localReactions, setLocalReactions] = useState(post?.reactions || []);
-  const [isPinned, setIsPinned] = useState(post?.is_pinned || false);
-  
+   
   const [isPhotoViewerOpen, setIsPhotoViewerOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  
+  const isPinned = post.is_pinned; 
 
   // Синхронізація з БД
   useEffect(() => {
     setLocalReactions(post?.reactions || []);
-    setIsPinned(post?.is_pinned || false);
-  }, [post?.reactions, post?.is_pinned]);
+  }, [post?.reactions]);
 
   useEffect(() => {
     const handleClickOutside = () => setShowMenu(false);
@@ -48,7 +48,6 @@ const PostContent = ({
   const hasMenuOptions = canPin || hasPhotos || canDelete;
 
   const handlePin = () => {
-    setIsPinned(!isPinned);
     if (onPinToggle) onPinToggle(post.id);
     setShowMenu(false);
   };
@@ -193,7 +192,7 @@ const PostContent = ({
             <span 
               key={idx} 
               className={`post-tag ${isModalView ? 'static-tag' : ''}`}
-              onClick={() => !isModalView && onTagClick && onTagClick(tag)}
+              onClick={(e) => !isModalView && onTagClick && onTagClick(tag, e)}
             >
               {tag}
             </span>
