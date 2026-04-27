@@ -15,112 +15,39 @@ const MILESTONE_UI_CONFIG = {
   'latest-interaction': { title: 'Остання взаємодія', icon: <Clock size={20} /> },
 };
 
-// Функція для визначення номера тижня в році
-const getWeekNumber = (d) => {
-  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const dayNum = date.getUTCDay() || 7;
-  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
-  return Math.ceil((((date - yearStart) / 86400000) + 1)/7);
-};
-
 const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) => {
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const [personalMilestones, setPersonalMilestones] = useState([]);
+  const [memoryData, setMemoryData] = useState(null);
   const [isLoadingMilestones, setIsLoadingMilestones] = useState(true);
 
-  // Фільтрація календарних спогадів
-  const memoryData = useMemo(() => {
-    if (!posts || posts.length === 0) return null;
-
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth();
-    const currentDate = today.getDate();
-    const currentWeek = getWeekNumber(today);
-
-    // Тільки пости з фотографіями з минулих років
-    const pastPhotoPosts = posts.filter(post => {
-      if (!post.images || post.images.length === 0 || !post.date) return false;
-      return new Date(post.date).getFullYear() < currentYear;
-    });
-
-    if (pastPhotoPosts.length === 0) return null;
-
-    // Збіги за днем (події)
-    const dayMatches = pastPhotoPosts.filter(post => {
-      const d = new Date(post.date);
-      return d.getMonth() === currentMonth && d.getDate() === currentDate;
-    });
-
-    if (dayMatches.length > 0) {
-      const isExactlyOneYear = dayMatches.every(p => new Date(p.date).getFullYear() === currentYear - 1);
-      return { 
-        type: 'day', 
-        title: isExactlyOneYear ? 'В цей день рік тому:' : 'В цей день роки тому:', 
-        items: dayMatches };
-    }
-
-    // Збіги за тижнем
-    const weekMatches = pastPhotoPosts.filter(post => {
-      const d = new Date(post.date);
-      const projectedDate = new Date(currentYear, d.getMonth(), d.getDate());
-      return getWeekNumber(projectedDate) === currentWeek;
-    });
-
-    if (weekMatches.length > 0) {
-      const isExactlyOneYear = weekMatches.every(p => new Date(p.date).getFullYear() === currentYear - 1);
-      return { 
-        type: 'week', 
-        title: isExactlyOneYear ? 'Події цього тижня рік тому:' : 'Події цього тижня роки тому:', 
-        items: weekMatches };
-    }
-
-    // Збіги за поточним місяцем
-    const monthMatches = pastPhotoPosts.filter(post => {
-      return new Date(post.date).getMonth() === currentMonth;
-    });
-
-    if (monthMatches.length > 0) {
-      const isExactlyOneYear = monthMatches.every(p => new Date(p.date).getFullYear() === currentYear - 1);
-      const monthName = today.toLocaleString('uk-UA', { month: 'long' });
-      const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-      return { 
-        type: 'month', 
-        title: isExactlyOneYear ? `Пригадайте ${capitalizedMonth} минулого року:` : `Пригадайте ${capitalizedMonth} минулих років:`, 
-        items: monthMatches };
-    }
-
-    return null;
-  }, [posts]);
-
-  // 2. Завантаження особистих досягнень із сервера
   useEffect(() => {
-    const fetchMilestones = async () => {
+    const fetchMemoriesData = async () => {
       if (!groupId) return;
       
       setIsLoadingMilestones(true);
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/posts/group/${groupId}/milestones?role=${userRole}`, {
+        const response = await fetch(`${API_URL}/posts/group/${groupId}/memories?role=${userRole}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
         if (response.ok) {
           const data = await response.json();
-          setPersonalMilestones(data);
+          setPersonalMilestones(data.milestones || []);
+          setMemoryData(data.calendarMemories || null);
         }
       } catch (error) {
-        console.error('Помилка завантаження досягнень:', error);
+        console.error('Помилка завантаження спогадів:', error);
       } finally {
         setIsLoadingMilestones(false);
       }
     };
 
-    fetchMilestones();
+    fetchMemoriesData();
   }, [groupId, userRole]);
 
   // Перевірка скролу для стрілочок
