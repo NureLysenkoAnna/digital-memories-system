@@ -55,13 +55,12 @@ class PostController {
   static async getGroupPosts(req, res) {
     try {
       const { groupId } = req.params;
-      const { sortBy } = req.query;
+      const { sortBy, search, limit, offset } = req.query
 
-      if (!groupId) {
-        return res.status(400).json({ error: 'ID групи є обов\'язковим' });
-      }
+      const parsedLimit = parseInt(limit) || 10;
+      const parsedOffset = parseInt(offset) || 0;
 
-      const posts = await PostService.getGroupPosts(groupId, sortBy);
+      const posts = await PostService.getGroupPosts(groupId, sortBy, search, parsedLimit, parsedOffset);
       res.json(posts);
     } catch (error) {
       console.error('Помилка отримання публікацій:', error);
@@ -104,21 +103,25 @@ class PostController {
     } catch (error) { res.status(400).json({ error: error.message }); }
   }
 
-  static async getPersonalMilestones(req, res) {
+  static async getMemoriesData(req, res) {
     try {
       const { groupId } = req.params;
-      const userId = req.user.id; 
-      const userRole = req.query.role || 'reader'; 
+      const { role } = req.query;
+      const userId = req.user.id;
 
-      if (!groupId) {
-        return res.status(400).json({ error: 'ID групи є обов\'язковим' });
-      }
+      // обидва сервіси паралельно виконуються
+      const [milestones, calendarMemories] = await Promise.all([
+        PostService.getPersonalMilestones(groupId, userId, role),
+        PostService.getCalendarMemories(groupId)
+      ]);
 
-      const milestones = await PostService.getPersonalMilestones(groupId, userId, userRole);
-      
-      res.json(milestones);
+      res.json({
+        milestones: milestones,
+        calendarMemories: calendarMemories
+      });
+
     } catch (error) {
-      console.error('Помилка отримання персональної статистики:', error);
+      console.error('Помилка отримання спогадів:', error);
       res.status(500).json({ error: 'Помилка сервера' });
     }
   }

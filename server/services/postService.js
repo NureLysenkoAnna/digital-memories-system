@@ -86,7 +86,7 @@ class PostService {
     return updatedPost.rows[0].is_pinned;
   }
 
-  static async getGroupPosts(groupId, sortBy = 'new') {
+  static async getGroupPosts(groupId, sortBy = 'new', searchQuery = '', limit = 10, offset = 0) {
     let orderClause = 'ORDER BY p.is_pinned DESC, p.created_at DESC'; //спочатку закріплені
     
     if (sortBy === 'event_new') {
@@ -100,7 +100,32 @@ class PostService {
       orderClause = 'ORDER BY p.is_pinned DESC, "commentsCount" DESC, p.created_at DESC';
     }
 
-    const query = `
+    // Базова умова пошуку
+    let whereClause = 'WHERE p.group_id = $1';
+    const queryParams = [groupId];
+    let paramIndex = 2;
+
+    // Пошук по тексту, якщо є searchQuery
+    if (searchQuery && searchQuery.trim() !== '') {
+      const searchParam = `%${searchQuery.trim()}%`;
+      // ILIKE - це case-insensitive пошук у PostgreSQL. p.tags::text дозволяє шукати всередині масиву.
+      whereClause += ` AND (
+        p.content ILIKE $${paramIndex} OR 
+        p.tags::text ILIKE $${paramIndex} OR 
+        u.username ILIKE $${paramIndex} OR 
+        to_char(p.event_date, 'DD.MM.YYYY') LIKE $${paramIndex} OR 
+        to_char(p.created_at, 'DD.MM.YYYY') LIKE $${paramIndex}
+      )`;
+      queryParams.push(searchParam);
+      paramIndex++;
+    }
+
+    // Отримання загальної кількості публікацій, що підходять під критерії пошуку
+    const countQuery = `SELECT COUNT(*) FROM posts p JOIN users u ON p.author_id = u.id ${whereClause}`;
+    const countResult = await pool.query(countQuery, queryParams);
+    const totalPosts = parseInt(countResult.rows[0].count);
+
+    const dataQuery = `
       SELECT 
         p.id, 
         p.content as text, 
@@ -120,13 +145,19 @@ class PostService {
         COALESCE((SELECT json_agg(json_build_object('user_id', user_id, 'reaction', reaction)) FROM post_reactions WHERE post_id = p.id), '[]'::json) as reactions
       FROM posts p
       JOIN users u ON p.author_id = u.id
-      WHERE p.group_id = $1
+      ${whereClause}
       ${orderClause}
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
 
-    const result = await pool.query(query, [groupId]);
+    queryParams.push(limit, offset);
+    const result = await pool.query(dataQuery, queryParams);
     
-    return result.rows;
+    return {
+      posts: result.rows,
+      totalPosts: totalPosts,
+      hasMore: offset + result.rows.length < totalPosts
+    };
   }
 
   static async deletePost(postId, userId, groupId) {
@@ -240,8 +271,8 @@ class PostService {
   }
 
   static async getPersonalMilestones(groupId, userId, userRole) {
-    const posts = await this.getGroupPosts(groupId, 'new_published');
-    const photoPostsOnly = posts.filter(post => post.images && post.images.length > 0);
+    const data = await this.getGroupPosts(groupId, 'new_published', '', 10000, 0);
+    const photoPostsOnly = data.posts.filter(post => post.images && post.images.length > 0);
     const sortByCreatedAt = (arr) => [...arr].sort((a, b) => new Date(a.created_at || a.date) - new Date(b.created_at || b.date));
     
     const milestones = [];
@@ -336,6 +367,62 @@ class PostService {
     }
 
     return milestones;
+  }
+
+  static async getCalendarMemories(groupId) {
+    const data = await this.getGroupPosts(groupId, 'new', '', 10000, 0);
+    const photoPostsOnly = data.posts.filter(post => post.images && post.images.length > 0);
+    
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    const currentDate = today.getDate();
+
+    const getWeekNumber = (d) => {
+      const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = date.getUTCDay() || 7;
+      date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+      return Math.ceil((((date - new Date(Date.UTC(date.getUTCFullYear(),0,1))) / 86400000) + 1)/7);
+    };
+    
+    const currentWeek = getWeekNumber(today);
+
+    const pastPhotoPosts = photoPostsOnly.filter(post => {
+      if (!post.date) return false;
+      return new Date(post.date).getFullYear() < currentYear;
+    });
+
+    if (pastPhotoPosts.length === 0) return null;
+
+    const dayMatches = pastPhotoPosts.filter(post => {
+      const d = new Date(post.date);
+      return d.getMonth() === currentMonth && d.getDate() === currentDate;
+    });
+
+    if (dayMatches.length > 0) {
+      const isExactlyOneYear = dayMatches.every(p => new Date(p.date).getFullYear() === currentYear - 1);
+      return { type: 'day', title: isExactlyOneYear ? 'В цей день рік тому:' : 'В цей день роки тому:', items: dayMatches };
+    }
+
+    const weekMatches = pastPhotoPosts.filter(post => {
+      return getWeekNumber(new Date(currentYear, new Date(post.date).getMonth(), new Date(post.date).getDate())) === currentWeek;
+    });
+
+    if (weekMatches.length > 0) {
+      const isExactlyOneYear = weekMatches.every(p => new Date(p.date).getFullYear() === currentYear - 1);
+      return { type: 'week', title: isExactlyOneYear ? 'Події цього тижня рік тому:' : 'Події цього тижня роки тому:', items: weekMatches };
+    }
+
+    const monthMatches = pastPhotoPosts.filter(post => new Date(post.date).getMonth() === currentMonth);
+
+    if (monthMatches.length > 0) {
+      const isExactlyOneYear = monthMatches.every(p => new Date(p.date).getFullYear() === currentYear - 1);
+      const monthNames = ['січень', 'лютий', 'березень', 'квітень', 'травень', 'червень', 'липень', 'серпень', 'вересень', 'жовтень', 'листопад', 'грудень'];
+      const capitalizedMonth = monthNames[currentMonth].charAt(0).toUpperCase() + monthNames[currentMonth].slice(1);
+      return { type: 'month', title: isExactlyOneYear ? `Пригадайте ${capitalizedMonth} минулого року:` : `Пригадайте ${capitalizedMonth} минулих років:`, items: monthMatches };
+    }
+
+    return null;
   }
 }
 
