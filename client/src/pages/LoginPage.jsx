@@ -101,6 +101,16 @@ const LoginPage = () => {
               value={formData.password} 
               onChange={handleChange} 
             />
+            <Link to="/forgot-password" 
+            style={{ 
+              color: 'var(--text-muted)', 
+              fontSize: '0.85rem', 
+              alignSelf: 'flex-end', 
+              marginTop: '0.5rem',
+              marginRight: '0.5rem',
+              textDecoration: 'none' }}>
+              <span className="auth-link">Забули пароль?</span>
+            </Link>
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
 
