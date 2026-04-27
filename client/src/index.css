@@ -1085,6 +1085,23 @@ a {
 }
 
 /* Вкладки (Tabs) */
+.tab-content-wrapper {
+  min-height: 85vh; /* Гарантує, що сторінка не буде "схлопуватися" при завантаженні */
+  animation: fadeInTab 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInTab {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .group-tabs {
   display: flex;
   justify-content: center;
@@ -1137,15 +1154,16 @@ a {
 
 .search-input-wrapper {
   position: relative;
-  flex-grow: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
-.search-icon {
+.search-icon-empty {
   position: absolute;
   left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
   color: var(--text-muted);
+  pointer-events: none;
 }
 
 .search-input {
@@ -1156,26 +1174,56 @@ a {
   border-radius: 12px;
   color: var(--text-main);
   font-size: 1rem;
+  transition: padding 0.3s ease; /* Плавна зміна відступів при введенні тексту */
 }
 
-/* Кнопка швидкого очищення пошуку */
-.btn-clear-search {
+/* Динамічні відступи залежно від наявності тексту */
+.search-input.empty {
+  padding-left: 2.8rem;
+  padding-right: 1.2rem;
+}
+
+.search-input.filled {
+  padding-left: 1.2rem;
+  padding-right: 5rem;
+}
+
+.search-actions {
   position: absolute;
-  right: 12px;
+  right: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Базовий стиль для кнопок-іконок у пошуку */
+.search-action-btn {
   background: transparent;
   border: none;
   color: var(--text-muted);
+  opacity: 0.5;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  transition: color 0.2s, transform 0.1s;
+  padding: 0.2rem;
+  transition: color 0.2s ease, transform 0.1s ease;
 }
 
-.btn-clear-search:hover {
+.search-action-btn:active {
+  transform: scale(0.9); /* Легкий ефект натискання */
+}
+
+.search-action-btn:hover {
   color: var(--text-main);
-  transform: scale(1.1);
+  opacity: 1;
+}
+
+/* Розділювач між кнопками */
+.search-divider {
+  width: 1px;
+  height: 18px;
+  background-color: var(--glass-border);
 }
 
 .filter-select {
