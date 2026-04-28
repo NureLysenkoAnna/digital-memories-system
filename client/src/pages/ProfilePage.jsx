@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, User, Mail, Calendar, Plus, Image as ImageIcon, Star, Circle, AlertCircle } from 'lucide-react';
-import StarBackground from '../components/StarBackground';
-import MainHeader from '../components/MainHeader';
-import CreateGroupModal from '../components/CreateGroupModal';
-import EditProfileModal from '../components/EditProfileModal';
+import StarBackground from '../components/layout/StarBackground';
+import MainHeader from '../components/layout/MainHeader';
+import CreateGroupModal from '../components/modals/CreateGroupModal';
+import EditProfileModal from '../components/modals/EditProfileModal';
 import { getUserFriendlyError } from '../utils/errorUtils';
 import { useDelayedLoader } from '../hooks/useDelayedLoader';
 import { useProfileSockets } from '../hooks/useProfileSockets';

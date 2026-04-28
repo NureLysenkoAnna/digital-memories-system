@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
-import StarBackground from '../components/StarBackground';
+import StarBackground from '../components/layout/StarBackground';
 
 const ResetPasswordPage = () => {
   const { token } = useParams();

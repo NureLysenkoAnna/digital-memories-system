@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MoreVertical, Users, Sparkles, Download, Trash2, MessageCircle, SmilePlus, Heart } from 'lucide-react';
 import { Emoji, EmojiStyle } from 'emoji-picker-react';
-import PhotoViewerModal from './PhotoViewerModal';
-import DownloadPhotosModal from './DownloadPhotosModal';
+import PhotoViewerModal from '../modals/PhotoViewerModal';
+import DownloadPhotosModal from '../modals/DownloadPhotosModal';
 
 const REACTION_TYPES = [
   { char: '❤️', unified: '2764-fe0f' },

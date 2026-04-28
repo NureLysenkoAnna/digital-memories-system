@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Sparkles, UploadCloud, User, Trash2 } from 'lucide-react';
-import { compressSingleImage } from '../utils/imageUtils';
+import { compressSingleImage } from '../../utils/imageUtils';
 
 const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, Mail, MailCheck } from 'lucide-react';
-import StarBackground from '../components/StarBackground';
+import StarBackground from '../components/layout/StarBackground';
 
 const ForgotPasswordPage = () => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;

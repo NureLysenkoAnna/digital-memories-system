@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search, X, Sparkles } from 'lucide-react';
 import PinnedPostsSlider from './PinnedPostsSlider';
-import PostCard from './PostCard';
+import PostCard from '../post/PostCard';
 
 const PostsTab = ({
   posts,

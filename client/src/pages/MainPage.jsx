@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import StarBackground from '../components/StarBackground';
-import MainHeader from '../components/MainHeader';
+import StarBackground from '../components/layout/StarBackground';
+import MainHeader from '../components/layout/MainHeader';
 import { Star } from 'lucide-react';
 
 const MainPage = () => {

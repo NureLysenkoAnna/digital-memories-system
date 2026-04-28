@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { X, Sparkles, UploadCloud, Image as ImageIcon } from 'lucide-react';
-import { compressSingleImage } from '../utils/imageUtils';
+import { compressSingleImage } from '../../utils/imageUtils';
 
 const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;

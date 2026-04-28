@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
-import PostCard from './PostCard';
+import PostCard from '../post/PostCard';
 
 const PinnedPostsSlider = ({ posts, currentUserId, userRole, onPinToggle, onDeleteClick, 
     onPostUpdated, onTagClick, onCommentClick }) => {

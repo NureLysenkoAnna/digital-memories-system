@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, Users } from 'lucide-react';
-import customLogo from '../assets/starlace-logo.png';
+import customLogo from '../../assets/starlace-logo.png';
 
 const MainHeader = ({ pageType, onLogout }) => {
   const navigate = useNavigate();

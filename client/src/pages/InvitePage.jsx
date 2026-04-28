@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Sparkles, CheckCircle, XCircle, ArrowRight, MailOpen, Users } from 'lucide-react';
-import StarBackground from '../components/StarBackground';
-import MainHeader from '../components/MainHeader';
+import StarBackground from '../components/layout/StarBackground';
+import MainHeader from '../components/layout/MainHeader';
 
 const InvitePage = () => {
   const { token } = useParams();

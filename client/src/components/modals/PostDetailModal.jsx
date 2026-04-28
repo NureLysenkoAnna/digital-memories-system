@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Users } from 'lucide-react';
-import PostContent from './PostContent';
+import PostContent from '../post/PostContent';
 
 const PostDetailModal = (props) => {
   const { isOpen, onClose, post, currentUserId, onPostUpdated } = props;

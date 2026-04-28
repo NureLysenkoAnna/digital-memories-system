@@ -2,21 +2,21 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {Sparkles, Plus, Dices, AlertCircle, ArrowUp} from 'lucide-react';
 
-import StarBackground from '../components/StarBackground';
-import MainHeader from '../components/MainHeader';
-import GroupHeader from '../components/GroupHeader';
-import EditGroupModal from '../components/EditGroupModal';
-import DeleteGroupModal from '../components/DeleteGroupModal';
-import CreatePostModal from '../components/CreatePostModal';
-import PostCard from '../components/PostCard';
-import PinnedPostsSlider from '../components/PinnedPostsSlider';
-import GroupMembersModal from '../components/GroupMembersModal';
-import DeletePostModal from '../components/DeletePostModal';
-import PostDetailModal from '../components/PostDetailModal';
-import LeaveGroupModal from '../components/LeaveGroupModal';
-import MemoriesTab from '../components/MemoriesTab';
-import TimelineFeed from '../components/TimelineFeed';
-import PostsTab from '../components/PostsTab';
+import StarBackground from '../components/layout/StarBackground';
+import MainHeader from '../components/layout/MainHeader';
+import GroupHeader from '../components/group/GroupHeader';
+import EditGroupModal from '../components/modals/EditGroupModal';
+import DeleteGroupModal from '../components/modals/DeleteGroupModal';
+import CreatePostModal from '../components/modals/CreatePostModal';
+import PostCard from '../components/post/PostCard';
+import PinnedPostsSlider from '../components/group/PinnedPostsSlider';
+import GroupMembersModal from '../components/modals/GroupMembersModal';
+import DeletePostModal from '../components/modals/DeletePostModal';
+import PostDetailModal from '../components/modals/PostDetailModal';
+import LeaveGroupModal from '../components/modals/LeaveGroupModal';
+import MemoriesTab from '../components/group/MemoriesTab';
+import TimelineFeed from '../components/group/TimelineFeed';
+import PostsTab from '../components/group/PostsTab';
 import { getUserFriendlyError } from '../utils/errorUtils';
 
 // Хуки

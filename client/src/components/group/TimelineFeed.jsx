@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { Star, Sparkles } from 'lucide-react';
-import { useDelayedLoader } from '../hooks/useDelayedLoader';
+import { useDelayedLoader } from '../../hooks/useDelayedLoader';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
