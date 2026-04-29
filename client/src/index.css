@@ -129,6 +129,55 @@ a {
   align-items: center;
 }
 
+/* Контейнер для правої частини хедера */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem; /* Збільшили відступ між мовами та кнопками */
+}
+
+/* Мінімалістичний перемикач мов */
+.language-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.8rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--silver-glow);
+  border-radius: 8px;
+  /* box-shadow: 0 0 20px var(--silver-glow); */
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  color: var(--glass-border); /* Напівпрозорий для неактивної мови */
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
+  padding: 0.2rem;
+  transition: all 0.3s ease;
+}
+
+.lang-btn:hover {
+  color: var(--text-main);
+  text-shadow: 0 0 8px var(--text-muted);
+}
+
+/* Активний стан */
+.lang-btn.active {
+  color: var(--text-main);
+  font-weight: 600;
+  /* text-shadow: 0 0 8px var(--text-muted); Легке світіння, як у зірок */
+}
+
+.lang-divider {
+  color: var(--glass-border);
+  font-size: 1rem;
+  user-select: none;
+}
+
 /* Кнопки авторизації */
 .btn-login {
   color: var(--text-main);
@@ -139,7 +188,12 @@ a {
 
 .btn-login:hover {
   color: var(--accent-silver);
-  text-shadow: 0 0 8px var(--silver-glow);
+  text-shadow: 0 0 10px var(--silver-glow);
+}
+
+.btn-logout span {
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .btn-register {
@@ -475,8 +529,8 @@ a {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .btn-edit-profile:hover {
@@ -863,6 +917,11 @@ a {
   color: var(--text-main);
   border-color: var(--accent-silver);
   box-shadow: 0 0 20px var(--silver-glow);
+}
+
+.btn-profile span {
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .group-header-card {
@@ -1596,7 +1655,7 @@ a {
   flex: 1;
   padding: 0.7rem 1.2rem;
   border-radius: 12px; 
-  font-weight: 500;
+  font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
