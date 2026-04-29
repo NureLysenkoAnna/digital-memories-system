@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, AlertTriangle } from 'lucide-react';
 
 const ConfirmModal = ({ 
@@ -7,13 +8,18 @@ const ConfirmModal = ({
   onConfirm,
   title,
   description, 
-  confirmText = 'Так, видалити', 
-  cancelText = 'Скасувати',
+  confirmText,
+  cancelText,
   Icon = AlertTriangle,
   isDanger = true
 }) => {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // дефолтні тексти, якщо вони не передані через пропси
+  const finalConfirmText = confirmText || t('common.buttons.delete');
+  const finalCancelText = cancelText || t('common.buttons.cancel');
 
   useEffect(() => {
     if (isOpen) {
@@ -31,7 +37,7 @@ const ConfirmModal = ({
       await onConfirm(); 
       onClose();
     } catch (err) {
-      setError(err.message || 'Сталася непередбачувана помилка');
+      setError(err.message || t('common.errors.unexpected'));
     } finally {
       setIsLoading(false);
     }
@@ -68,10 +74,10 @@ const ConfirmModal = ({
 
           <div style={{ display: 'flex', gap: '1rem', width: '100%', marginTop: '1rem' }}>
             <button onClick={onClose} className="btn-modal-action btn-modal-cancel" disabled={isLoading}>
-              {cancelText}
+              {finalCancelText}
             </button>
             <button onClick={handleConfirm} className={confirmBtnClass} disabled={isLoading}>
-              {isLoading ? 'Зачекайте...' : confirmText}
+              {isLoading ? t('common.buttons.wait') : finalConfirmText}
             </button>
           </div>
         </div>

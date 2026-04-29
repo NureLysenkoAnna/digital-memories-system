@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {Sparkles, Plus, Dices, AlertCircle, ArrowUp} from 'lucide-react';
 
 import StarBackground from '../components/layout/StarBackground';
@@ -27,6 +28,7 @@ import { useGroupSockets } from '../hooks/useGroupSockets';
 const GroupPage = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
   
   const getCurrentUserId = () => {
@@ -87,14 +89,14 @@ const GroupPage = () => {
     onMemberRemoved: (removedUserId) => {
       if (String(removedUserId) === String(currentUserId)) {
         forceCloseAllModals(); 
-        setError('Ваш доступ було змінено, або вас виключили з цього сузір\'я.'); 
+        setError(t('groups.page.err_access')); 
       } else {
         loadGroupData(); 
       }
     },
     onGroupDeleted: () => {
       forceCloseAllModals();
-      setError('Це сузір\'я було назавжди видалено власником.');
+      setError(t('groups.page.err_deleted'));
     }
   });
 
@@ -114,10 +116,9 @@ const GroupPage = () => {
       });
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || 'Помилка завантаження групи');
+      if (!response.ok) throw new Error(data.error || t('groups.page.err_fetch'));
 
-      const formattedDate = new Date(data.createdAt).toLocaleDateString('uk-UA');
-      setGroupData({ ...data, createdAt: formattedDate });
+      setGroupData(data);
     } catch (err) {
       setError(err.message);
     }
@@ -168,7 +169,7 @@ const GroupPage = () => {
       });
       if (!response.ok) loadGroupData();
     } catch (err) {
-      console.error('Помилка додавання в обране', err);
+      console.error(t('groups.page.err_favorite'), err);
     }
   };
 
@@ -204,7 +205,7 @@ const GroupPage = () => {
 
   const handleRandomMemory = () => {
     if (!posts || posts.length === 0) {
-      showToast('У цій групі ще немає спогадів!');
+      showToast(t('groups.page.err_no_memories'));
       return;
     }
 
@@ -224,7 +225,7 @@ const GroupPage = () => {
         height: '100vh' }}>
         <StarBackground />
         <div style={{ color: 'var(--text-main)', fontSize: '1.2rem', zIndex: 1 }}>
-          <Sparkles className="logo-icon spin" /> Завантаження сузір'я...</div>
+          <Sparkles className="logo-icon spin" /> {t('groups.page.loading')}</div>
       </div>
     );
   }
@@ -238,7 +239,7 @@ const GroupPage = () => {
           {getUserFriendlyError(error)}
         </div>
         <button className="btn-profile" onClick={() => navigate('/profile')} style={{ zIndex: 1, marginTop: '1rem' }}>
-          Повернутися до профілю
+          {t('groups.page.btn_back_to_profile')}
         </button>
       </div>
     );
@@ -269,7 +270,7 @@ const GroupPage = () => {
         isOpen={isPostDetailModalOpen} onClose={() => setIsPostDetailModalOpen(false)} 
         post={selectedPost} currentUserId={currentUserId}
         userRole={groupData?.userRole || 'reader'} onPinToggle={handleTogglePin} 
-        onDeleteClick={openDeletePostModal} onPostUpdated={loadPosts}
+        onDeleteClick={openDeletePostModal} onPostUpdated={loadPosts} onError={showToast}
       />
       <GroupMembersModal 
         isOpen={isMembersModalOpen} onClose={() => setIsMembersModalOpen(false)} 
@@ -295,11 +296,13 @@ const GroupPage = () => {
 
       <div className="group-tabs">
         <button className={`tab-btn ${activeTab === 'posts' ? 'active' : ''}`} onClick={() => setActiveTab('posts')}>
-          Всі публікації</button>
+          {t('groups.page.tabs.all_posts')}
+        </button>
         <button className={`tab-btn ${activeTab === 'timeline' ? 'active' : ''}`} onClick={() => setActiveTab('timeline')}>
-          Таймлайн</button>
+          {t('groups.page.tabs.timeline')}
+        </button>
         <button className={`tab-btn ${activeTab === 'memories' ? 'active' : ''}`} onClick={() => setActiveTab('memories')}>
-          Спогади
+          {t('groups.page.tabs.memories')}
         </button>
       </div>
 
@@ -325,6 +328,7 @@ const GroupPage = () => {
             lastPostElementRef={lastPostElementRef}
             isLoadingMore={isLoadingMore}
             page={page}
+            onError={showToast}
           />
         )}
 
@@ -353,19 +357,19 @@ const GroupPage = () => {
       <div className="fab-container">
         <button 
           className={`fab fab-scroll-top ${showScrollTop ? 'visible' : 'hidden'}`} 
-          title="Нагору" 
+          title={t('groups.page.fab.scroll_top')}
           onClick={scrollToTop}
         >
           <ArrowUp size={32} />
         </button>
 
         {posts && posts.length > 0 && (
-          <button className="fab fab-random" title="Випадковий спогад" onClick={handleRandomMemory}>
+          <button className="fab fab-random" title={t('groups.page.fab.random')} onClick={handleRandomMemory}>
             <Dices size={28} className="dice-icon" />
           </button>
         )}
         {groupData?.userRole !== 'reader' && (
-          <button className="fab fab-create" title="Створити публікацію" onClick={() => setIsCreatePostModalOpen(true)}>
+          <button className="fab fab-create" title={t('groups.page.fab.create_post')} onClick={() => setIsCreatePostModalOpen(true)}>
             <Plus size={32} />
           </button>
         )}

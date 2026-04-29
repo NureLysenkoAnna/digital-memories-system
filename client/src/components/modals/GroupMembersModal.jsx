@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Users, Trash2, Mail, User, UserRoundPlus} from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
 
 const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUserRole, onMembersUpdated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const { t } = useTranslation();
   
   const [members, setMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +66,7 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
       }
     } catch (err) {
       console.error(err);
-      showMessage('Не вдалося завантажити учасників', 'error');
+      showMessage(t('groups.members_modal.messages.fetch_err'), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -83,14 +85,14 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
       });
       
       if (res.ok) {
-        showMessage('Роль успішно змінено');
+        showMessage(t('groups.members_modal.messages.role_success'));
         loadMembers(); 
       } else {
         const errorData = await res.json();
-        showMessage(errorData.error || 'Помилка зміни ролі', 'error');
+        showMessage(errorData.error || t('groups.members_modal.messages.role_err'), 'error');
       }
     } catch (err) {
-      showMessage('Помилка сервера', 'error');
+      showMessage(t('groups.members_modal.messages.server_err'), 'error');
     }
   };
 
@@ -104,12 +106,12 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
   });
 
   if (res.ok) {
-    showMessage(`Учасника ${memberToRemove.name} видалено`);
+    showMessage(t('groups.members_modal.messages.remove_success', { name: memberToRemove.name }));
     loadMembers();
     if (onMembersUpdated) onMembersUpdated();
   } else {
     const errorData = await res.json();
-    throw new Error(errorData.error || 'Помилка видалення'); 
+    throw new Error(errorData.error || t('groups.members_modal.messages.remove_err')); 
   }
 };
 
@@ -121,7 +123,7 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
     // Перевірка введеної пошти
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailToInvite)) {
-      showInviteMessage('Невірний формат пошти. Введіть коректний email (наприклад: name@gmail.com)', 'error');
+      showInviteMessage(t('groups.members_modal.messages.invite_invalid_email'), 'error');
       return;
     }
 
@@ -140,23 +142,20 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
       const data = await res.json();
 
       if (res.ok) {
-        showInviteMessage(`Запрошення успішно надіслано на ${emailToInvite}`);
+        showInviteMessage(t('groups.members_modal.messages.invite_success', { email: emailToInvite }));
         setInviteEmail('');
       } else {
-        showInviteMessage(data.error || 'Не вдалося надіслати запрошення', 'error');
+        showInviteMessage(data.error || t('groups.members_modal.messages.invite_err'), 'error');
       }
     } catch (err) {
-      showInviteMessage('Помилка сервера', 'error');
+      showInviteMessage(t('groups.members_modal.messages.server_err'), 'error');
     } finally {
       setIsInviting(false);
     }
   };
 
   const getRoleDisplayName = (role) => {
-    if (role === 'admin') return 'Власник';
-    if (role === 'member') return 'Учасник';
-    if (role === 'reader') return 'Читач';
-    return role;
+    return t(`groups.members_modal.roles.${role}`, role); // словник для динамічного перекладу ролей
   };
 
   const isAdmin = currentUserRole === 'admin';
@@ -187,7 +186,7 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
         <div className="modal-header-centered">
           <h2 className="modal-title">
             <Users size={28} color="var(--accent-silver)" />
-            Учасники групи
+            {t('groups.members_modal.title')}
           </h2>
           <div className={`members-count-badge ${isLimitReached && isAdmin ? 'limit-reached' : ''}`}>
             {members.length} / {MAX_MEMBERS}
@@ -204,7 +203,7 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
 
         <div className="members-list-container">
           {isLoading ? (
-            <div className="loading-text">Завантаження...</div>
+            <div className="loading-text">{t('groups.members_modal.loading')}</div>
           ) : (
             sortedMembers.map(member => {
               const isMe = String(member.id) === String(currentUserId);
@@ -213,7 +212,7 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
                 <div key={member.id} className={`member-item ${isMe ? 'is-me' : ''}`}>
                   <div className="member-info">
                     {member.avatar ? (
-                      <img src={member.avatar} alt="Аватар" className="member-avatar" />
+                      <img src={member.avatar} alt="Avatar" className="member-avatar" />
                     ) : (
                       <div className="avatar-placeholder">
                         <User size={20} color="var(--text-muted)" />
@@ -237,7 +236,7 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
 
                   <div className="member-actions">
                     {member.role === 'admin' ? (
-                      <span className={`role-badge ${isMe ? 'me' : ''}`}> Власник</span>
+                      <span className={`role-badge ${isMe ? 'me' : ''}`}> {getRoleDisplayName('admin')}</span>
                     ) : isAdmin ? (
                       <>
                         <select 
@@ -245,12 +244,12 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
                           value={member.role} 
                           onChange={(e) => handleRoleChange(member.id, e.target.value)}
                         >
-                          <option value="member">Учасник</option>
-                          <option value="reader">Читач</option>
+                          <option value="member">{getRoleDisplayName('member')}</option>
+                          <option value="reader">{getRoleDisplayName('reader')}</option>
                         </select>
                         <button 
                           className="btn-icon danger" 
-                          title="Видалити учасника"
+                          title={t('groups.members_modal.confirm_remove.title')}
                           onClick={() => setMemberToRemove(member)}>
                           <Trash2 size={18} />
                         </button>
@@ -271,7 +270,7 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
             <div className="invite-section">
               <h3 className="invite-title">
                 <UserRoundPlus size={20} color="var(--accent-silver)" />
-                Запросити нових учасників
+                {t('groups.members_modal.invite.title')}
               </h3>
               
               <div className="msg-placeholder">
@@ -285,8 +284,8 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
               {isLimitReached ? (
                 <div className="limit-alert">
                   <span>
-                    У цій групі вже досягнуто ліміт у <b>{MAX_MEMBERS} учасників</b>. 
-                    Ви не можете відправляти нові запрошення, поки не видалите когось зі списку.
+                    {t('groups.members_modal.invite.limit_alert_p1')} <b>{MAX_MEMBERS} {t('groups.members_modal.invite.limit_alert_p2')}</b>. 
+                    {' '}{t('groups.members_modal.invite.limit_alert_p3')}
                   </span>
                 </div>
               ) : (
@@ -296,7 +295,7 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
                       <Mail size={18} className="invite-icon" />
                       <input 
                         type="email" 
-                        placeholder="Введіть email для запрошення" 
+                        placeholder={t('groups.members_modal.invite.email_placeholder')}
                         value={inviteEmail}
                         onChange={(e) => setInviteEmail(e.target.value)}
                         required
@@ -309,12 +308,12 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
                       onChange={(e) => setInviteRole(e.target.value)}
                       disabled={isInviting}
                     >
-                      <option value="member">Учасник</option>
-                      <option value="reader">Читач</option>
+                      <option value="member">{getRoleDisplayName('member')}</option>
+                      <option value="reader">{getRoleDisplayName('reader')}</option>
                     </select>
                   </div>
                   <button type="submit" className="btn-modal-action btn-full-width" disabled={!inviteEmail.trim() || isInviting}>
-                    {isInviting ? 'Відправка...' : 'Відправити запрошення'}
+                    {isInviting ? t('groups.members_modal.invite.btn_sending') : t('groups.members_modal.invite.btn_submit')}
                   </button>
                 </form>
               )}
@@ -326,8 +325,8 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
           isOpen={!!memberToRemove}
           onClose={() => setMemberToRemove(null)}
           onConfirm={executeRemoveMember}
-          title="Видалити учасника?"
-          description={`Ви впевнені, що хочете видалити учасника "${memberToRemove?.name}" з цієї групи?`}
+          title={t('groups.members_modal.confirm_remove.title')}
+          description={t('groups.members_modal.confirm_remove.desc', { name: memberToRemove?.name })}
         />
       </div>
     </div>

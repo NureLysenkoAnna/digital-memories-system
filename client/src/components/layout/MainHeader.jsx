@@ -2,9 +2,18 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, Users } from 'lucide-react';
 import customLogo from '../../assets/starlace-logo.png';
+import { useTranslation } from 'react-i18next';
 
 const MainHeader = ({ pageType, onLogout }) => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  // Функція для зміни мови
+  const handleLanguageChange = (lang) => {
+    i18n.changeLanguage(lang);
+  };
+
+  const currentLang = i18n.language || 'uk';
 
   return (
     <header className="glass-header">
@@ -28,26 +37,46 @@ const MainHeader = ({ pageType, onLogout }) => {
         <span>Memories</span>
       </div>
 
-      {pageType === 'main' && (
-        <nav className="auth-buttons">
-          <Link to="/login" className="btn-login">Увійти</Link>
-          <Link to="/register" className="btn-register">Зареєструватися</Link>
-        </nav>
-      )}
+      <div className="header-controls">
+        {pageType === 'main' && (
+          <nav className="auth-buttons">
+            <Link to="/login" className="btn-login">{t('header.login')}</Link>
+            <Link to="/register" className="btn-register">{t('header.register')}</Link>
+          </nav>
+        )}
 
-      {pageType === 'profile' && (
-        <button className="btn-logout" onClick={onLogout}>
-          <LogOut size={22} />
-          <span style={{ fontSize: '1.1rem', fontWeight: '500' }}>Вийти</span>
-        </button>
-      )}
-
-      {pageType === 'group' && (
-        <button className="btn-profile" onClick={() => navigate('/profile')}>
-          <Users size={22} />
-          <span style={{ fontSize: '1.1rem', fontWeight: '500' }}>Мій Профіль</span>
-        </button>
-      )}
+        {pageType === 'group' && (
+          <button className="btn-profile" onClick={() => navigate('/profile')}>
+            <Users size={22} />
+            <span style={{ fontSize: '1.1rem', fontWeight: '500' }}>{t('header.profile')}</span>
+          </button>
+        )}
+        
+        {['main', 'profile', 'invite'].includes(pageType) && (
+          <div className="language-switcher">
+            <button 
+              className={`lang-btn ${currentLang.startsWith('uk') ? 'active' : ''}`}
+              onClick={() => handleLanguageChange('uk')}
+            >
+              {t('header.lang_uk')}
+            </button>
+            <span className="lang-divider">|</span>
+            <button 
+              className={`lang-btn ${currentLang.startsWith('en') ? 'active' : ''}`}
+              onClick={() => handleLanguageChange('en')}
+            >
+              {t('header.lang_en')}
+            </button>
+          </div>
+        )}
+        
+        {pageType === 'profile' && (
+          <button className="btn-logout" onClick={onLogout}>
+            <LogOut size={22} />
+            <span style={{ fontSize: '1.1rem', fontWeight: '500' }}>{t('header.logout')}</span>
+          </button>
+        )}
+      </div>
     </header>
   );
 };

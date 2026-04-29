@@ -1,34 +1,41 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronRight, ChevronLeft, CalendarHeart, WandSparkles,
    Star, Flame, Heart, Clock, MessageCircle, MessageCircleHeart } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-// Словник для автоматичної прив'язки іконок та текстів до серверних ID
-const MILESTONE_UI_CONFIG = {
-  'first-post': { title: 'Перша публікація', icon: <Star size={20} /> },
-  'most-discussed': { title: 'Найбільш обговорювана', icon: <Flame size={20} /> },
-  'latest-post': { title: 'Остання публікація', icon: <Clock size={20} /> },
-  'first-comment': { title: 'Перший коментар', icon: <MessageCircle size={20} /> },
-  'first-reaction': { title: 'Перша реакція', icon: <Heart size={20} /> },
-  'first-comment-reaction': { title: 'Перший коментар та реакція', icon: <MessageCircleHeart size={20} /> },
-  'latest-interaction': { title: 'Остання взаємодія', icon: <Clock size={20} /> },
+
+// Словник іконок
+const MILESTONE_ICONS = {
+  'first-post': <Star size={20} />,
+  'most-discussed': <Flame size={20} />,
+  'latest-post': <Clock size={20} />,
+  'first-comment': <MessageCircle size={20} />,
+  'first-reaction': <Heart size={20} />,
+  'first-comment-reaction': <MessageCircleHeart size={20} />,
+  'latest-interaction': <Clock size={20} />,
 };
 
 const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) => {
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'uk' ? 'uk-UA' : 'en-US';
 
   const [personalMilestones, setPersonalMilestones] = useState([]);
   const [memoryData, setMemoryData] = useState(null);
   const [isLoadingMilestones, setIsLoadingMilestones] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
     const fetchMemoriesData = async () => {
       if (!groupId) return;
       
       setIsLoadingMilestones(true);
+      setFetchError(null);
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`${API_URL}/posts/group/${groupId}/memories?role=${userRole}`, {
@@ -39,16 +46,19 @@ const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) =
           const data = await response.json();
           setPersonalMilestones(data.milestones || []);
           setMemoryData(data.calendarMemories || null);
+        }else {
+          setFetchError(true);
         }
       } catch (error) {
-        console.error('Помилка завантаження спогадів:', error);
+        console.error('Memory loading error:', error);
+        setFetchError(true);
       } finally {
         setIsLoadingMilestones(false);
       }
     };
 
     fetchMemoriesData();
-  }, [groupId, userRole]);
+  }, [groupId, userRole, t]);
 
   // Перевірка скролу для стрілочок
   const checkScroll = () => {
@@ -77,11 +87,22 @@ const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) =
     }
   };
 
+  if (fetchError && !isLoadingMilestones) {
+    return (
+      <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-muted)' }}>
+        <h3 style={{ marginBottom: '0.5rem', color: '#ef4444' }}>
+          {t('groups.memories_tab.err_fetch_title')}
+        </h3>
+        <p>{t('groups.memories_tab.err_fetch_desc')}</p>
+      </div>
+    );
+  }
+
   if (!memoryData && !isLoadingMilestones && personalMilestones.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-muted)' }}>
-        <h3 style={{ marginBottom: '0.5rem', color: 'var(--text-main)' }}>Немає спогадів!</h3>
-        <p>На цей період у минулих роках не було збережено жодних спогадів із зображеннями.</p>
+        <h3 style={{ marginBottom: '0.5rem', color: 'var(--text-main)' }}>{t('groups.memories_tab.empty_title')}</h3>
+        <p>{t('groups.memories_tab.empty_desc')}</p>
       </div>
     );
   }
@@ -113,7 +134,7 @@ const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) =
                     )}
                   </div>
                   <div className="memory-date">
-                    {new Date(post.date).toLocaleDateString('uk-UA')}
+                    {new Date(post.date).toLocaleDateString(dateLocale)}
                   </div>
                 </div>
               ))}
@@ -134,23 +155,26 @@ const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) =
 
       {isLoadingMilestones ? (
         <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-          Аналізуємо ваш внесок у групу...
+          {t('groups.memories_tab.loading_milestones')}
         </div>
       ) : personalMilestones.length > 0 && (
         <div className="memory-section">
           <h3 className="memory-title">
             <WandSparkles size={25} className="memory-icon" />
             {userRole === 'reader' 
-              ? 'Історія ваших взаємодій у спільній історії:' 
-              : 'Ваш яскравий внесок у створення спільної історії:'}
+              ? t('groups.memories_tab.title_reader') 
+              : t('groups.memories_tab.title_contributor')}
           </h3>
           
           <div className="milestones-grid">
             {personalMilestones.map((milestone, index) => {
-              // Зіставляємо ID із сервера з нашими іконками та назвами
-              const uiConfig = MILESTONE_UI_CONFIG[milestone.id];
+              // Динамічне отримання іконки та перекладу назви за ID
+              const milestoneIcon = MILESTONE_ICONS[milestone.id];
+              // Заміна дефіси на нижнє підкреслення, щоб відповідати ключам JSON
+              const milestoneTitleKey = milestone.id.replace(/-/g, '_');
+              const milestoneTitle = t(`groups.memories_tab.milestones.${milestoneTitleKey}`, milestone.id);
               
-              if (!uiConfig || !milestone.post) return null;
+              if (!milestoneIcon || !milestone.post) return null;
 
               return (
                 <div 
@@ -161,7 +185,7 @@ const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) =
                   <div className="memory-image-wrapper">
                     {milestone.post.images && milestone.post.images.length > 0 && (
                       <>
-                        <img src={milestone.post.images[0]} alt="Досягнення" />
+                        <img src={milestone.post.images[0]} alt={t('groups.memories_tab.alt_milestone')} />
                         {milestone.post.images.length > 1 && (
                           <div className="memory-image-count">+{milestone.post.images.length - 1}</div>
                         )}
@@ -173,13 +197,13 @@ const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) =
                     {userRole !== 'reader' &&
                       new Date(
                         milestone.post.created_at || milestone.post.date
-                      ).toLocaleDateString('uk-UA')
+                      ).toLocaleDateString(dateLocale)
                     }
                   </div>
 
                   <div className="milestone-footer-badge">
-                    {uiConfig.icon}
-                    <span>{uiConfig.title}</span>
+                    {milestoneIcon}
+                    <span>{milestoneTitle}</span>
                   </div>
 
                 </div>
@@ -188,7 +212,6 @@ const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) =
           </div>
         </div>
       )}
-
     </div>
   );
 };

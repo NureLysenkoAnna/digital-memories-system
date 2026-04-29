@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { MessageSquareWarning } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmModal from './ConfirmModal';
@@ -6,6 +7,7 @@ import ConfirmModal from './ConfirmModal';
 const LeaveGroupModal = ({ isOpen, onClose, groupId, currentUserId }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLeave = async () => {
     const token = localStorage.getItem('token');
@@ -17,7 +19,7 @@ const LeaveGroupModal = ({ isOpen, onClose, groupId, currentUserId }) => {
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.error || 'Помилка при виході з групи');
+      throw new Error(data.error || t('groups.leave_group_modal.err_leave'));
     }
     
     navigate('/profile');
@@ -28,10 +30,10 @@ const LeaveGroupModal = ({ isOpen, onClose, groupId, currentUserId }) => {
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={handleLeave}
-      title="Покинути групу?"
-      description="Ви впевнені, що хочете покинути цю групу? Ви втратите доступ до всіх спогадів, фотографій та обговорень учасників."
-      confirmText="Так, покинути"
-      cancelText="Залишитися"
+      title={t('groups.leave_group_modal.title')}
+      description={t('groups.leave_group_modal.desc')}
+      confirmText={t('groups.leave_group_modal.btn_confirm')}
+      cancelText={t('groups.leave_group_modal.btn_cancel')}
       Icon={MessageSquareWarning}
     />
   );

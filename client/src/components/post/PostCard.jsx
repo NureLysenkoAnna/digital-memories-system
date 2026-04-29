@@ -2,7 +2,7 @@ import React from 'react';
 import PostContent from './PostContent';
 
 const PostCard = (props) => {
-  const { post, className } = props;
+  const { post, className, onError } = props;
 
   if (!post) return null;
 
@@ -12,7 +12,7 @@ const PostCard = (props) => {
 
   return (
     <div className={`glass-panel post-card ${className || ''}`} style={pinnedStyle}>
-      <PostContent {...props} isModalView={false} />
+      <PostContent {...props} isModalView={false} onError={onError}/>
     </div>
   );
 };

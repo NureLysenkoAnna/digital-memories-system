@@ -1,8 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Download } from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
 
 const DownloadPhotosModal = ({ isOpen, onClose, post }) => {
+  const { t } = useTranslation();
+
   if (!isOpen || !post || !post.images) return null;
 
   const executeDownload = async () => {
@@ -35,18 +38,23 @@ const DownloadPhotosModal = ({ isOpen, onClose, post }) => {
       }
       onClose();
     } catch (err) {
-      throw new Error('Помилка завантаження фотографій');
+      throw new Error(t('groups.download_modal.err_download'));
     }
   };
+
+  const imagesCount = post.images.length;
+  const description = imagesCount > 1 
+    ? t('groups.download_modal.desc_plural', { count: imagesCount })
+    : t('groups.download_modal.desc_single');
 
   return (
     <ConfirmModal 
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={executeDownload}
-      title="Завантажити фото?"
-      description={`Ви впевнені, що хочете завантажити ${post.images.length > 1 ? `${post.images.length} фото` : 'цю фотографію'} на ваш пристрій?`}
-      confirmText="Так, завантажити"
+      title={t('groups.download_modal.title')}
+      description={description}
+      confirmText={t('groups.download_modal.confirm_btn')}
       Icon={Download}
       isDanger={false} 
     />

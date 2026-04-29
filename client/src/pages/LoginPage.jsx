@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Sparkles} from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 import GoogleAuthButton from '../components/ui/GoogleAuthButton';
 
 const LoginPage = () => {
     const API_URL = import.meta.env.VITE_API_BASE_URL;
+    const { t } = useTranslation();
         
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
@@ -26,12 +28,12 @@ const LoginPage = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!formData.email) {
-      newErrors.email = 'Введіть електронну пошту.';
+      newErrors.email = t('auth.errors.req_email');
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Невірний формат запису пошти.';
+      newErrors.email = t('auth.errors.invalid_email');
     }
 
-    if (!formData.password) newErrors.password = 'Введіть пароль.';
+    if (!formData.password) newErrors.password = t('auth.errors.req_pass');
 
     if (Object.keys(newErrors).length > 0) {
       return setErrors(newErrors);
@@ -49,7 +51,7 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Помилка авторизації');
+        throw new Error(data.error || t('auth.errors.login_fail'));
       }
 
       localStorage.setItem('token', data.token);
@@ -72,7 +74,7 @@ const LoginPage = () => {
       <StarBackground />
       <div className="glass-panel auth-glass-card">
         <h2 className="auth-title">
-          З поверненням 
+          {t('auth.login.title')} 
           <Sparkles className="logo-icon" size={28} style={{ marginLeft: '0.5rem' }} /> 
         </h2>
         
@@ -80,12 +82,12 @@ const LoginPage = () => {
           <div className="general-error">{errors.general}</div>
 
           <div className="input-group">
-            <label>Електронна пошта</label>
+            <label>{t('auth.form.email_label')}</label>
             <input 
               type="email" 
               name="email" 
               className="glass-input" 
-              placeholder="example@gmail.com" 
+              placeholder={t('auth.form.email_placeholder')}
               value={formData.email} 
               onChange={handleChange} 
             />
@@ -93,7 +95,7 @@ const LoginPage = () => {
           </div>
 
           <div className="input-group">
-            <label>Пароль</label>
+            <label>{t('auth.form.password_label')}</label>
             <input 
               type="password" 
               name="password" 
@@ -109,7 +111,7 @@ const LoginPage = () => {
               marginTop: '0.5rem',
               marginRight: '0.5rem',
               textDecoration: 'none' }}>
-              <span className="auth-link">Забули пароль?</span>
+              <span className="auth-link">{t('auth.login.forgot_password')}</span>
             </Link>
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
@@ -119,16 +121,16 @@ const LoginPage = () => {
             className="cta-button" 
             style={{ width: '100%', justifyContent: 'center', marginTop: '0' }} 
             disabled={isLoading}
-          > {isLoading ? 'Завантаження...' : 'Увійти'}
+          > {isLoading ? t('auth.action.loading') : t('auth.action.login')}
           </button>
         </form>
 
-        <div className="auth-divider">або</div>
+        <div className="auth-divider">{t('auth.action.or')}</div>
         
         <GoogleAuthButton onError={(msg) => setErrors({ general: msg })} />
 
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0', marginBottom: '0'  }}>
-          Ще не маєте власного профілю? <Link to="/register" className="auth-link">Зареєструватися</Link>
+          {t('auth.login.no_account')} <Link to="/register" className="auth-link">{t('auth.action.register')}</Link>
         </p>
       </div>
     </div>

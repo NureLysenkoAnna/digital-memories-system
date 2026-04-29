@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MoreVertical, Users, Sparkles, Download, Trash2, MessageCircle, SmilePlus, Heart } from 'lucide-react';
 import { Emoji, EmojiStyle } from 'emoji-picker-react';
 import PhotoViewerModal from '../modals/PhotoViewerModal';
@@ -16,9 +17,11 @@ const REACTION_TYPES = [
 const PostContent = ({ 
   post, currentUserId, userRole, 
   onPinToggle, onDeleteClick, onTagClick, onCommentClick, onPostUpdated, 
-  isModalView = false
+  isModalView = false, onError={onError}
 }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'uk' ? 'uk-UA' : 'en-US';
   
   const [showMenu, setShowMenu] = useState(false);
   const [localReactions, setLocalReactions] = useState(post?.reactions || []);
@@ -77,7 +80,10 @@ const PostContent = ({
       if (res.ok && onPostUpdated) onPostUpdated();
       else if (!res.ok) setLocalReactions(post.reactions || []);
     } catch (err) {
-      console.error('Помилка додавання реакції:', err);
+      console.error('Error while reacting to post:', err);
+      if (onError) {
+        onError(`${t('groups.post_content.err_reaction')} ${err.message || ''}`);
+      }
       setLocalReactions(post.reactions || []);
     }
   };
@@ -121,17 +127,17 @@ const PostContent = ({
               {post.author.name}
               {post.author.is_member === false && (
                 <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '400', opacity: '0.5' }}>
-                  | колишній учасник
+                  {t('groups.post_content.former_member')}
                 </span>
               )}
             </h4>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: isModalView ? '0.85rem' : '0.9rem', color: 'var(--text-muted)' }}>
-              <span title="Дата події" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text-main)', fontWeight: '500' }}>
-                Дата події: {new Date(post.date).toLocaleDateString('uk-UA')}
+              <span title={t('groups.post_content.event_date_title')} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text-main)', fontWeight: '500' }}>
+                {t('groups.post_content.event_date', { date: new Date(post.date).toLocaleDateString(dateLocale) })}
               </span>
               <span style={{ opacity: 0.4 }}>|</span>
-              <span title="Дата публікації" style={{ opacity: 0.7 }}>
-                Опубліковано: {new Date(post.created_at).toLocaleDateString('uk-UA')}
+              <span title={t('groups.post_content.published_date_title')} style={{ opacity: 0.7 }}>
+                {t('groups.post_content.published_date', { date: new Date(post.created_at).toLocaleDateString(dateLocale) })}
               </span>
             </div>
           </div>
@@ -150,17 +156,17 @@ const PostContent = ({
                   {canPin && (
                     <button className="dropdown-item" onClick={handlePin}>
                       <Sparkles size={18} fill={isPinned ? "none" : "currentColor"} /> 
-                      {isPinned ? 'Відкріпити' : 'Закріпити'}
+                      {isPinned ? t('groups.post_content.action_unpin') : t('groups.post_content.action_pin')}
                     </button>
                   )}
                   {hasPhotos && (
                     <button className="dropdown-item" onClick={handleDownloadClick}>
-                      <Download size={18} /> Завантажити фото
+                      <Download size={18} /> {t('groups.post_content.action_download')}
                     </button>
                   )}
                   {canDelete && (
                     <button className="dropdown-item danger" onClick={() => { onDeleteClick(post); setShowMenu(false); }}>
-                      <Trash2 size={18} /> Видалити
+                      <Trash2 size={18} /> {t('groups.post_content.action_delete')}
                     </button>
                   )}
                 </div>

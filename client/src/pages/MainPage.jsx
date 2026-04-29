@@ -1,10 +1,13 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import StarBackground from '../components/layout/StarBackground';
 import MainHeader from '../components/layout/MainHeader';
 import { Star } from 'lucide-react';
 
 const MainPage = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="landing-container">
       <StarBackground />
@@ -14,19 +17,18 @@ const MainPage = () => {
       <main className="hero-section">
         <div className="glass-panel hero-glass-card">
           <h1 className="hero-title">
-            Збережіть сяйво найтепліших моментів!
+            {t('landing.title')}
           </h1>
 
           <p className="hero-subtitle">
-            Спогади — мов зорі, що розкинулися на нічному небі. Деякі сяють яскраво,
-            інші — ледь помітні, але всі вони, переплітаючись, формують унікальну історію...
+            {t('landing.subtitle_p1')}
             <br />
-            Організовуйте спогади, діліться ними з близькими і повертайтеся до найяскравіших моментів!
+            {t('landing.subtitle_p2')}
           </p>
 
           <Link to="/register" className="cta-button">
             <Star fill="currentColor" size={20} />
-            Створити власне сузір’я зі спогадів
+            {t('landing.cta_button')}
           </Link>
         </div>
       </main>

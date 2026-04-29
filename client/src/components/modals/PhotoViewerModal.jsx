@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
 
 const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0, postId}) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-
   const [isDownloadConfirmOpen, setIsDownloadConfirmOpen] = useState(false);
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isOpen) {
@@ -74,14 +76,14 @@ const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0, postId}) 
 
   return createPortal(
     <div className="photo-viewer-overlay" onClick={onClose}>
-      <button className="photo-viewer-button" onClick={onClose} title="Закрити (Esc)">
+      <button className="photo-viewer-button" onClick={onClose} title={t('groups.photo_viewer.close_title')}>
         <X size={32} />
       </button>
 
       <button 
         className="photo-viewer-button" style={{ right: '5rem' }}
         onClick={(e) => { e.stopPropagation(); setIsDownloadConfirmOpen(true); }} 
-        title="Завантажити поточне фото"
+        title={t('groups.photo_viewer.download_title')}
       >
         <Download size={28} />
       </button>
@@ -89,7 +91,7 @@ const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0, postId}) 
       <div className="photo-viewer-container" onClick={(e) => e.stopPropagation()}>
         
         {hasMultipleImages && (
-          <button className="photo-viewer-nav prev" onClick={showPrev} title="Попереднє (←)">
+          <button className="photo-viewer-nav prev" onClick={showPrev} title={t('groups.photo_viewer.prev_title')}>
             <ChevronLeft size={48} />
           </button>
         )}
@@ -101,7 +103,7 @@ const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0, postId}) 
         />
 
         {hasMultipleImages && (
-          <button className="photo-viewer-nav next" onClick={showNext} title="Наступне (→)">
+          <button className="photo-viewer-nav next" onClick={showNext} title={t('groups.photo_viewer.next_title')}>
             <ChevronRight size={48} />
           </button>
         )}
@@ -117,9 +119,9 @@ const PhotoViewerModal = ({ isOpen, onClose, images, initialIndex = 0, postId}) 
         isOpen={isDownloadConfirmOpen}
         onClose={() => setIsDownloadConfirmOpen(false)}
         onConfirm={executeDownload}
-        title="Завантажити фото?"
-        description="Ви впевнені, що хочете зберегти цю фотографію на свій пристрій?"
-        confirmText="Так, зберегти"
+        title={t('groups.download_modal.title')}
+        description={t('groups.download_modal.desc_single')}
+        confirmText={t('groups.download_modal.confirm_btn')}
         Icon={Download}
         isDanger={false} 
       />

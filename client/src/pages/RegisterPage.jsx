@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Sparkles} from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 import GoogleAuthButton from '../components/ui/GoogleAuthButton';
 
 const RegisterPage = () => {
     const API_URL = import.meta.env.VITE_API_BASE_URL;
+    const { t } = useTranslation();
 
     const [formData, setFormData] = useState({ username: '', email: '', password: '', confirmPassword: '' });
     const [errors, setErrors] = useState({});
@@ -24,21 +26,21 @@ const RegisterPage = () => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
-    if (!formData.username) newErrors.username = "Введіть ім'я користувача.";
+    if (!formData.username) newErrors.username = t('auth.errors.req_username');
 
     if (!formData.email) {
-      newErrors.email = "Введіть електронну пошту.";
+      newErrors.email = t('auth.errors.req_email');
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = "Невірний формат запису пошти.";
+      newErrors.email = t('auth.errors.invalid_email');
     }
 
     if (!formData.password) {
-      newErrors.password = "Введіть пароль.";
+      newErrors.password = t('auth.errors.req_pass');
     } else if (formData.password.length < 6) {
-      newErrors.password = "Пароль має містити мінімум 6 символів.";
+      newErrors.password = t('auth.errors.short_pass');
     }
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Паролі не співпадають.";
+      newErrors.confirmPassword = t('auth.errors.pass_mismatch');
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -61,7 +63,7 @@ const RegisterPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Щось пішло не так при реєстрації...');
+        throw new Error(data.error || t('auth.errors.register_fail'));
       }
 
       localStorage.setItem('token', data.token);
@@ -83,25 +85,25 @@ const RegisterPage = () => {
     <div className="auth-page">
       <StarBackground />
       <div className="glass-panel auth-glass-card">
-        <h2 className="auth-title">Створити свій профіль</h2>
+        <h2 className="auth-title">{t('auth.register.title')}</h2>
         
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
 
           <div className="general-error">{errors.general}</div>
 
           <div className="input-group">
-            <label>Ім'я користувача</label>
+            <label>{t('auth.form.username_label')}</label>
             <input type="text" name="username" className="glass-input" value={formData.username} onChange={handleChange} />
             {errors.username && <span className="error-message">{errors.username}</span>}
           </div>
 
           <div className="input-group">
-            <label>Електронна пошта</label>
+            <label>{t('auth.form.email_label')}</label>
             <input 
               type="email" 
               name="email" 
               className="glass-input" 
-              placeholder="example@gmail.com" 
+              placeholder={t('auth.form.email_placeholder')}
               value={formData.email} 
               onChange={handleChange} 
             />
@@ -109,13 +111,13 @@ const RegisterPage = () => {
           </div>
 
           <div className="input-group">
-            <label>Пароль</label>
+            <label>{t('auth.form.password_label')}</label>
             <input type="password" name="password" className="glass-input" value={formData.password} onChange={handleChange} />
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
 
           <div className="input-group">
-            <label>Підтвердіть пароль</label>
+            <label>{t('auth.form.confirm_password_label')}</label>
             <input 
               type="password" 
               name="confirmPassword" 
@@ -130,16 +132,16 @@ const RegisterPage = () => {
             type="submit" 
             className="cta-button" 
             style={{ width: '100%', justifyContent: 'center', marginTop: '1rem'}} disabled={isLoading}>
-            {isLoading ? 'Збереження...' : 'Зареєструватися'}
+            {isLoading ? t('auth.action.saving') : t('auth.action.register')}
           </button>
         </form>
 
-        <div className="auth-divider">або</div>
+        <div className="auth-divider">{t('auth.action.or')}</div>
 
         <GoogleAuthButton onError={(msg) => setErrors({ general: msg })} />
         
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0', marginBottom: '0' }}>
-          Вже маєте зареєстрований профіль? <Link to="/login" className="auth-link">Увійти</Link>
+          {t('auth.register.has_account')} <Link to="/login" className="auth-link">{t('auth.action.login')}</Link>
         </p>
       </div>
     </div>

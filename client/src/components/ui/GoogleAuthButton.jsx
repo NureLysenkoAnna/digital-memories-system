@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
+import { useTranslation } from 'react-i18next';
 
 const GoogleAuthButton = ({ onError }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleGoogleSuccess = async (credentialResponse) => {
@@ -17,7 +19,7 @@ const GoogleAuthButton = ({ onError }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Помилка авторизації через Google');
+        throw new Error(data.error || t('auth.err_google_auth'));
       }
 
       localStorage.setItem('token', data.token);
@@ -32,7 +34,7 @@ const GoogleAuthButton = ({ onError }) => {
     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.1rem' }}>
       <GoogleLogin 
         onSuccess={handleGoogleSuccess} 
-        onError={() => onError('Помилка зв\'язку з Google')}
+        onError={() => onError(t('auth.err_google_network'))}
         theme="filled_black"
         shape="pill"
         text="continue_with"

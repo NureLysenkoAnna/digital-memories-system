@@ -1,9 +1,11 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Sparkles, UploadCloud, Image as ImageIcon } from 'lucide-react';
 import { compressSingleImage } from '../../utils/imageUtils';
 
 const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [errors, setErrors] = useState({});
@@ -28,7 +30,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      return setErrors({ ...errors, image: 'Файл занадто великий. Максимум 10 МБ.' });
+      return setErrors({ ...errors, image: t('common.image_upload.err_too_large')});
     }
 
     setPreviewUrl(URL.createObjectURL(file));
@@ -51,7 +53,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
     let newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Назва групи є обов\'язковою!';
+      newErrors.name = t('groups.form.err_req_name');
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -75,11 +77,11 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
 
         const contentType = uploadRes.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Файл не підтримується. Оберіть інший!");
+          throw new Error(t('common.image_upload.err_unsupported'));
         }
 
         const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || 'Помилка завантаження фото');
+        if (!uploadRes.ok) throw new Error(uploadData.error || t('common.image_upload.err_upload'));
         
         finalImageUrl = uploadData.imageUrl;
       }
@@ -98,7 +100,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Помилка створення групи');
+      if (!response.ok) throw new Error(data.error || t('groups.create_modal.err_create'));
 
       setFormData({ name: '', description: '' });
       setSelectedFile(null);
@@ -121,39 +123,39 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
             <X size={24} />
           </button>
 
-          <h2 className="modal-title"><Sparkles size={24} className="logo-icon" />Створити сузір'я</h2>
+          <h2 className="modal-title"><Sparkles size={24} className="logo-icon" />{t('groups.create_modal.title')}</h2>
 
           <form className="auth-form" onSubmit={handleSubmit} style={{marginTop: '-1rem' }} spellCheck={false}>
             <div className="general-error">{errors.general}</div>
 
               <div className="input-group">
-                <label>Назва: </label>
+                <label>{t('groups.form.name_label')} </label>
                 <input 
                   type="text" 
                   name="name" 
                   className="glass-input" 
                   value={formData.name} 
                   onChange={handleChange} 
-                  placeholder="Дайте назву вашому простору..."
+                  placeholder={t('groups.create_modal.name_placeholder')}
                   maxLength={100}
                 />
                 {errors.name && <span className="error-message">{errors.name}</span>}
               </div>
 
               <div className="input-group">
-                  <label>Обкладинка (необов'язково):</label>
+                  <label>{t('groups.form.cover_label')}</label>
                   <div className="image-upload-container" onClick={handleContainerClick}>
                   {previewUrl ? (
                       <>
-                      <img src={previewUrl} alt="Попередній перегляд" className="image-preview" />
+                      <img src={previewUrl} alt={t('groups.form.preview_alt')} className="image-preview" />
                       <div className="image-upload-overlay">
-                          <UploadCloud size={24} style={{ marginRight: '8px' }}/> Змінити фото
+                          <UploadCloud size={24} style={{ marginRight: '8px' }}/> {t('common.image_upload.change_photo')}
                       </div>
                       </>
                   ) : (
                       <>
                       <ImageIcon size={32} opacity={0.6} />
-                      <span>Натисніть, щоб додати фото</span>
+                      <span>{t('common.image_upload.click_to_add')}</span>
                       </>
                   )}
                   <input 
@@ -168,13 +170,13 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
               </div>
 
               <div className="input-group">
-                  <label>Опис (необов'язково): </label>
+                  <label>{t('groups.form.desc_label')} </label>
                   <textarea 
                     name="description" 
                     className="glass-textarea" 
                     value={formData.description} 
                     onChange={handleChange}
-                    placeholder="Про що буде розповідати саме ця історія?.."
+                    placeholder={t('groups.create_modal.desc_placeholder')}
                     maxLength={255}
                   />
               </div>
@@ -184,7 +186,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
               className="cta-button" 
               style={{ width: '100%', justifyContent: 'center', marginTop: '0.1rem' }} 
               disabled={isLoading || isCompressing}>
-              {isCompressing ? 'Обробка зображення...' : (isLoading ? 'Створення...' : 'Запалити нове сузір\'я')}
+              {isCompressing ? t('common.image_upload.processing') : (isLoading ? t('groups.create_modal.creating') : t('groups.create_modal.submit_btn'))}
             </button>
           </form>
         </div>

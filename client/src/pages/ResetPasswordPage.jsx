@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 
 const ResetPasswordPage = () => {
   const { token } = useParams();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const { t } = useTranslation();
   
   const [isVerifying, setIsVerifying] = useState(true);
   const [tokenError, setTokenError] = useState('');
@@ -22,7 +24,7 @@ const ResetPasswordPage = () => {
         const response = await fetch(`${API_URL}/auth/reset-password/${token}`);
         if (!response.ok) {
           const data = await response.json();
-          throw new Error(data.error || 'Посилання недійсне або його час дії вичерпано.');
+          throw new Error(data.error || t('auth.errors.invalid_token'));
         }
       } catch (err) {
         setTokenError(err.message);
@@ -32,7 +34,7 @@ const ResetPasswordPage = () => {
     };
 
     verifyToken();
-  }, [token, API_URL]);
+  }, [token, API_URL, t]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,15 +50,15 @@ const ResetPasswordPage = () => {
     let newErrors = {};
 
     if (!formData.password) {
-      newErrors.password = 'Введіть новий пароль.';
+      newErrors.password = t('auth.errors.req_new_pass');
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Пароль має містити мінімум 6 символів.';
+      newErrors.password = t('auth.errors.short_pass');
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Повторіть пароль.';
+      newErrors.confirmPassword = t('auth.errors.req_confirm_pass');
     } else if (formData.password && formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Паролі не співпадають.';
+      newErrors.confirmPassword = t('auth.errors.pass_mismatch');
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -77,7 +79,7 @@ const ResetPasswordPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Помилка відновлення. Можливо, посилання застаріло.');
+        throw new Error(data.error || t('auth.errors.reset_fail'));
       }
 
       setGeneralMessage({ type: 'success', text: data.message });
@@ -97,7 +99,7 @@ const ResetPasswordPage = () => {
         {isVerifying ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '2rem 0' }}>
             <Sparkles className="logo-icon spin" size={32} />
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', margin: 0 }}>Перевірка зоряної карти...</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', margin: 0 }}>{t('auth.reset.verifying')}</p>
           </div>
         ) : tokenError ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', padding: '1rem 0' }}>
@@ -109,7 +111,7 @@ const ResetPasswordPage = () => {
             </div>
             
             <h2 className="auth-title" style={{ fontSize: '1.7rem', margin: 0 }}>
-              Посилання на відновлення недійсне
+              {t('auth.reset.invalid_link_title')}
             </h2>
             
             <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: '1.5', textAlign: 'center', margin: 0 }}>
@@ -117,7 +119,7 @@ const ResetPasswordPage = () => {
             </p>
             
             <Link to="/forgot-password" className="cta-button" style={{ width: '100%', justifyContent: 'center', textDecoration: 'none', marginTop: '1rem' }}>
-              Отримати нове посилання
+              {t('auth.reset.get_new_link')}
             </Link>
           </div>
         ) : generalMessage.type === 'success' ? (
@@ -130,7 +132,7 @@ const ResetPasswordPage = () => {
             </div>
             
             <h2 className="auth-title" style={{ fontSize: '1.8rem', margin: 0 }}>
-              Пароль оновлено!
+              {t('auth.reset.success_title')}
             </h2>
             
             <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: '1.5', textAlign: 'center', margin: 0 }}>
@@ -138,7 +140,7 @@ const ResetPasswordPage = () => {
             </p>
             
             <Link to="/login" className="cta-button" style={{ width: '100%', justifyContent: 'center', textDecoration: 'none', marginTop: '1rem' }}>
-              Перейти до входу
+              {t('auth.reset.go_to_login')}
             </Link>
           </div>
         ) : (
@@ -150,11 +152,11 @@ const ResetPasswordPage = () => {
               justifyContent: 'center',
               gap: '0.5rem' 
             }}>
-              <span>Створення нового паролю</span>
+              <span>{t('auth.reset.title')}</span>
             </h2>
 
             <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.5', marginTop: '0', marginBottom: '-1rem'}}>
-              Придумайте надійний пароль довжиною не менше 6 символів, щоб захистити свої спогади!
+              {t('auth.reset.subtitle')}
             </p>
 
             <div className={`general-error`}>
@@ -164,7 +166,7 @@ const ResetPasswordPage = () => {
             <form className="auth-form" onSubmit={handleSubmit} noValidate>
               
               <div className="input-group" style={{ marginTop: '-1rem' }}>
-                <label>Новий пароль</label>
+                <label>{t('auth.form.new_password_label')}</label>
                 <div style={{ position: 'relative', width: '100%' }}>
                   <input 
                     type="password" 
@@ -179,7 +181,7 @@ const ResetPasswordPage = () => {
               </div>
 
               <div className="input-group">
-                <label>Повторіть пароль</label>
+                <label>{t('auth.form.confirm_password_label')}</label>
                 <div style={{ position: 'relative', width: '100%' }}>
                   <input 
                     type="password" 
@@ -199,7 +201,7 @@ const ResetPasswordPage = () => {
                 style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem' }} 
                 disabled={isLoading}
               > 
-                {isLoading ? 'Збереження...' : 'Зберегти пароль'}
+                {isLoading ? t('auth.action.saving') : t('auth.action.submit_reset')}
               </button>
             </form>
           </>

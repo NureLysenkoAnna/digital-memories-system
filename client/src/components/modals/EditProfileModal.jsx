@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Sparkles, UploadCloud, User, Trash2 } from 'lucide-react';
 import { compressSingleImage } from '../../utils/imageUtils';
 
 const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({ username: '', bio: '' });
   const [errors, setErrors] = useState({});
@@ -42,7 +44,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      return setErrors({ ...errors, avatar: 'Файл занадто великий. Максимум 10 МБ.' });
+      return setErrors({ ...errors, avatar: t('common.image_upload.err_too_large') });
     }
 
     setPreviewUrl(URL.createObjectURL(file));
@@ -68,7 +70,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
     let newErrors = {};
 
     if (!formData.username.trim()) {
-      newErrors.username = "Ім'я користувача не може бути порожнім";
+      newErrors.username = t('profile.edit_modal.err_req_username');
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -96,11 +98,11 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
 
         const contentType = uploadRes.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Файл не підтримується. Оберіть інший!");
+          throw new Error(t('common.image_upload.err_unsupported'));
         }
 
         const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || 'Помилка завантаження фото');
+        if (!uploadRes.ok) throw new Error(uploadData.error || t('common.image_upload.err_upload'));
         
         finalAvatarUrl = uploadData.imageUrl;
       }
@@ -113,7 +115,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ imageUrl: currentUserData.avatarUrl })
-        }).catch(err => console.error('Не вдалося видалити старе фото з хмари', err));
+        }).catch(err => console.error(t('common.image_upload.err_delete_old'), err));
       }
 
       const response = await fetch(`${API_URL}/users/profile`, {
@@ -130,7 +132,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Помилка оновлення профілю');
+      if (!response.ok) throw new Error(data.error || t('profile.edit_modal.err_update'));
 
       onProfileUpdated(); 
       onClose();
@@ -152,7 +154,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
 
         <h2 className="modal-title">
           <Sparkles size={24} className="logo-icon" />
-          Оновлення профілю
+          {t('profile.edit_modal.title')}
         </h2>
 
         <form className="auth-form" onSubmit={handleSubmit} spellCheck={false}>
@@ -162,7 +164,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
             <div className="avatar-upload-container" onClick={() => fileInputRef.current.click()}>
               {previewUrl ? (
                 <>
-                  <img src={previewUrl} alt="Аватар" className="image-preview" />
+                  <img src={previewUrl} alt={t('profile.userInfo.avatar_alt')} className="image-preview" />
                   <div className="image-upload-overlay">
                     <UploadCloud size={24} />
                   </div>
@@ -170,7 +172,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
               ) : (
                 <>
                   <User size={36} opacity={0.6} />
-                  <span style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>Додати</span>
+                  <span style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>{t('common.image_upload.add_btn')}</span>
                 </>
               )}
               <input 
@@ -196,7 +198,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'}
                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <Trash2 size={16} /> Видалити поточне фото
+                <Trash2 size={16} /> {t('profile.edit_modal.remove_avatar')}
               </button>
             )}
             
@@ -204,7 +206,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
           </div>
 
           <div className="input-group">
-            <label>Ваше ім'я (Нікнейм)</label>
+            <label>{t('profile.edit_modal.username_label')}</label>
             <input 
               type="text" 
               name="username" 
@@ -218,7 +220,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
 
           <div className="modal-quote-box">
             <p className="profile-quote" style={{ fontSize: '0.9rem', margin: 0 }}>
-              «Дивлячись на зоряне небо, який спогад засяяв би найяскравіше у вашій свідомості?»
+              {t('profile.userInfo.quote')}
             </p>
           </div>
 
@@ -228,7 +230,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
               className="glass-textarea" 
               value={formData.bio} 
               onChange={handleChange}
-              placeholder="Залиште цей спогад тут..."
+              placeholder={t('profile.edit_modal.bio_placeholder')}
               maxLength={500}
               style={{ minHeight: '80px' }}
             />
@@ -239,7 +241,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
             className="cta-button" 
             style={{ width: '100%', justifyContent: 'center', marginTop: '0.1rem'  }} 
             disabled={isLoading || isCompressing}>
-            {isCompressing ? 'Обробка зображення...' : (isLoading ? 'Збереження змін...' : 'Зберегти зміни')}
+            {isCompressing ? t('common.image_upload.processing') : (isLoading ? t('profile.edit_modal.saving') : t('profile.edit_modal.submit_btn'))}
           </button>
         </form>
       </div>

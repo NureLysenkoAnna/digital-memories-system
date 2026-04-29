@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Star, Sparkles } from 'lucide-react';
 import { useDelayedLoader } from '../../hooks/useDelayedLoader';
 
@@ -9,10 +10,14 @@ const TimelineFeed = ({ groupId, onPostClick }) => {
   const currentMonthStr = new Date().toLocaleString('uk-UA', { month: 'long' });
   const currentMonthCapitalized = currentMonthStr.charAt(0).toUpperCase() + currentMonthStr.slice(1);
 
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'uk' ? 'uk-UA' : 'en-US';
+
   const [timelinePosts, setTimelinePosts] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
   const showLoader = useDelayedLoader(isLoading, 300);
   
   const POSTS_PER_BATCH = 30;
@@ -41,9 +46,12 @@ const TimelineFeed = ({ groupId, onPostClick }) => {
         });
         
         setHasMore(data.hasMore);
+      }else {
+        setFetchError(true);
       }
     } catch (err) {
-      console.error('Помилка завантаження таймлайну:', err);
+      console.error('Timeline loading error:', err);
+      setFetchError(true);
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +65,7 @@ const TimelineFeed = ({ groupId, onPostClick }) => {
 
   const observer = useRef();
   const loadingTriggerRef = useCallback(node => {
-    if (isLoading) return;
+    if (isLoading || fetchError) return;
     if (observer.current) observer.current.disconnect();
     
     observer.current = new IntersectionObserver(entries => {
@@ -83,9 +91,9 @@ const TimelineFeed = ({ groupId, onPostClick }) => {
     photoPosts.forEach(post => {
       const d = new Date(post.date);
       const year = d.getFullYear().toString();
-      const monthStr = d.toLocaleString('uk-UA', { month: 'long' });
+      const monthStr = d.toLocaleString(dateLocale, { month: 'long' });
       const month = monthStr.charAt(0).toUpperCase() + monthStr.slice(1);
-      const dateKey = d.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' });
+      const dateKey = d.toLocaleDateString(dateLocale, { day: '2-digit', month: '2-digit' });
 
       if (!grouped[year]) grouped[year] = {};
       if (!grouped[year][month]) grouped[year][month] = {};
@@ -115,7 +123,7 @@ const TimelineFeed = ({ groupId, onPostClick }) => {
           })
         }))
       }));
-  }, [timelinePosts, currentYearStr, currentMonthCapitalized]);
+  }, [timelinePosts, currentYearStr, currentMonthCapitalized, dateLocale]);
 
   const [expandedYears, setExpandedYears] = useState([]);
   const [expandedMonths, setExpandedMonths] = useState([]);
@@ -142,10 +150,18 @@ const TimelineFeed = ({ groupId, onPostClick }) => {
     setExpandedMonths(prev => prev.includes(monthKey) ? prev.filter(m => m !== monthKey) : [...prev, monthKey]);
   };
 
+  if (fetchError && timelinePosts.length === 0 && !isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
+        <p>{t('groups.timeline_feed.err_fetch')}</p>
+      </div>
+    );
+  }
+
   if (!isLoading && timelinePosts.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-        <p>Створіть свою історію та запаліть на ночному небі сузір'я зі спогадів!</p>
+        <p>{t('groups.timeline_feed.empty_msg')}</p>
       </div>
     );
   }
@@ -154,7 +170,7 @@ const TimelineFeed = ({ groupId, onPostClick }) => {
     return (
       <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
         <Sparkles className="spin" size={24} style={{ marginBottom: '1rem', color: 'var(--accent-silver)' }} />
-        <p>Побудова хронології...</p>
+        <p>{t('groups.timeline_feed.building')}</p>
       </div>
     );
   }

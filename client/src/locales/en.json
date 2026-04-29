@@ -1,0 +1,394 @@
+{
+  "header": {
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "profile": "My Profile",
+    "lang_uk": "UKR",
+    "lang_en": "ENG"
+  },
+  "landing": {
+    "title": "Preserve the glow of your warmest moments!",
+    "subtitle_p1": "Memories are like stars scattered across the night sky. Some shine brightly, others are barely visible, but together they weave a unique story...",
+    "subtitle_p2": "Organize your memories, share them with loved ones, and return to your brightest moments!",
+    "cta_button": "Create your own constellation of memories"
+  },
+  "common": {
+    "image_upload": {
+      "processing": "Processing image...",
+      "change_photo": "Change photo",
+      "click_to_add": "Click to add photo",
+      "add_btn": "Add",
+      "err_too_large": "File is too large. Maximum 10 MB.",
+      "err_unsupported": "Unsupported file format. Please choose another one!",
+      "err_upload": "Error uploading photo.",
+      "err_delete_old": "Failed to delete old photo from cloud."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "delete": "Yes, delete",
+      "wait": "Please wait..."
+    },
+    "errors": {
+      "unexpected": "An unexpected error occurred"
+    }
+  },
+  "auth": {
+    "form": {
+      "email_label": "Email address",
+      "email_placeholder": "example@gmail.com",
+      "password_label": "Password",
+      "confirm_password_label": "Confirm password",
+      "new_password_label": "New password",
+      "username_label": "Username"
+    },
+    "action": {
+      "login": "Log in",
+      "register": "Sign up",
+      "submit_forgot": "Send email",
+      "submit_reset": "Save password",
+      "loading": "Loading...",
+      "saving": "Saving...",
+      "sending": "Sending...",
+      "back_to_login": "Back to login",
+      "or": "or"
+    },
+    "errors": {
+      "req_email": "Please enter an email address.",
+      "invalid_email": "Invalid email format.",
+      "req_pass": "Please enter a password.",
+      "req_new_pass": "Please enter a new password.",
+      "req_confirm_pass": "Please confirm your password.",
+      "short_pass": "Password must contain at least 6 characters.",
+      "pass_mismatch": "Passwords do not match.",
+      "req_username": "Please enter a username.",
+      "login_fail": "Authorization failed",
+      "register_fail": "Something went wrong during registration...",
+      "google_auth": "Google authorization failed.",
+      "google_network": "Google connection error.",
+      "generic": "An error occurred. Please try again later.",
+      "invalid_token": "The link is invalid or has expired.",
+      "reset_fail": "Recovery failed. The link might be outdated."
+    },
+    "login": {
+      "title": "Welcome back",
+      "forgot_password": "Forgot password?",
+      "no_account": "Don't have a profile yet?"
+    },
+    "register": {
+      "title": "Create your profile",
+      "has_account": "Already have a registered profile?"
+    },
+    "forgot": {
+      "title": "Recover Access",
+      "subtitle_p1": "Enter the email address you used during registration.",
+      "subtitle_p2": "Instructions for resetting your password will be sent there.",
+      "sent_title": "Email sent successfully!",
+      "spam_warning": "If you don't see the email soon, check your Spam or Promotions folder.",
+      "remembered_password": "Remembered your password?"
+    },
+    "reset": {
+      "title": "Create new password",
+      "subtitle": "Create a strong password of at least 6 characters to protect your memories!",
+      "verifying": "Verifying the star map...",
+      "invalid_link_title": "Invalid recovery link",
+      "get_new_link": "Get a new link",
+      "success_title": "Password updated!",
+      "go_to_login": "Go to login"
+    }
+  },
+  "invite": {
+    "status": {
+      "checking": "Checking invitation status...",
+      "invalid_default": "Invalid invitation",
+      "invited": "You have been invited to a group",
+      "joining": "Joining the group...",
+      "server_error": "Server path not found (Error {{status}}).",
+      "accept_error": "An error occurred while verifying the invitation",
+      "network_error": "Server connection error"
+    },
+    "success": {
+      "title": "Congratulations!",
+      "go_to_group": "Go to group"
+    },
+    "invalid": {
+      "title": "Invalid invitation!",
+      "go_to_main": "Go to main page"
+    },
+    "error": {
+      "title": "Oops, something went wrong...",
+      "back_to_profile": "Back to profile"
+    },
+    "unauthorized": {
+      "subtitle": "To join and view memories, log in to your profile or create a new one.",
+      "login_btn": "Log in",
+      "register_btn": "Sign up"
+    }
+  },
+  "profile": {
+    "loading": "Loading constellation...",
+    "errors": {
+      "fetch_groups": "Error loading groups",
+      "fetch_profile": "Error loading profile",
+      "update_groups_bg": "Error updating groups in background:",
+      "toggle_favorite": "Error adding to favorites"
+    },
+    "userInfo": {
+      "avatar_alt": "User avatar",
+      "history_started": "History started: {{date}}",
+      "update_btn": "Update profile",
+      "quote": "\"Looking at the starry sky, which memory would shine the brightest in your mind?\"",
+      "bio_placeholder": "Add your answer while editing your profile..."
+    },
+    "groups": {
+      "title": "My constellations:",
+      "create_btn": "Create new",
+      "remove_favorite": "Remove from favorites",
+      "add_favorite": "Add to favorites",
+      "new_memories": "Check out new memories!",
+      "memories_count": "Memories: {{count}}",
+      "no_memories": "No memories yet. Create the first ones!"
+    },
+    "edit_modal": {
+      "title": "Update Profile",
+      "remove_avatar": "Remove current photo",
+      "username_label": "Your Name (Nickname)",
+      "bio_placeholder": "Leave this memory here...",
+      "saving": "Saving changes...",
+      "submit_btn": "Save changes",
+      "err_req_username": "Username cannot be empty",
+      "err_update": "Error updating profile"
+    }
+  },
+  "groups": {
+    "form": {
+      "name_label": "Name:",
+      "cover_label": "Cover (optional):",
+      "desc_label": "Description (optional):",
+      "preview_alt": "Preview",
+      "err_req_name": "Group name is required!"
+    },
+    "create_modal": {
+      "title": "Create Constellation",
+      "name_placeholder": "Give your space a name...",
+      "desc_placeholder": "What is the story behind this space?..",
+      "creating": "Creating...",
+      "submit_btn": "Ignite a new constellation",
+      "err_create": "Error creating group"
+    },
+    "edit_modal": {
+      "title": "Edit Group",
+      "remove_cover": "Remove current cover",
+      "saving": "Saving changes...",
+      "submit_btn": "Save changes",
+      "err_update": "Error updating group"
+    },
+    "page": {
+      "loading": "Loading constellation...",
+      "err_access": "Your access has been changed, or you were removed from this constellation.",
+      "err_deleted": "This constellation was permanently deleted by the owner.",
+      "err_fetch": "Error loading group",
+      "err_favorite": "Error adding to favorites",
+      "err_no_memories": "There are no memories in this group yet!",
+      "btn_back_to_profile": "Back to profile",
+      "tabs": {
+        "all_posts": "All posts",
+        "timeline": "Timeline",
+        "memories": "Memories"
+      },
+      "fab": {
+        "scroll_top": "Scroll to top",
+        "random": "Random memory",
+        "create_post": "Create post"
+      }
+    },
+    "header": {
+      "cover_alt": "Cover",
+      "created_at": "Created: {{date}}",
+      "stats_members": "Members: ",
+      "stats_posts": "Posts: ",
+      "stats_images": "Images: ",
+      "menu_edit": "Edit group",
+      "menu_members": "Members",
+      "menu_remove_favorite": "Remove from favorites",
+      "menu_add_favorite": "Add to favorites",
+      "menu_delete": "Delete group",
+      "menu_view_members": "View members",
+      "menu_leave": "Leave group",
+      "no_description": "The creators of this group haven't added a description yet, but the memories collected here speak louder than words...",
+      "top_member": "Most active member:",
+      "top_member_created": "Created",
+      "top_member_posts": "posts in the last month.",
+      "collapse": "Collapse",
+      "expand": "Expand"
+    },
+    "members_modal": {
+      "title": "Group Members",
+      "loading": "Loading members...",
+      "roles": {
+        "admin": "Owner",
+        "member": "Member",
+        "reader": "Reader"
+      },
+      "invite": {
+        "title": "Invite new members",
+        "email_placeholder": "Enter email to invite",
+        "btn_sending": "Sending...",
+        "btn_submit": "Send invitation",
+        "limit_alert_p1": "This group has reached the limit of",
+        "limit_alert_p2": "members",
+        "limit_alert_p3": "You cannot send new invitations until you remove someone from the list."
+      },
+      "messages": {
+        "fetch_err": "Failed to load members",
+        "role_success": "Role successfully changed!",
+        "role_err": "Error changing role",
+        "server_err": "Server error",
+        "remove_success": "Member {{name}} has been removed",
+        "remove_err": "Error removing member",
+        "invite_invalid_email": "Invalid email format. Please enter a valid email (e.g., name@gmail.com)",
+        "invite_success": "Invitation successfully sent to {{email}}",
+        "invite_err": "Failed to send invitation"
+      },
+      "confirm_remove": {
+        "title": "Remove member?",
+        "desc": "Are you sure you want to remove \"{{name}}\" from this group?"
+      }
+    },
+    "posts_tab": {
+      "search_placeholder": "Search memories...",
+      "search_btn_title": "Search",
+      "clear_search_btn_title": "Clear search",
+      "sort_new_published": "Newest published",
+      "sort_event_new": "Timeline: newest events",
+      "sort_event_old": "Timeline: oldest events",
+      "sort_popular": "Most popular",
+      "empty_search": "Nothing found for your request.",
+      "empty_no_more": "No more posts.",
+      "empty_no_posts": "No memories here yet. Create the first one!",
+      "loading_more": "Loading memories..."
+    },
+    "pinned_slider": {
+      "title": "Pinned memories ({{count}})",
+      "prev_btn": "Previous",
+      "next_btn": "Next"
+    },
+    "post_content": {
+      "avatar_alt": "Avatar",
+      "former_member": "| former member",
+      "event_date_title": "Event date",
+      "event_date": "Event date: {{date}}",
+      "published_date_title": "Published date",
+      "published_date": "Published: {{date}}",
+      "action_unpin": "Unpin",
+      "action_pin": "Pin",
+      "action_download": "Download photos",
+      "action_delete": "Delete",
+      "photo_alt": "Photo {{number}}",
+      "err_reaction": "Error adding reaction:"
+    },
+    "post_detail_modal": {
+      "empty_comments": "No comments yet. Be the first to comment!",
+      "avatar_alt": "Avatar",
+      "you": "You",
+      "former_member": "| former member",
+      "input_placeholder": "Write your comment..."
+    },
+    "timeline_feed": {
+      "empty_msg": "Create your story and light up a constellation of memories in the night sky!",
+      "building": "Building timeline...",
+      "analyzing_old": "Analyzing old chronicles...",
+      "alt_memory": "Memory",
+      "err_fetch": "Failed to load the timeline. Please try refreshing the page."
+    },
+    "memories_tab": {
+      "err_fetch_title": "Error loading memories",
+      "err_fetch_desc": "Please try refreshing the page or come back later.",
+      "empty_title": "No memories!",
+      "empty_desc": "No memories with images were saved for this period in past years.",
+      "alt_memory": "Memory",
+      "loading_milestones": "Analyzing your contribution to the group...",
+      "title_reader": "History of your interactions in the shared story:",
+      "title_contributor": "Your bright contribution to creating the shared story:",
+      "alt_milestone": "Milestone",
+      "milestones": {
+        "first_post": "First post",
+        "most_discussed": "Most discussed",
+        "latest_post": "Latest post",
+        "first_comment": "First comment",
+        "first_reaction": "First reaction",
+        "first_comment_reaction": "First comment and reaction",
+        "latest_interaction": "Latest interaction"
+      }
+    },
+    "download_modal": {
+      "title": "Save photo?",
+      "desc_single": "Are you sure you want to download this photo to your device?",
+      "desc_plural": "Are you sure you want to download {{count}} photos to your device?",
+      "confirm_btn": "Yes, save",
+      "err_download": "Error downloading photos"
+    },
+    "photo_viewer": {
+      "close_title": "Close (Esc)",
+      "download_title": "Download current photo",
+      "prev_title": "Previous",
+      "next_title": "Next",
+      "photo_alt": "Photo {{number}}"
+    },
+    "create_post_modal": {
+      "title": "Add memory",
+      "photos": {
+        "label": "Photos ({{count}}/5)",
+        "click_to_add": "Click to select photos",
+        "preview_alt": "Preview {{number}}"
+      },
+      "date": {
+        "label": "When did it happen?"
+      },
+      "description": {
+        "label": "Memory description:",
+        "placeholder": "Tell us how it was...",
+        "chars_left": "{{count}} characters left."
+      },
+      "tags": {
+        "label": "Tags (up to 5)",
+        "placeholder": "Enter a tag",
+        "limit_reached": "Tag limit reached",
+        "btn_add": "Add tag"
+      },
+      "actions": {
+        "saving": "Saving...",
+        "submit": "Share memory!"
+      },
+      "errors": {
+        "max_5_photos": "You can upload a maximum of 5 photos.",
+        "some_files_too_large": "Some files are too large. Maximum 10 MB each.",
+        "max_5_tags": "You can add up to 5 tags.",
+        "empty_post": "Add text or at least one photo to save the memory!",
+        "future_date": "The event date cannot be in the future.",
+        "future_date_input": "You cannot select a date from the future!",
+        "unsupported_file": "Cannot process one of the photos. Check file formats.",
+        "upload_fail": "Error uploading photos",
+        "create_fail": "Error creating post"
+      }
+    },
+    "delete_group_modal": {
+      "title": "Delete group?",
+      "desc_start": "Are you sure you want to delete the group ",
+      "desc_end": "? This action cannot be undone. All posts, photos, and comments will be permanently destroyed.",
+      "err_delete": "Error deleting group"
+    },
+    "delete_post_modal": {
+      "title": "Delete this memory?",
+      "desc": "Are you sure you want to permanently delete this post? All photos, comments, and reactions attached to it will also be destroyed.",
+      "err_delete": "Error deleting post"
+    },
+    "leave_group_modal": {
+      "title": "Leave group?",
+      "desc": "Are you sure you want to leave this group? You will lose access to all memories, photos, and member discussions.",
+      "btn_confirm": "Yes, leave",
+      "btn_cancel": "Stay",
+      "err_leave": "Error leaving group"
+    }
+  }
+}

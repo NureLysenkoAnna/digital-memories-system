@@ -1,8 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import ConfirmModal from './ConfirmModal';
 
 const DeletePostModal = ({ isOpen, onClose, post, groupId, onPostDeleted }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const { t } = useTranslation();
 
   const handleDelete = async () => {
     const token = localStorage.getItem('token');
@@ -14,7 +16,7 @@ const DeletePostModal = ({ isOpen, onClose, post, groupId, onPostDeleted }) => {
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.error || 'Помилка видалення публікації');
+      throw new Error(data.error || t('groups.delete_post_modal.err_delete'));
     }
     
     onPostDeleted(); 
@@ -25,9 +27,8 @@ const DeletePostModal = ({ isOpen, onClose, post, groupId, onPostDeleted }) => {
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={handleDelete}
-      title="Видалити спогад?"
-      description="Ви впевнені, що хочете назавжди видалити цю публікацію? 
-      Всі фотографії, коментарі та реакції до неї також будуть знищені."
+      title={t('groups.delete_post_modal.title')}
+      description={t('groups.delete_post_modal.desc')}
     />
   );
 };

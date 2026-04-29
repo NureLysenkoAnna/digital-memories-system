@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import PostCard from '../post/PostCard';
 
 const PinnedPostsSlider = ({ posts, currentUserId, userRole, onPinToggle, onDeleteClick, 
-    onPostUpdated, onTagClick, onCommentClick }) => {
+    onPostUpdated, onTagClick, onCommentClick, onError={onError}}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState('next'); 
+  const [direction, setDirection] = useState('next');
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (currentIndex >= posts.length) {
@@ -33,18 +35,18 @@ const PinnedPostsSlider = ({ posts, currentUserId, userRole, onPinToggle, onDele
       <div className="pinned-slider-header">
         <div className="pinned-header-title">
           <Sparkles size={18} color="var(--accent-silver)" fill="var(--accent-silver)"/>
-          <span>Закріплені спогади ({posts.length})</span>
+          <span>{t('groups.pinned_slider.title', { count: posts.length })}</span>
         </div>
         
         {posts.length > 1 && (
           <div className="pinned-navigation">
-            <button className="btn-nav" onClick={prevPost} title="Попередній">
+            <button className="btn-nav" onClick={prevPost} title={t('groups.pinned_slider.prev_btn')}>
               <ChevronLeft size={18} />
             </button>
             <span className="pinned-counter">
               {currentIndex + 1} / {posts.length}
             </span>
-            <button className="btn-nav" onClick={nextPost} title="Наступний">
+            <button className="btn-nav" onClick={nextPost} title={t('groups.pinned_slider.next_btn')}>
               <ChevronRight size={18} />
             </button>
           </div>
@@ -64,6 +66,7 @@ const PinnedPostsSlider = ({ posts, currentUserId, userRole, onPinToggle, onDele
           onPostUpdated={onPostUpdated}
           onTagClick={onTagClick}
           onCommentClick={onCommentClick}
+          onError={onError}
           className="in-slider" 
         />
       </div>

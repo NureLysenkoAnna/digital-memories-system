@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, CheckCircle, XCircle, ArrowRight, MailOpen, Users } from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 import MainHeader from '../components/layout/MainHeader';
@@ -7,10 +8,11 @@ import MainHeader from '../components/layout/MainHeader';
 const InvitePage = () => {
   const { token } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [status, setStatus] = useState('loading');
-  const [message, setMessage] = useState('Перевіряємо статус запрошення...');
+  const [message, setMessage] = useState(t('invite.status.checking'));
   const [groupId, setGroupId] = useState(null);
   const [groupName, setGroupName] = useState('');
 
@@ -30,7 +32,7 @@ const InvitePage = () => {
 
       if (!verifyRes.ok) {
         setStatus('invalid');
-        setMessage(verifyData.error || 'Запрошення недійсне');
+        setMessage(verifyData.error || t('invite.status.invalid_default'));
         localStorage.removeItem('pendingInviteToken');
         return;
       }
@@ -40,13 +42,13 @@ const InvitePage = () => {
       const authToken = localStorage.getItem('token');
       if (!authToken || authToken === 'undefined' || authToken === 'null') {
         setStatus('unauthorized');
-        setMessage(`Вас запрошено до групи`);
+        setMessage(t('invite.status.invited'));
         localStorage.setItem('pendingInviteToken', token);
         return;
       }
 
       setStatus('loading');
-      setMessage('Приєднуємо вас до групи...');
+      setMessage(t('invite.status.joining'));
 
       const acceptRes = await fetch(`${API_URL}/groups/invite/${token}/accept`, {
         method: 'POST',
@@ -59,7 +61,7 @@ const InvitePage = () => {
       const contentType = acceptRes.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         setStatus('error');
-        setMessage(`Сервер не знайшов шлях (Помилка ${acceptRes.status}).`);
+        setMessage(t('invite.status.server_error', { status: acceptRes.status }));
         localStorage.removeItem('pendingInviteToken');
         return;
       }
@@ -73,11 +75,11 @@ const InvitePage = () => {
         setGroupId(acceptData.groupId);
       } else {
         setStatus('error');
-        setMessage(acceptData.error || 'Сталася помилка при перевірці запрошення');
+        setMessage(acceptData.error || t('invite.status.accept_error'));
       }
     } catch (err) {
       setStatus('error');
-      setMessage('Помилка з\'єднання з сервером');
+      setMessage(t('invite.status.network_error'));
       localStorage.removeItem('pendingInviteToken');
     }
   };
@@ -105,13 +107,13 @@ const InvitePage = () => {
               <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '50%' }}>
                 <CheckCircle size={56} color="#10b981" />
               </div>
-              <h2 style={{ margin: 0, fontSize: '1.8rem' }}>Вітаємо!</h2>
+              <h2 style={{ margin: 0, fontSize: '1.8rem' }}>{t('invite.success.title')}</h2>
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '12px', padding: '1.5rem', width: '100%' }}>
                 <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', margin: 0 }}>{message}</p>
                 {groupName && <h3 style={{ margin: '0.8rem 0 0 0', color: 'var(--text-main)' }}>{groupName}</h3>}
               </div>
               <button className="cta-button" onClick={() => navigate(`/groups/${groupId}`)} style={{ marginTop: '1rem', width: 'auto', justifyContent: 'center' }}>
-                Перейти <ArrowRight size={20} />
+                {t('invite.success.go_to_group')} <ArrowRight size={20} />
               </button>
             </>
           )}
@@ -122,13 +124,13 @@ const InvitePage = () => {
               <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '50%' }}>
                 <XCircle size={56} color="#ef4444" />
               </div>
-              <h2 style={{ margin: 0, fontSize: '1.6rem' }}>Запрошення недійсне</h2>
+              <h2 style={{ margin: 0, fontSize: '1.6rem' }}>{t('invite.invalid.title')}</h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', margin: 0 }}>{message}</p>
               <button className="btn-modal-cancel" onClick={() => navigate('/')}
               style={{ flex: 1, padding: '0.8rem', marginTop:'1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '14px', color: 'var(--text-main)', fontSize: '1.05rem', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s ease' }}
                   onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'var(--accent-silver)'; }}
                   onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'var(--glass-border)'; }}>
-                Перейти головну сторінку
+                {t('invite.invalid.go_to_main')}
               </button>
             </>
           )}
@@ -139,14 +141,14 @@ const InvitePage = () => {
               <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '50%' }}>
                 <XCircle size={56} color="#ef4444" />
               </div>
-              <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Ой, щось пішло не так</h2>
+              <h2 style={{ margin: 0, fontSize: '1.5rem' }}>{t('invite.error.title')}</h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', margin: 0 }}>{message}</p>
               <button className="btn-modal-cancel"
                 onClick={() => navigate('/profile')}
                 style={{ flex: 1, padding: '0.8rem', marginTop:'1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '14px', color: 'var(--text-main)', fontSize: '1.05rem', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s ease' }}
                 onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'var(--accent-silver)'; }}
                 onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'var(--glass-border)'; }}>
-                Повернутися до профілю
+                {t('invite.error.back_to_profile')}
               </button>
             </>
           )}
@@ -169,7 +171,7 @@ const InvitePage = () => {
               </div>
               
               <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', margin: '1rem 0' }}>
-                Щоб приєднатися та переглядати спогади, увійдіть у свій профіль або створіть новий.
+                {t('invite.unauthorized.subtitle')}
               </p>
               
               <div style={{ display: 'flex', gap: '1rem', width: '100%', marginTop: '0.5rem' }}>
@@ -180,14 +182,14 @@ const InvitePage = () => {
                   onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'var(--accent-silver)'; }}
                   onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'var(--glass-border)'; }}
                 >
-                  Увійти
+                  {t('invite.unauthorized.login_btn')}
                 </button>
                 <button 
                   className="cta-button" 
                   onClick={() => navigate('/register')}
                   style={{ flex: 1, margin: 0, padding: '0.8rem', display: 'flex', justifyContent: 'center' }}
                 >
-                  Реєстрація
+                  {t('invite.unauthorized.register_btn')}
                 </button>
               </div>
             </>

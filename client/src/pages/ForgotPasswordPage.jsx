@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, Mail, MailCheck } from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 
 const ForgotPasswordPage = () => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const { t } = useTranslation();
   
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});
@@ -18,9 +20,9 @@ const ForgotPasswordPage = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!email) {
-      newErrors.email = 'Введіть електронну пошту.';
+      newErrors.email = t('auth.errors.req_email');
     } else if (!emailRegex.test(email)) {
-      newErrors.email = 'Невірний формат запису пошти.';
+      newErrors.email = t('auth.errors.invalid_email');
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -41,7 +43,7 @@ const ForgotPasswordPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Сталася помилка. Спробуйте пізніше.');
+        throw new Error(data.error || t('auth.errors.generic'));
       }
 
       setGeneralMessage({ type: 'success', text: data.message });
@@ -69,12 +71,12 @@ const ForgotPasswordPage = () => {
             </div>
             
             <h2 className="auth-title" style={{ fontSize: '1.8rem', margin: 0 }}>
-              Лист надіслано успішно!
+              {t('auth.forgot.sent_title')}
             </h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
               <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: '1.5', textAlign: 'center', margin: 0 }}>
-                {generalMessage.text} <br />Якщо листа довго немає, перевірте папку "Спам" або "Реклама".
+                {generalMessage.text} <br />{t('auth.forgot.spam_warning')}
               </p>
             </div>
             
@@ -86,7 +88,7 @@ const ForgotPasswordPage = () => {
                 textDecoration: 'none', 
                 marginTop: '0.5rem', 
                 marginBottom: '0' }}>
-              Повернутися до входу
+              {t('auth.action.back_to_login')}
             </Link>
 
           </div>
@@ -102,14 +104,18 @@ const ForgotPasswordPage = () => {
             }}>
                 <Sparkles className="logo-icon" size={24}/>
                 <span>
-                Відновлення доступу
+                  {t('auth.forgot.title')}
                 </span>
                 <Sparkles className="logo-icon" size={24} style={{ transform: 'scaleX(-1)' }}/>
             </h2>
             
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.5', marginTop: '0', marginBottom: '-0.3rem' }}>
-              Введіть електронну пошту,<br /> яку Ви використовували при реєстрації.<br />
-              На неї буде надіслано інструкції відновлення паролю.
+            <p style={{ 
+                color: 'var(--text-muted)', 
+                fontSize: '0.95rem', 
+                lineHeight: '1.5', 
+                marginTop: '0', 
+                marginBottom: '-0.3rem' }}>
+              {t('auth.forgot.subtitle_p1')}<br /> {t('auth.forgot.subtitle_p2')}
             </p>
 
             <div className="auth-divider" style={{ marginBottom: '-1rem' }}></div>
@@ -120,7 +126,7 @@ const ForgotPasswordPage = () => {
 
             <form className="auth-form" onSubmit={handleSubmit} noValidate>
               <div className="input-group" style={{ marginTop: '-1rem' }}>
-                <label>Електронна пошта</label>
+                <label>{t('auth.form.email_label')}</label>
                 <div style={{ position: 'relative', width: '100%' }}>
                   <Mail size={18} style={{ 
                     position: 'absolute', 
@@ -132,7 +138,7 @@ const ForgotPasswordPage = () => {
                   <input 
                     type="email" 
                     className="glass-input" 
-                    placeholder="example@gmail.com" 
+                    placeholder={t('auth.form.email_placeholder')}
                     value={email} 
                     onChange={(e) => { 
                       setEmail(e.target.value); 
@@ -152,14 +158,14 @@ const ForgotPasswordPage = () => {
                 style={{ width: '100%', justifyContent: 'center', marginTop: '0.7rem' }} 
                 disabled={isLoading}
               > 
-                {isLoading ? 'Відправка...' : 'Надіслати листа'}
+                {isLoading ? t('auth.action.sending') : t('auth.action.submit_forgot')}
               </button>
             </form>
 
-            <div className="auth-divider">або</div>
+            <div className="auth-divider">{t('auth.action.or')}</div>
             
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0', marginBottom: '0' }}>
-              Згадали пароль? <Link to="/login" className="auth-link">Увійти</Link>
+              {t('auth.forgot.remembered_password')} <Link to="/login" className="auth-link">{t('auth.action.back_to_login')}</Link>
             </p>
           </>
         )}

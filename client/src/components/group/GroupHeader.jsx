@@ -3,6 +3,7 @@ import {
   MoreVertical, Edit, Users, Star, Trash2, LogOut, 
   Image as ImageIcon, ChevronDown, ChevronUp, Sparkles
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const GroupHeader = ({ 
   groupData, 
@@ -14,6 +15,8 @@ const GroupHeader = ({
 }) => {
   const [showGroupMenu, setShowGroupMenu] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'uk' ? 'uk-UA' : 'en-US';
 
   useEffect(() => {
     const handleClickOutside = () => setShowGroupMenu(false);
@@ -29,7 +32,7 @@ const GroupHeader = ({
     <div className="glass-panel group-header-card">
       <div className="group-header-top">
         {groupData.coverUrl ? (
-          <img src={groupData.coverUrl} alt="Обкладинка" className="group-cover-large" />
+          <img src={groupData.coverUrl} alt={t('groups.header.cover_alt')} className="group-cover-large" />
         ) : (
           <div className="group-cover-large" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--glass-bg)' }}>
             <ImageIcon size={50} opacity={0.5} />
@@ -40,13 +43,15 @@ const GroupHeader = ({
         <div className="group-info-main">
           <h1 className="group-header-name">{groupData.name}</h1>
           <span className="group-header-date">
-            Створено: {groupData.createdAt}
+            {t('groups.header.created_at', { 
+              date: new Date(groupData.createdAt).toLocaleDateString(dateLocale) 
+            })}
           </span>
           
           <div className="group-basic-stats">
-            <span>Учасників: <strong>{groupData.membersCount}</strong></span>
-            <span>Публікацій: <strong>{groupData.postsCount}</strong></span>
-            <span>Зображень: <strong>{groupData.imagesCount}</strong></span>
+            <span>{t('groups.header.stats_members')} <strong>{groupData.membersCount}</strong></span>
+            <span>{t('groups.header.stats_posts')} <strong>{groupData.postsCount}</strong></span>
+            <span>{t('groups.header.stats_images')} <strong>{groupData.imagesCount}</strong></span>
           </div>
         </div>
 
@@ -59,23 +64,23 @@ const GroupHeader = ({
             <div className="dropdown-menu">
               {groupData.userRole === 'admin' ? (
                 <>
-                  <button className="dropdown-item" onClick={onEdit}><Edit size={18} /> Редагувати групу</button>
-                  <button className="dropdown-item" onClick={onMembers}><Users size={18} /> Учасники</button>
+                  <button className="dropdown-item" onClick={onEdit}><Edit size={18} /> {t('groups.header.menu_edit')}</button>
+                  <button className="dropdown-item" onClick={onMembers}><Users size={18} /> {t('groups.header.menu_members')}</button>
                   <button className="dropdown-item" onClick={onToggleFavorite}>
                     <Star size={18} fill={groupData.isFavorite ? "#E2E8F0" : "transparent"} color={groupData.isFavorite ? "#E2E8F0" : "currentColor"} /> 
-                    {groupData.isFavorite ? 'Видалити з обраного' : 'Додати в обране'}
+                    {groupData.isFavorite ? t('groups.header.menu_remove_favorite') : t('groups.header.menu_add_favorite')}
                   </button>
-                  <button className="dropdown-item danger" onClick={onDelete}><Trash2 size={18} /> Видалити групу</button>
+                  <button className="dropdown-item danger" onClick={onDelete}><Trash2 size={18} /> {t('groups.header.menu_delete')}</button>
                 </>
               ) : (
                 <>
                   <button className="dropdown-item" onClick={onToggleFavorite}>
                     <Star size={18} fill={groupData.isFavorite ? "#E2E8F0" : "transparent"} color={groupData.isFavorite ? "#E2E8F0" : "currentColor"} /> 
-                    {groupData.isFavorite ? 'Видалити з обраного' : 'Додати в обране'}
+                    {groupData.isFavorite ? t('groups.header.menu_remove_favorite') : t('groups.header.menu_add_favorite')}
                   </button>
-                  <button className="dropdown-item" onClick={onMembers}><Users size={18} /> Переглянути учасників</button>
+                  <button className="dropdown-item" onClick={onMembers}><Users size={18} /> {t('groups.header.menu_view_members')}</button>
                   <button className="dropdown-item danger" onClick={onLeave}>
-                    <LogOut size={18} /> Вийти з групи
+                    <LogOut size={18} /> {t('groups.header.menu_leave')}
                   </button>
                 </>
               )}
@@ -88,7 +93,7 @@ const GroupHeader = ({
         <div className="group-expanded-content">
           
           <p className="group-description-text" style={{ opacity: groupData.description ? 0.9 : 0.7 }}>
-            {groupData.description || "Творці цієї групи поки не додали опис, але зібрані тут спогади скажуть набагато більше за будь-які слова..."}
+            {groupData.description || t('groups.header.no_description')}
           </p>
 
           {topMember && (
@@ -99,8 +104,8 @@ const GroupHeader = ({
               
               <div className="group-extra-stats">
                 <span>
-                  Найактивніший учасник групи: <strong style={{ color: 'var(--text-main)' }}>{topMember.name}</strong>.
-                  За останній місяць створено <strong style={{ color: 'var(--text-main)' }}>{topMember.post_count}</strong> публікацій.
+                  {t('groups.header.top_member')} <strong style={{ color: 'var(--text-main)' }}>{topMember.name}</strong>.
+                  {' '}{t('groups.header.top_member_created')} <strong style={{ color: 'var(--text-main)' }}>{topMember.post_count}</strong> {t('groups.header.top_member_posts')}
                 </span>
               </div>
             </>
@@ -112,7 +117,7 @@ const GroupHeader = ({
       <button 
         className="btn-expand-header" 
         onClick={() => setIsExpanded(!isExpanded)}
-        title={isExpanded ? "Згорнути" : "Розгорнути"}
+        title={isExpanded ? t('groups.header.collapse') : t('groups.header.expand')}
       >
         {isExpanded ? <ChevronUp size={25} /> : <ChevronDown size={25} />}
       </button>

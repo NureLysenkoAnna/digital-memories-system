@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Sparkles, UploadCloud, Calendar, Hash, Image as ImageIcon, Plus } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 
 const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-  
+  const { t } = useTranslation();
+
   // Отримання точної локальної дати (вирішує проблему з часовими поясами)
   const getTodayStr = () => {
     const local = new Date();
@@ -58,7 +60,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
     
     // Якщо користувач ввів з клавіатури дату з майбутнього
     if (selected > today) {
-      setErrors({ ...errors, date: 'Ви не можете обрати дату з майбутнього!' });
+      setErrors({ ...errors, date: t('groups.create_post_modal.errors.future_date_input')});
       setEventDate(today); // повертається на сьогодні
     } else {
       setErrors({ ...errors, date: '' });
@@ -70,7 +72,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
     const files = Array.from(e.target.files);
     
     if (selectedFiles.length + files.length > 5) {
-      setErrors({ ...errors, images: 'Можна завантажити максимум 5 фотографій.' });
+      setErrors({ ...errors, images: t('groups.create_post_modal.errors.max_5_photos')});
       return;
     }
 
@@ -94,7 +96,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
         try {
           return await imageCompression(file, options);
         } catch (error) {
-          console.error("Помилка стиснення 1 файлу:", error);
+          console.error("File compression error:", error);
           return file;
         }
       });
@@ -106,10 +108,10 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
 
       // Перевірка розмірів для повідомлення про помилку
       if (files.some(f => f.size > 10 * 1024 * 1024)) {
-        setErrors(prev => ({ ...prev, images: 'Деякі файли занадто великі. Максимум 10 МБ кожен.' }));
+        setErrors(prev => ({ ...prev, images: t('groups.create_post_modal.errors.some_files_too_large')}));
       }
     } catch (error) {
-      console.error("Загальна помилка стиснення:", error);
+      console.error("Total compression error:", error);
       setSelectedFiles(prev => [...prev, ...files]); // Резервний варіант, збереження як є
     } finally {
       setIsCompressing(false);
@@ -129,7 +131,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
       setTagInput('');
       setErrors({ ...errors, tags: '' });
     } else if (tags.length >= 5) {
-      setErrors({ ...errors, tags: 'Можна додати не більше 5 тегів.' });
+      setErrors({ ...errors, tags: t('groups.create_post_modal.errors.max_5_tags') });
     }
   };
 
@@ -148,11 +150,11 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
     e.preventDefault();
     setErrors({});
     if (!content.trim() && selectedFiles.length === 0) {
-      return setErrors({ general: 'Додайте текст або хоча б одну фотографію, щоб зберегти спогад!' });
+      return setErrors({ general: t('groups.create_post_modal.errors.empty_post')});
     }
     
     if (eventDate > getTodayStr()) {
-        return setErrors({ date: 'Дата події не може бути в майбутньому.' });
+        return setErrors({ date: t('groups.create_post_modal.errors.future_date') });
     }
 
     setIsLoading(true);
@@ -170,11 +172,11 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
 
         const contentType = uploadRes.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Неможливо обробити одне з фото. Перевірте формат файлів.");
+          throw new Error(t('groups.create_post_modal.errors.unsupported_file'));
         }
 
         const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || 'Помилка завантаження фотографій');
+        if (!uploadRes.ok) throw new Error(uploadData.error || t('groups.create_post_modal.errors.upload_fail'));
         finalImageUrls = uploadData.imageUrls;
       }
       const response = await fetch(`${API_URL}/posts`, {
@@ -183,7 +185,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
         body: JSON.stringify({ groupId, content: content.trim(), tags, eventDate, imageUrls: finalImageUrls })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Помилка створення публікації');
+      if (!response.ok) throw new Error(data.error || t('groups.create_post_modal.errors.create_fail'));
       onPostCreated(); 
       onClose();
     } catch (err) {
@@ -203,7 +205,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
 
         <h2 className="modal-title" style={{ marginBottom: '0' }}>
           <Sparkles size={24} className="logo-icon" />
-          Зберегти спогад
+          {t('groups.create_post_modal.title')}
         </h2>
 
         <form className="auth-form" onSubmit={handleSubmit} style={{ gap: '0.8rem', marginTop: '-1rem' }} spellCheck={false}>
@@ -212,7 +214,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
           <div className="input-group">
             <label className="big-label">
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <ImageIcon size={18} /> Фотографії ({selectedFiles.length}/5)
+                <ImageIcon size={18} /> {t('groups.create_post_modal.photos.label', { count: selectedFiles.length })}
               </span>
             </label>
             
@@ -222,7 +224,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
                 onClick={() => fileInputRef.current.click()}
               >
                 <UploadCloud size={24} />
-                <span style={{ fontSize: '1rem' }}>Натисніть, щоб обрати фото</span>
+                <span style={{ fontSize: '1rem' }}>{t('groups.create_post_modal.photos.click_to_add')}</span>
                 <input 
                   type="file" 
                   ref={fileInputRef}
@@ -238,7 +240,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
               <div className="preview-gallery">
                 {previewUrls.map((url, index) => (
                   <div key={index} className="preview-item">
-                    <img src={url} alt={`Прев'ю ${index + 1}`} />
+                    <img src={url} alt={t('groups.create_post_modal.photos.preview_alt', { number: index + 1 })} />
                     <button type="button" className="btn-remove-preview" onClick={() => removeFile(index)}>
                       <X size={14} />
                     </button>
@@ -251,7 +253,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
 
           <div className="input-group">
             <label className="big-label">
-              <Calendar size={18} /> Коли це сталося? 
+              <Calendar size={18} /> {t('groups.create_post_modal.date.label')}
               <span style={{ fontSize: '0.8rem', opacity: 0.5, fontWeight: '400' }}></span>
             </label>
             <input 
@@ -266,7 +268,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
           </div>
 
           <div className="input-group">
-            <label className="big-label">Опис спогаду:</label>
+            <label className="big-label">{t('groups.create_post_modal.description.label')}</label>
             <div className="textarea-wrapper">
               <textarea 
                 className="glass-textarea big-textarea"
@@ -276,18 +278,18 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
                   
                   if (errors.general) setErrors({ ...errors, general: '' }); 
                 }}
-                placeholder="Розкажіть, як це було..."
+                placeholder={t('groups.create_post_modal.description.placeholder')}
                 maxLength={500}
               />
               <span className={`char-counter-reverse ${content.length >= 500 ? 'over-limit' : ''}`}>
-                Доступно {500 - content.length} символів.
+                {t('groups.create_post_modal.description.chars_left', { count: 500 - content.length })}
               </span>
             </div>
           </div>
 
           <div className="input-group" style={{ marginTop: '0.5rem' }}>
             <label className="big-label">
-              <Hash size={18} /> Теги (до 5 шт)
+              <Hash size={18} /> {t('groups.create_post_modal.tags.label')}
             </label>
             
             {tags.length > 0 && (
@@ -310,7 +312,9 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
-                placeholder={tags.length < 5 ? "Введіть тег" : "Досягнуто ліміт тегів"}
+                placeholder={tags.length < 5 
+                  ? t('groups.create_post_modal.tags.placeholder') 
+                  : t('groups.create_post_modal.tags.limit_reached')}
                 disabled={tags.length >= 5}
                 style={{ flex: 1 }}
               />
@@ -319,7 +323,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
                 className="btn-add-tag" 
                 onClick={addTagFromInput}
                 disabled={tags.length >= 5 || !tagInput.trim()}
-                title="Додати тег"
+                title={t('groups.create_post_modal.tags.btn_add')}
               >
                 <Plus size={20} />
               </button>
@@ -332,7 +336,9 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
             className="cta-button" 
             style={{ width: '100%', justifyContent: 'center', marginTop: '0.1rem' }} 
             disabled={isLoading || isCompressing}>
-            {isCompressing ? 'Обробка зображення...' : (isLoading ? 'Збереження...' : 'Поділитися спогадом!')}
+            {isCompressing 
+              ? t('common.image_upload.processing') 
+              : (isLoading ? t('groups.create_post_modal.actions.saving') : t('groups.create_post_modal.actions.submit'))}
           </button>
         </form>
       </div>

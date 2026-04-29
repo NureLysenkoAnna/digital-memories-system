@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, User, Mail, Calendar, Plus, Image as ImageIcon, Star, Circle, AlertCircle } from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 import MainHeader from '../components/layout/MainHeader';
@@ -12,6 +13,8 @@ import { useProfileSockets } from '../hooks/useProfileSockets';
 const ProfilePage = () => {
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'uk' ? 'uk-UA' : 'en-US';
   
   const [userData, setUserData] = useState(null);
   const [userGroups, setUserGroups] = useState([]);
@@ -26,7 +29,7 @@ const ProfilePage = () => {
     const response = await fetch(`${API_URL}/groups`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!response.ok) throw new Error('Помилка завантаження груп');
+    if (!response.ok) throw new Error(t('profile.errors.fetch_groups'));
     return await response.json();
   };
 
@@ -47,11 +50,11 @@ const ProfilePage = () => {
           localStorage.removeItem('token');
           return navigate('/login');
         }
-        throw new Error(profileData.error || 'Помилка завантаження профілю');
+        throw new Error(profileData.error || t('profile.errors.fetch_profile'));
       }
 
       const date = new Date(profileData.created_at);
-      const formattedDate = date.toLocaleDateString('uk-UA');
+      const formattedDate = date.toLocaleDateString(dateLocale);
 
       setUserData({
         username: profileData.username,
@@ -82,7 +85,7 @@ const ProfilePage = () => {
         const updatedGroups = await fetchGroups(token);
         setUserGroups(updatedGroups);
       } catch (err) {
-        console.error('Помилка фонового оновлення груп:', err);
+        console.error(`${t('profile.errors.update_groups_bg')} ${err}`);
       }
     }
   });
@@ -124,7 +127,7 @@ const ProfilePage = () => {
         setUserGroups(realGroups);
       }
     } catch (err) {
-      console.error('Помилка додавання в обране', err);
+      console.error(t('profile.errors.toggle_favorite'), err);
     }
   };
 
@@ -141,7 +144,7 @@ const ProfilePage = () => {
       <div className="profile-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <StarBackground />
         <div style={{ color: 'var(--text-main)', fontSize: '1.2rem', zIndex: 1 }}>
-          Завантаження сузір'я...
+          {t('profile.loading')}
         </div>
       </div>
     );
@@ -183,7 +186,7 @@ const ProfilePage = () => {
           {userData.avatarUrl ? (
             <img 
               src={userData.avatarUrl} 
-              alt="Аватар користувача" 
+              alt={t('profile.userInfo.avatar_alt')}
               style={{ width: '100%', height: '100%', borderRadius: '22px', objectFit: 'cover' }} 
             />
           ) : (
@@ -200,20 +203,21 @@ const ProfilePage = () => {
                   <Mail size={16} /> {userData.email}
                 </span>
                 <span className="detail-item">
-                  <Calendar size={16} /> Історію розпочато: {userData.createdAt}
+                  <Calendar size={16} /> {t('profile.userInfo.history_started', { date: userData.createdAt })}
                 </span>
               </div>
             </div>
             <button className="btn-edit-profile" onClick={() => setIsEditModalOpen(true)}>
-              Оновити профіль</button>
+              {t('profile.userInfo.update_btn')}
+            </button>
           </div>
 
           <div className="user-quote-section">
             <p className="profile-quote">
-              «Дивлячись на зоряне небо, який спогад засяяв би найяскравіше у вашій свідомості?»
+              {t('profile.userInfo.quote')}
             </p>
             <p className="user-bio" style={{ opacity: userData.bio ? 1 : 0.5 }}>
-              {userData.bio || 'Додайте свою відповідь під час редагування профілю...'}
+              {userData.bio || t('profile.userInfo.bio_placeholder')}
             </p>
           </div>
         </div>
@@ -222,7 +226,7 @@ const ProfilePage = () => {
       <div className="groups-section">
         <h2 className="groups-section-title">
           <Sparkles size={28} className="logo-icon" /> 
-          Мої сузір'я (Групи)
+          {t('profile.groups.title')}
         </h2>
         
         <hr className="section-divider" />
@@ -232,7 +236,7 @@ const ProfilePage = () => {
             <div className="plus-icon-container">
               <Plus size={36} />
             </div>
-            <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>Створити сузір'я</span>
+            <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>{t('profile.groups.create_btn')}</span>
           </div>
 
           {userGroups.map((group) => (
@@ -244,7 +248,7 @@ const ProfilePage = () => {
                   <button 
                     className={`btn-favorite ${group.is_favorite ? 'active' : ''}`}
                     onClick={(e) => handleToggleFavorite(e, group.id)}
-                    title={group.is_favorite ? "Прибрати з обраного" : "Додати в обране"}
+                    title={group.is_favorite ? t('profile.groups.remove_favorite') : t('profile.groups.add_favorite')}
                   >
                     <Star size={18} />
                   </button>
@@ -269,16 +273,16 @@ const ProfilePage = () => {
                     <>
                       <Circle size={10} color="#10b981" fill='#10b981' 
                       style={{ display: 'inline', marginRight: '6px' }}/>
-                      Перегляньте нові спогади!
+                      {t('profile.groups.new_memories')}
                     </>
                   ) : (
                     group.postsCount > 0 ? (
                       <>
                         <ImageIcon size={14} style={{ display: 'inline', marginRight: '6px', marginBottom: '-2px' }}/>
-                        Спогадів: {group.postsCount}
+                        {t('profile.groups.memories_count', { count: group.postsCount })}
                       </>
                     ) : (
-                      'Спогадів ще немає. Створіть перші!'
+                      t('profile.groups.no_memories')
                     )
                   )}
                 </span>

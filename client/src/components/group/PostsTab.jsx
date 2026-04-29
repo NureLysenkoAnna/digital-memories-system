@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, X, Sparkles } from 'lucide-react';
 import PinnedPostsSlider from './PinnedPostsSlider';
 import PostCard from '../post/PostCard';
@@ -22,9 +23,11 @@ const PostsTab = ({
   openPostDetail,
   lastPostElementRef,
   isLoadingMore,
-  page
+  page,
+  onError
 }) => {
   // Фільтрування постів
+  const { t } = useTranslation();
   const pinnedPosts = posts.filter(post => post.is_pinned);
   const regularPosts = posts.filter(post => !post.is_pinned);
 
@@ -42,14 +45,14 @@ const PostsTab = ({
               <input 
                 type="text" 
                 className={`search-input ${searchQuery ? 'filled' : 'empty'}`}
-                placeholder="Пошук спогадів..." 
+                placeholder={t('groups.posts_tab.search_placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
 
               {searchQuery && (
                 <div className="search-actions">
-                  <button type="submit" className="search-action-btn submit" title="Шукати">
+                  <button type="submit" className="search-action-btn submit" title={t('groups.posts_tab.search_btn_title')}>
                     <Search size={18} />
                   </button>
                   <div className="search-divider"></div>
@@ -61,7 +64,7 @@ const PostsTab = ({
                       setPage(1);
                       loadPosts(true, '');
                     }}
-                    title="Очистити пошук"
+                    title={t('groups.posts_tab.clear_search_btn_title')}
                   >
                     <X size={20} />
                   </button>
@@ -70,10 +73,10 @@ const PostsTab = ({
             </form>
             
             <select className="filter-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <option value="new_published">Нові публікації</option>
-              <option value="event_new">Хронологія: нові події</option>
-              <option value="event_old">Хронологія: старі події</option>
-              <option value="popular">Найпопулярніші</option>
+              <option value="new_published">{t('groups.posts_tab.sort_new_published')}</option>
+              <option value="event_new">{t('groups.posts_tab.sort_event_new')}</option>
+              <option value="event_old">{t('groups.posts_tab.sort_event_old')}</option>
+              <option value="popular">{t('groups.posts_tab.sort_popular')}</option>
             </select>
           </div>
 
@@ -91,13 +94,16 @@ const PostsTab = ({
           onPostUpdated={loadPosts}
           onTagClick={handleTagClick}
           onCommentClick={openPostDetail}
+          onError={onError}
         />
       )}
 
       <div>
         {regularPosts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-            {searchQuery ? 'За вашим запитом нічого не знайдено.' : (pinnedPosts.length > 0 ? 'Більше немає публікацій.' : 'Тут ще немає спогадів. Створіть перший!')}
+            {searchQuery 
+              ? t('groups.posts_tab.empty_search') 
+              : (pinnedPosts.length > 0 ? t('groups.posts_tab.empty_no_more') : t('groups.posts_tab.empty_no_posts'))}
           </div>
         ) : (
           regularPosts.map((post, index) => {
@@ -113,6 +119,7 @@ const PostsTab = ({
                   onDeleteClick={openDeletePostModal}
                   onTagClick={handleTagClick}
                   onCommentClick={openPostDetail}
+                  onError={onError}
                 />
               </div>
             );
@@ -123,7 +130,7 @@ const PostsTab = ({
       {isLoadingMore && page > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem 0', color: 'var(--text-muted)' }}>
           <Sparkles className="spin" size={20} style={{ marginRight: '0.5rem' }} />
-          <span style={{ fontStyle: 'italic' }}>Завантаження спогадів...</span>
+          <span style={{ fontStyle: 'italic' }}>{t('groups.posts_tab.loading_more')}</span>
         </div>
       )}
     </>
