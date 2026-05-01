@@ -78,7 +78,7 @@ class GroupService {
     `, [groupId, userId]);
 
     if (groupResult.rows.length === 0) {
-      throw new Error('Групу не знайдено або у вас немає доступу');
+      throw new Error('GROUP_NOT_FOUND_OR_NO_ACCESS');
     }
 
     const groupData = groupResult.rows[0];
@@ -132,7 +132,7 @@ class GroupService {
     );
     
     if (result.rows.length === 0 || result.rows[0].role !== 'admin') {
-      throw new Error('У вас немає прав адміністратора для цієї дії');
+      throw new Error('GROUP_ADMIN_ROLE_REQUIRED');
     }
   }
 
@@ -159,7 +159,7 @@ class GroupService {
     );
 
     if (result.rows.length === 0) {
-      throw new Error('Групу не знайдено');
+      throw new Error('GROUP_NOT_FOUND');
     }
 
     const deletedGroup = result.rows[0];

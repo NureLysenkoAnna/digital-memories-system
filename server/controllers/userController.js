@@ -1,4 +1,5 @@
 const UserService = require('../services/userService');
+const { sendSafeError } = require('../utils/errorHandler');
 
 class UserController {
   static async getProfile(req, res) {
@@ -6,7 +7,7 @@ class UserController {
       const userProfile = await UserService.getUserProfile(req.user.id);
       res.json(userProfile);
     } catch (error) {
-      res.status(404).json({ error: error.message });
+      sendSafeError(res, error, 404);
     }
   }
 
@@ -16,14 +17,31 @@ class UserController {
       const userId = req.user.id;
 
       if (!username) {
-        return res.status(400).json({ error: "Ім'я користувача є обов'язковим" });
+        return res.status(400).json({ error: 'USER_NAME_REQUIRED' });
       }
 
       const updatedUser = await UserService.updateUserProfile(userId, username, bio, avatarUrl);
       res.json(updatedUser);
     } catch (error) {
-      console.error('Помилка оновлення профілю:', error);
-      res.status(500).json({ error: 'Помилка сервера при оновленні профілю' });
+      console.error('Profile update error:', error);
+      res.status(500).json({ error: 'USER_UPDATE_FAILED' });
+    }
+  }
+
+  static async updateLanguage(req, res) {
+    try {
+      const { language } = req.body;
+      const userId = req.user.id;
+
+      if (!language) {
+        return res.status(400).json({ error: 'USER_LANGUAGE_REQUIRED' });
+      }
+
+      const updated = await UserService.updateUserLanguage(userId, language);
+      
+      res.json({ message: 'USER_LANGUAGE_UPDATED', language: updated.language });
+    } catch (error) {
+      sendSafeError(res, error, 400);
     }
   }
 }

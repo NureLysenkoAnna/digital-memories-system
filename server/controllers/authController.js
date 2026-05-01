@@ -1,4 +1,5 @@
 const AuthService = require('../services/authService');
+const { sendSafeError } = require('../utils/errorHandler');
 
 class AuthController {
     static async register(req, res) {
@@ -7,7 +8,7 @@ class AuthController {
             const result = await AuthService.registerUser(username, email, password);
             res.status(201).json(result); 
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            sendSafeError(res, error, 400);
         }
     }
     
@@ -17,7 +18,7 @@ class AuthController {
             const result = await AuthService.loginUser(email, password);
             res.json(result);
         } catch (error) {
-            res.status(401).json({ error: error.message });
+            sendSafeError(res, error, 401);
         }
     }
 
@@ -27,21 +28,20 @@ class AuthController {
             const result = await AuthService.googleLogin(googleToken);
             res.json(result);
         } catch (error) {
-            console.error('Помилка Google Auth:', error);
-            res.status(401).json({ error: 'Помилка авторизації через Google. Перевірте токен.' });
+            console.error('Google Auth error:', error);
+            res.status(401).json({ error: 'AUTH_GOOGLE_FAILED' });
         }
     }
 
     static async forgotPassword(req, res) {
         try {
             const { email } = req.body;
-            if (!email) return res.status(400).json({ error: "Введіть вашу електронну пошту" });
+            if (!email) return res.status(400).json({ error: "AUTH_EMAIL_REQUIRED" });
         
             const result = await AuthService.requestPasswordReset(email);
             res.json(result);
         } catch (error) {
-            console.error("Помилка запиту на відновлення:", error);
-            res.status(500).json({ error: "Не вдалося надіслати лист." });
+            sendSafeError(res, error, 400);
         }
     }
 
@@ -51,7 +51,7 @@ class AuthController {
             await AuthService.verifyResetToken(token);
             res.json({ valid: true });
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            sendSafeError(res, error, 400);
         }
   }
 
@@ -59,21 +59,15 @@ class AuthController {
         try {
             const { token, newPassword } = req.body;
             if (!token || !newPassword) {
-                return res.status(400).json({ error: "Некоректні дані" });
+                return res.status(400).json({ error: "AUTH_INVALID_DATA" });
             }
             if (newPassword.length < 6) {
-                return res.status(400).json({ error: "Пароль має містити мінімум 6 символів" });
+                return res.status(400).json({ error: "AUTH_PASSWORD_TOO_SHORT" });
             }
             const result = await AuthService.resetPassword(token, newPassword);
             res.json(result);
         } catch (error) {
-            console.error('Помилка скидання пароля:', error);
-
-            if (error.message.includes('Посилання недійсне')) {
-                return res.status(400).json({ error: error.message });
-            }
-
-            res.status(500).json({ error: 'Сталася помилка на сервері. Спробуйте пізніше.' });
+            sendSafeError(res, error, 400);
         }
     }
 }

@@ -4,7 +4,7 @@ const authMiddleware = (req, res, next) => {
   const authHeader = req.header('Authorization');
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Немає доступу. Токен відсутній.' });
+    return res.status(401).json({ error: 'AUTH_TOKEN_MISSING' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -14,7 +14,7 @@ const authMiddleware = (req, res, next) => {
     req.user = decoded; 
     next();
   } catch (err) {
-    res.status(401).json({ error: 'Недійсний токен авторизації.' });
+    res.status(401).json({ error: 'AUTH_TOKEN_INVALID' });
   }
 };
 

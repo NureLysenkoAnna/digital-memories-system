@@ -18,7 +18,7 @@ class AuthService {
 
     const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (userExists.rows.length > 0) {
-      throw new Error('Користувач з такою поштою вже зареєстрований');
+      throw new Error('AUTH_EMAIL_EXISTS');
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -40,14 +40,14 @@ class AuthService {
   static async loginUser(email, password) {
     const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (userResult.rows.length === 0) {
-      throw new Error('Невірна пошта або пароль!');
+      throw new Error('AUTH_INVALID_CREDENTIALS');
     }
 
     const user = userResult.rows[0];
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
     
     if (!isValidPassword) {
-      throw new Error('Невірна пошта або пароль!');
+      throw new Error('AUTH_INVALID_CREDENTIALS');
     }
 
     const token = generateToken(user.id);
@@ -84,14 +84,15 @@ class AuthService {
 
   // Створення запиту на відновлення
   static async requestPasswordReset(email) {
-    const userRes = await pool.query('SELECT id, username FROM users WHERE email = $1', [email]);
+    const userRes = await pool.query('SELECT id, username, language FROM users WHERE email = $1', [email]);
     
     // Якщо користувача немає, ми все одно повертаємо успіх (щоб не розкривати базу хакерам)
     if (userRes.rows.length === 0) {
-      return { message: 'На пошту було успішно надіслано лист з інструкціями.' };
+      return { message: 'AUTH_RESET_EMAIL_SENT' };
     }
 
     const user = userRes.rows[0];
+    const userLang = user.language || 'uk';
 
     // Генерація безпечного випадкового токена (для листа)
     const resetToken = crypto.randomBytes(32).toString('hex');
@@ -115,9 +116,9 @@ class AuthService {
     const FRONTEND_URL = process.env.FRONTEND_URL;
     const resetLink = `${FRONTEND_URL}/reset-password/${resetToken}`;
     
-    await EmailService.sendPasswordReset(email, user.username, resetLink);
+    await EmailService.sendPasswordReset(email, user.username, resetLink, userLang);
 
-    return { message: 'На пошту було успішно надіслано лист з інструкціями.' };
+    return { message: 'AUTH_RESET_EMAIL_SENT' };
   }
 
   // Перевірка дійсності токена
@@ -131,7 +132,7 @@ class AuthService {
     );
 
     if (tokenRes.rows.length === 0) {
-      throw new Error('Посилання недійсне або час його дії вичерпано. Спробуйте надіслати запит ще раз.');
+      throw new Error('AUTH_RESET_TOKEN_INVALID');
     }
 
     return { valid: true, email: tokenRes.rows[0].email }; 
@@ -150,7 +151,7 @@ class AuthService {
 
     await pool.query('DELETE FROM password_resets WHERE email = $1', [email]);
 
-    return { message: 'Ваш пароль успішно оновлено! Тепер Ви можете увійти до системи.' };
+    return { message: 'AUTH_PASSWORD_RESET_SUCCESS' };
   }
 }
 

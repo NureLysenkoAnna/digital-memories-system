@@ -1,4 +1,5 @@
 const GroupMemberService = require('../services/groupMemberService');
+const { sendSafeError } = require('../utils/errorHandler');
 
 class GroupMemberController {
   static async getMembers(req, res) {
@@ -7,8 +8,7 @@ class GroupMemberController {
       const members = await GroupMemberService.getGroupMembers(groupId);
       res.json(members);
     } catch (error) {
-      console.error('Помилка отримання учасників:', error);
-      res.status(500).json({ error: error.message || 'Помилка сервера' });
+      sendSafeError(res, error, 400);
     }
   }
 
@@ -19,10 +19,9 @@ class GroupMemberController {
       const adminId = req.user.id;
 
       const updatedMember = await GroupMemberService.updateMemberRole(groupId, adminId, userId, role);
-      res.json({ message: 'Роль успішно оновлено', member: updatedMember });
+      res.json({ message: 'MEMBER_ROLE_UPDATED_SUCCESS', member: updatedMember });
     } catch (error) {
-      console.error('Помилка зміни ролі:', error);
-      res.status(403).json({ error: error.message });
+      sendSafeError(res, error, 403);
     }
   }
 
@@ -39,8 +38,7 @@ class GroupMemberController {
 
       res.json(result);
     } catch (error) {
-      console.error('Помилка видалення учасника:', error);
-      res.status(403).json({ error: error.message });
+      sendSafeError(res, error, 403);
     }
   }
 
@@ -51,14 +49,13 @@ class GroupMemberController {
       const adminId = req.user.id;
 
       if (!email) {
-        return res.status(400).json({ error: 'Email обов\'язковий' });
+        return res.status(400).json({ error: 'INVITE_EMAIL_REQUIRED' });
       }
 
       const result = await GroupMemberService.sendInvitation(groupId, adminId, email, role || 'member');
       res.json(result);
     } catch (error) {
-      console.error('Помилка відправки запрошення:', error);
-      res.status(400).json({ error: error.message });
+      sendSafeError(res, error, 400);
     }
   }
 
@@ -68,7 +65,7 @@ class GroupMemberController {
       const inviteInfo = await GroupMemberService.verifyInvitation(token);
       res.json(inviteInfo);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      sendSafeError(res, error, 400);
     }
   }
 
@@ -80,8 +77,7 @@ class GroupMemberController {
       const result = await GroupMemberService.acceptInvitation(token, userId);
       res.json(result);
     } catch (error) {
-      console.error('Помилка прийняття запрошення:', error);
-      res.status(400).json({ error: error.message });
+      sendSafeError(res, error, 400);
     }
   }
 }

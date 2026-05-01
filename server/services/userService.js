@@ -8,7 +8,7 @@ class UserService {
     );
 
     if (result.rows.length === 0) {
-      throw new Error('Користувача не знайдено');
+      throw new Error('USER_NOT_FOUND');
     }
 
     return result.rows[0];
@@ -22,6 +22,19 @@ class UserService {
        RETURNING id, username, email, avatar_url, bio, created_at`,
       [username, bio, avatarUrl, userId]
     );
+    return result.rows[0];
+  }
+
+  static async updateUserLanguage(userId, language) {
+    if (!['uk', 'en'].includes(language)) {
+      throw new Error('USER_INVALID_LANGUAGE');
+    }
+
+    const result = await pool.query(
+      'UPDATE users SET language = $1 WHERE id = $2 RETURNING language',
+      [language, userId]
+    );
+
     return result.rows[0];
   }
 }

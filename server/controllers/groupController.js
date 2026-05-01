@@ -1,4 +1,5 @@
 const GroupService = require('../services/groupService');
+const { sendSafeError } = require('../utils/errorHandler');
 
 class GroupController {
   static async createGroup(req, res) {
@@ -7,14 +8,14 @@ class GroupController {
       const userId = req.user.id;
 
       if (!name) {
-        return res.status(400).json({ error: 'Назва групи є обов\'язковою' });
+        return res.status(400).json({ error: 'GROUP_NAME_REQUIRED' });
       }
 
       const newGroup = await GroupService.createGroup(name, description, coverImageUrl, userId);
       res.status(201).json(newGroup);
     } catch (error) {
-      console.error('Помилка створення групи:', error);
-      res.status(500).json({ error: 'Помилка сервера при створенні групи' });
+      console.error('Group creation error:', error);
+      res.status(500).json({ error: 'GROUP_CREATE_FAILED' });
     }
   }
 
@@ -24,8 +25,8 @@ class GroupController {
       const groups = await GroupService.getUserGroups(userId);
       res.json(groups);
     } catch (error) {
-      console.error('Помилка отримання груп:', error);
-      res.status(500).json({ error: 'Помилка сервера при отриманні груп' });
+      console.error('Group fetch error:', error);
+      res.status(500).json({ error: 'GROUP_FETCH_FAILED' });
     }
   }
 
@@ -37,8 +38,7 @@ class GroupController {
       const updatedStatus = await GroupService.toggleFavorite(userId, groupId);
       res.json(updatedStatus);
     } catch (error) {
-      console.error('Помилка оновлення статусу обраного:', error);
-      res.status(500).json({ error: 'Помилка сервера' });
+      sendSafeError(res, error, 400);
     }
   }
 
@@ -50,11 +50,11 @@ class GroupController {
       const groupDetails = await GroupService.getGroupDetails(groupId, userId);
       res.json(groupDetails);
     } catch (error) {
-      console.error('Помилка отримання деталей групи:', error);
-      if (error.message.includes('немає доступу')) {
+      if (error.message === 'GROUP_NOT_FOUND_OR_NO_ACCESS') {
         return res.status(403).json({ error: error.message });
       }
-      res.status(500).json({ error: 'Помилка сервера' });
+      
+      sendSafeError(res, error, 400);
     }
   }
 
@@ -65,17 +65,17 @@ class GroupController {
       const userId = req.user.id;
 
       if (!name) {
-        return res.status(400).json({ error: 'Назва групи є обов\'язковою' });
+        return res.status(400).json({ error: 'GROUP_NAME_REQUIRED' });
       }
 
       const updatedGroup = await GroupService.updateGroup(groupId, userId, name, description, coverImageUrl);
       res.json(updatedGroup);
     } catch (error) {
-      console.error('Помилка оновлення групи:', error);
-      if (error.message.includes('немає прав')) {
+      if (error.message === 'GROUP_ADMIN_ROLE_REQUIRED') {
         return res.status(403).json({ error: error.message });
       }
-      res.status(500).json({ error: 'Помилка сервера' });
+      
+      sendSafeError(res, error, 400);
     }
   }
 
@@ -90,13 +90,13 @@ class GroupController {
       const io = req.app.get('io');
       io.emit('group_deleted', { groupId });
       
-      res.json({ message: 'Групу успішно видалено назавжди' });
+      res.json({ message: 'GROUP_DELETED_SUCCESS' });
     } catch (error) {
-      console.error('Помилка видалення групи:', error);
-      if (error.message.includes('немає прав')) {
+      console.error('Group deletion error:', error);
+      if (error.message === 'GROUP_ADMIN_ROLE_REQUIRED') {
         return res.status(403).json({ error: error.message });
       }
-      res.status(500).json({ error: 'Помилка сервера' });
+      res.status(500).json({ error: 'GROUP_DELETE_FAILED' });
     }
   }
 }

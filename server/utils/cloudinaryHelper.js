@@ -10,10 +10,10 @@ const deleteImageFromCloudinary = async (imageUrl) => {
       const publicId = pathAfterUpload.substring(0, pathAfterUpload.lastIndexOf('.')); 
       
       await cloudinary.uploader.destroy(publicId);
-      console.log(`Файл ${publicId} успішно видалено з Cloudinary`);
+      console.log(`The file ${publicId} has been successfully deleted from Cloudinary.`);
     }
   } catch (error) {
-    console.error('Помилка обробки URL для Cloudinary:', error);
+    console.error('Cloudinary URL processing error:', error);
   }
 };
 

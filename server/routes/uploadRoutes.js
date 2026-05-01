@@ -15,8 +15,8 @@ router.post('/', authMiddleware, upload.single('image'), (req, res) => {
         imageUrl: req.file.path 
     });
   } catch (error) {
-    console.error('Помилка завантаження файлу:', error);
-    res.status(500).json({ error: 'Помилка сервера при завантаженні файлу' });
+    console.error('File upload error:', error);
+    res.status(500).json({ error: 'UPLOAD_FAILED' });
   }
 });
 
@@ -26,15 +26,15 @@ router.delete('/', authMiddleware, async (req, res) => {
     const { imageUrl } = req.body;
     
     if (!imageUrl) {
-      return res.status(400).json({ error: 'URL зображення обов\'язкове' });
+      return res.status(400).json({ error: 'UPLOAD_URL_REQUIRED' });
     }
 
     await deleteImageFromCloudinary(imageUrl);
 
-    res.json({ message: 'Зображення успішно видалено з хмари' });
+    res.json({ message: 'UPLOAD_DELETE_SUCCESS' });
   } catch (error) {
-    console.error('Помилка видалення файлу з хмари:', error);
-    res.status(500).json({ error: 'Помилка сервера при видаленні файлу' });
+    console.error('Error deleting a file from the cloud:', error);
+    res.status(500).json({ error: 'UPLOAD_DELETE_FAILED' });
   }
 });
 
@@ -42,22 +42,22 @@ router.delete('/', authMiddleware, async (req, res) => {
 router.post('/multiple', authMiddleware, upload.array('images', 5), (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ error: 'Файли не були завантажені' });
+      return res.status(400).json({ error: 'UPLOAD_NO_FILES' });
     }
     
     const imageUrls = req.files.map(file => file.path);
     
     res.json({ 
-        message: 'Фотографії успішно завантажено',
+        message: 'UPLOAD_MULTIPLE_SUCCESS',
         imageUrls: imageUrls 
     });
   } catch (error) {
-    console.error('Помилка масового завантаження файлів:', error);
+    console.error('File batch upload error:', error);
 
     if (error.code === 'LIMIT_UNEXPECTED_FILE') {
-      return res.status(400).json({ error: 'Можна завантажити максимум 5 файлів' });
+      return res.status(400).json({ error: 'UPLOAD_LIMIT_EXCEEDED' });
     }
-    res.status(500).json({ error: 'Помилка сервера при завантаженні файлів' });
+    res.status(500).json({ error: 'UPLOAD_MULTIPLE_FAILED' });
   }
 });
 

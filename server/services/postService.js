@@ -3,13 +3,13 @@ const pool = require('../config/db');
 class PostService {
   static async createPost(groupId, authorId, content, tags, eventDate, imageUrls) {
     if (content && content.length > 500) {
-      throw new Error('Текст публікації не може перевищувати 500 символів.');
+      throw new Error('POST_CONTENT_TOO_LONG');
     }
     if (tags && tags.length > 10) {
-      throw new Error('Можна додати не більше 5 тегів.');
+      throw new Error('POST_TAGS_LIMIT_EXCEEDED');
     }
     if (imageUrls && imageUrls.length > 5) {
-      throw new Error('До однієї публікації можна додати максимум 5 фотографій.');
+      throw new Error('POST_IMAGES_LIMIT_EXCEEDED');
     }
 
     const client = await pool.connect();
@@ -60,10 +60,10 @@ class PostService {
       [groupId, userId]
     );
 
-    if (roleResult.rows.length === 0) throw new Error('У вас немає доступу до цієї групи');
+    if (roleResult.rows.length === 0) throw new Error('POST_ACCESS_DENIED');
     
     const postResult = await pool.query('SELECT is_pinned FROM posts WHERE id = $1', [postId]);
-    if (postResult.rows.length === 0) throw new Error('Публікацію не знайдено');
+    if (postResult.rows.length === 0) throw new Error('POST_NOT_FOUND');
     
     const isCurrentlyPinned = postResult.rows[0].is_pinned;
 
@@ -74,7 +74,7 @@ class PostService {
         [groupId]
       );
       if (parseInt(pinCountResult.rows[0].count) >= 3) {
-        throw new Error('У групі вже закріплено максимум публікацій (3). Відкріпіть одну з них, щоб закріпити нову.');
+        throw new Error('POST_PIN_LIMIT_EXCEEDED');
       }
     }
 
@@ -172,11 +172,11 @@ class PostService {
         WHERE p.id = $1 AND p.group_id = $3
       `, [postId, userId, groupId]);
 
-      if (postCheck.rows.length === 0) throw new Error('Публікацію не знайдено');
+      if (postCheck.rows.length === 0) throw new Error('POST_NOT_FOUND');
       
       const { author_id, role } = postCheck.rows[0];
       if (author_id !== userId && role !== 'admin') {
-        throw new Error('У вас немає прав для видалення цієї публікації');
+        throw new Error('POST_DELETE_FORBIDDEN');
       }
 
       const imagesRes = await client.query('SELECT image_url FROM post_images WHERE post_id = $1', [postId]);
@@ -188,7 +188,7 @@ class PostService {
 
       const { deleteImageFromCloudinary } = require('../utils/cloudinaryHelper');
       imageUrls.forEach(url => {
-        deleteImageFromCloudinary(url).catch(err => console.error('Помилка видалення фото:', err));
+        deleteImageFromCloudinary(url).catch(err => console.error('Photo deletion error:', err));
       });
 
       return true;
@@ -224,7 +224,7 @@ class PostService {
   }
 
   static async addComment(postId, userId, content) {
-    if (!content || content.trim() === '') throw new Error('Коментар не може бути порожнім');
+    if (!content || content.trim() === '') throw new Error('POST_COMMENT_EMPTY');
     
     const result = await pool.query(
       'INSERT INTO post_comments (post_id, author_id, content) VALUES ($1, $2, $3) RETURNING id, content, created_at',
@@ -401,25 +401,23 @@ class PostService {
 
     if (dayMatches.length > 0) {
       const isExactlyOneYear = dayMatches.every(p => new Date(p.date).getFullYear() === currentYear - 1);
-      return { type: 'day', title: isExactlyOneYear ? 'В цей день рік тому:' : 'В цей день роки тому:', items: dayMatches };
+      return { type: 'day', isExactlyOneYear, items: dayMatches };
     }
 
-    const weekMatches = pastPhotoPosts.filter(post => {
-      return getWeekNumber(new Date(currentYear, new Date(post.date).getMonth(), new Date(post.date).getDate())) === currentWeek;
-    });
+    const weekMatches = pastPhotoPosts.filter(post => 
+      getWeekNumber(new Date(currentYear, new Date(post.date).getMonth(), new Date(post.date).getDate())) === currentWeek);
 
     if (weekMatches.length > 0) {
       const isExactlyOneYear = weekMatches.every(p => new Date(p.date).getFullYear() === currentYear - 1);
-      return { type: 'week', title: isExactlyOneYear ? 'Події цього тижня рік тому:' : 'Події цього тижня роки тому:', items: weekMatches };
+      return { type: 'week', isExactlyOneYear, items: weekMatches };
     }
 
     const monthMatches = pastPhotoPosts.filter(post => new Date(post.date).getMonth() === currentMonth);
 
     if (monthMatches.length > 0) {
       const isExactlyOneYear = monthMatches.every(p => new Date(p.date).getFullYear() === currentYear - 1);
-      const monthNames = ['січень', 'лютий', 'березень', 'квітень', 'травень', 'червень', 'липень', 'серпень', 'вересень', 'жовтень', 'листопад', 'грудень'];
-      const capitalizedMonth = monthNames[currentMonth].charAt(0).toUpperCase() + monthNames[currentMonth].slice(1);
-      return { type: 'month', title: isExactlyOneYear ? `Пригадайте ${capitalizedMonth} минулого року:` : `Пригадайте ${capitalizedMonth} минулих років:`, items: monthMatches };
+      // Місяць (0 - січень, 11 - грудень) передається як індекс
+      return { type: 'month', isExactlyOneYear, monthIndex: currentMonth, items: monthMatches };
     }
 
     return null;

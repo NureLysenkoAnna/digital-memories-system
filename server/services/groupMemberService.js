@@ -27,17 +27,21 @@ class GroupMemberService {
     return result.rows;
   }
 
-  static async updateMemberRole(groupId, adminId, targetUserId, newRole) {
+  static async checkIfAdmin(groupId, userId, errorCode = 'MEMBER_ADMIN_ROLE_REQUIRED') {
     const checkAdmin = await pool.query(
       'SELECT role FROM group_members WHERE group_id = $1 AND user_id = $2',
-      [groupId, adminId]
+      [groupId, userId]
     );
     if (checkAdmin.rows.length === 0 || checkAdmin.rows[0].role !== 'admin') {
-      throw new Error('У вас немає прав для зміни ролей.');
+      throw new Error(errorCode);
     }
+  }
 
+  static async updateMemberRole(groupId, adminId, targetUserId, newRole) {
+    await this.checkIfAdmin(groupId, adminId, 'MEMBER_ADMIN_ROLE_REQUIRED');
+    
     if (String(adminId) === String(targetUserId)) {
-      throw new Error('Ви не можете змінити роль самому собі');
+      throw new Error('MEMBER_CANNOT_CHANGE_OWN_ROLE');
     }
 
     const result = await pool.query(
@@ -57,19 +61,19 @@ class GroupMemberService {
     const requester = roles.find(r => String(r.user_id) === String(requesterId));
     const target = roles.find(r => String(r.user_id) === String(targetUserId));
 
-    if (!requester) throw new Error('Ви не є учасником цієї групи');
-    if (!target) throw new Error('Користувача не знайдено в групі');
+    if (!requester) throw new Error('MEMBER_REQUESTER_NOT_IN_GROUP');
+    if (!target) throw new Error('MEMBER_TARGET_NOT_IN_GROUP');
 
     if (String(requesterId) === String(targetUserId)) {
       if (requester.role === 'admin') {
-        throw new Error('Власник не може просто покинути групу. Ви можете лише видалити її повністю.');
+        throw new Error('MEMBER_OWNER_CANNOT_LEAVE');
       }
     } else {
       if (requester.role !== 'admin') {
-        throw new Error('Тільки власник може видаляти інших учасників з групи.');
+        throw new Error('MEMBER_ADMIN_ROLE_REQUIRED_TO_REMOVE');
       }
       if (target.role === 'admin') {
-        throw new Error('Неможливо видалити власника групи.');
+        throw new Error('MEMBER_CANNOT_REMOVE_OWNER');
       }
     }
 
@@ -80,29 +84,27 @@ class GroupMemberService {
 
     return { 
       message: String(requesterId) === String(targetUserId) 
-        ? 'Ви успішно покинули групу' 
-        : 'Учасника успішно видалено' 
+        ? 'MEMBER_LEFT_SUCCESS' 
+        : 'MEMBER_REMOVED_SUCCESS'
     };
   }
 
   static async sendInvitation(groupId, adminId, email, role) {
-    const checkAdmin = await pool.query(
-      'SELECT role FROM group_members WHERE group_id = $1 AND user_id = $2',
-      [groupId, adminId]
-    );
-    if (checkAdmin.rows.length === 0 || checkAdmin.rows[0].role !== 'admin') {
-      throw new Error('Тільки власник може запрошувати учасників');
-    }
+    await this.checkIfAdmin(groupId, adminId, 'INVITE_ADMIN_ROLE_REQUIRED');
 
     const groupRes = await pool.query('SELECT name FROM groups WHERE id = $1', [groupId]);
     const groupName = groupRes.rows[0].name;
+
+    // Отримання мови адміна групи
+    const adminRes = await pool.query('SELECT language FROM users WHERE id = $1', [adminId]);
+    const adminLang = adminRes.rows.length > 0 && adminRes.rows[0].language ? adminRes.rows[0].language : 'uk';
 
     const checkExisting = await pool.query(`
       SELECT u.id FROM group_members gm
       JOIN users u ON gm.user_id = u.id
       WHERE gm.group_id = $1 AND u.email = $2
     `, [groupId, email]);
-    if (checkExisting.rows.length > 0) throw new Error('Цей користувач вже є в групі!');
+    if (checkExisting.rows.length > 0) throw new Error('INVITE_USER_ALREADY_IN_GROUP');
 
     // Чи не було вже відправлено запрошення на цю пошту?
     const checkPendingInvite = await pool.query(
@@ -110,7 +112,7 @@ class GroupMemberService {
       [groupId, email]
     );
     if (checkPendingInvite.rows.length > 0) {
-      throw new Error('Запрошення на цю пошту вже надіслано та очікує підтвердження.');
+      throw new Error('INVITE_ALREADY_SENT');
     }
 
     // Генерація оригінального токена (UUID)
@@ -131,9 +133,9 @@ class GroupMemberService {
 
     // Відправка оригінального токена у посиланні
     const inviteLink = `${process.env.FRONTEND_URL}/invite/${rawToken}`;
-    await EmailService.sendInvitation(email, groupName, inviteLink, role);
+    await EmailService.sendInvitation(email, groupName, inviteLink, role, adminLang);
 
-    return { message: 'Запрошення успішно надіслано!' };
+    return { message: 'INVITE_SENT_SUCCESS' };
   }
 
   // Публічна перевірка запрошення
@@ -148,7 +150,7 @@ class GroupMemberService {
     `, [hashedToken]);
 
     if (inviteRes.rows.length === 0) {
-      throw new Error('Запрошення недійсне, вже використане або його термін дії закінчився.');
+      throw new Error('INVITE_INVALID_OR_EXPIRED');
     }
 
     return inviteRes.rows[0]; 
@@ -164,7 +166,7 @@ class GroupMemberService {
     );
 
     if (checkMember.rows.length > 0) {
-      throw new Error('Ви вже є учасником цієї групи!');
+      throw new Error('INVITE_USER_ALREADY_IN_GROUP');
     }
 
     await pool.query(
@@ -175,7 +177,7 @@ class GroupMemberService {
     await pool.query('DELETE FROM group_invitations WHERE id = $1', [invite.id]);
 
     return { 
-      message: 'Ви успішно приєдналися до групи:', 
+      message: 'INVITE_ACCEPTED_SUCCESS', 
       groupId: invite.group_id 
     };
   }
