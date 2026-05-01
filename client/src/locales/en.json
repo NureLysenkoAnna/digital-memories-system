@@ -19,18 +19,16 @@
       "change_photo": "Change photo",
       "click_to_add": "Click to add photo",
       "add_btn": "Add",
-      "err_too_large": "File is too large. Maximum 10 MB.",
-      "err_unsupported": "Unsupported file format. Please choose another one!",
-      "err_upload": "Error uploading photo.",
-      "err_delete_old": "Failed to delete old photo from cloud."
+      "err_too_large": "File is too large. Maximum 10 MB."
     },
     "buttons": {
       "cancel": "Cancel",
       "delete": "Yes, delete",
-      "wait": "Please wait..."
+      "wait": "Please wait...",
+      "retry": "Try again"
     },
     "errors": {
-      "unexpected": "An unexpected error occurred"
+      "unexpected": "An unexpected error occurred."
     }
   },
   "auth": {
@@ -156,8 +154,7 @@
       "bio_placeholder": "Leave this memory here...",
       "saving": "Saving changes...",
       "submit_btn": "Save changes",
-      "err_req_username": "Username cannot be empty",
-      "err_update": "Error updating profile"
+      "err_req_username": "Username cannot be empty"
     }
   },
   "groups": {
@@ -173,21 +170,16 @@
       "name_placeholder": "Give your space a name...",
       "desc_placeholder": "What is the story behind this space?..",
       "creating": "Creating...",
-      "submit_btn": "Ignite a new constellation",
-      "err_create": "Error creating group"
+      "submit_btn": "Ignite a new constellation"
     },
     "edit_modal": {
       "title": "Edit Group",
       "remove_cover": "Remove current cover",
       "saving": "Saving changes...",
-      "submit_btn": "Save changes",
-      "err_update": "Error updating group"
+      "submit_btn": "Save changes"
     },
     "page": {
       "loading": "Loading constellation...",
-      "err_access": "Your access has been changed, or you were removed from this constellation.",
-      "err_deleted": "This constellation was permanently deleted by the owner.",
-      "err_fetch": "Error loading group",
       "err_favorite": "Error adding to favorites",
       "err_no_memories": "There are no memories in this group yet!",
       "btn_back_to_profile": "Back to profile",
@@ -275,7 +267,7 @@
     },
     "post_content": {
       "avatar_alt": "Avatar",
-      "former_member": "| former member",
+      "former_member": "former member",
       "event_date_title": "Event date",
       "event_date": "Event date: {{date}}",
       "published_date_title": "Published date",
@@ -326,7 +318,7 @@
       "desc_single": "Are you sure you want to download this photo to your device?",
       "desc_plural": "Are you sure you want to download {{count}} photos to your device?",
       "confirm_btn": "Yes, save",
-      "err_download": "Error downloading photos"
+      "err_download": "Error downloading photos."
     },
     "photo_viewer": {
       "close_title": "Close (Esc)",
@@ -375,13 +367,11 @@
     "delete_group_modal": {
       "title": "Delete group?",
       "desc_start": "Are you sure you want to delete the group ",
-      "desc_end": "? This action cannot be undone. All posts, photos, and comments will be permanently destroyed.",
-      "err_delete": "Error deleting group"
+      "desc_end": "? This action cannot be undone. All posts, photos, and comments will be permanently destroyed."
     },
     "delete_post_modal": {
       "title": "Delete this memory?",
-      "desc": "Are you sure you want to permanently delete this post? All photos, comments, and reactions attached to it will also be destroyed.",
-      "err_delete": "Error deleting post"
+      "desc": "Are you sure you want to permanently delete this post? All photos, comments, and reactions attached to it will also be destroyed."
     },
     "leave_group_modal": {
       "title": "Leave group?",
@@ -389,6 +379,97 @@
       "btn_confirm": "Yes, leave",
       "btn_cancel": "Stay",
       "err_leave": "Error leaving group"
+    }
+  },
+  "client_errors": {
+    "unknown": "An unknown error occurred. Please try refreshing the page.",
+    "network": "Could not connect to the server. Please check your internet connection or try again later.",
+    "not_found": "The requested information could not be found. It may have been deleted."
+  },
+  "server_errors": {
+    "USER_NOT_FOUND": "User not found",
+    "USER_NAME_REQUIRED": "Username is required!",
+    "USER_UPDATE_FAILED": "Failed to update profile. Please try again later.",
+    "USER_INVALID_LANGUAGE": "Invalid language code.",
+    "USER_LANGUAGE_REQUIRED": "Language is required.",
+    "AUTH_TOKEN_MISSING": "Access denied. Please log in.",
+    "AUTH_TOKEN_INVALID": "Session expired. Please log in again.",
+    "AUTH_EMAIL_EXISTS": "A user with this email is already registered",
+    "AUTH_INVALID_CREDENTIALS": "Invalid email or password!",
+    "AUTH_GOOGLE_FAILED": "Google authorization failed. Please try again.",
+    "AUTH_EMAIL_REQUIRED": "Please enter your email address",
+    "AUTH_EMAIL_SEND_FAILED": "Failed to send the email.",
+    "AUTH_RESET_TOKEN_INVALID": "The link is invalid or has expired. Please request a new one.",
+    "AUTH_INVALID_DATA": "Invalid data provided",
+    "AUTH_PASSWORD_TOO_SHORT": "Password must be at least 6 characters long",
+    "GROUP_NO_ACCESS": "Your access has been changed, or you were removed from this constellation.",
+    "GROUP_NOT_FOUND_OR_NO_ACCESS": "Group not found or you do not have access",
+    "GROUP_ADMIN_ROLE_REQUIRED": "You do not have administrator rights for this action",
+    "GROUP_NOT_FOUND": "Group not found!",
+    "GROUP_DELETED": "This constellation was permanently deleted by the owner.",
+    "GROUP_NAME_REQUIRED": "Group name is required!",
+    "GROUP_CREATE_FAILED": "Failed to create group. Please try again.",
+    "GROUP_FETCH_FAILED": "Failed to load groups. Please try again later.",
+    "GROUP_UPDATE_FAILED": "Failed to update group.",
+    "GROUP_DELETE_FAILED": "Failed to delete group.",
+    "MEMBER_ADMIN_ROLE_REQUIRED": "You do not have permission to change roles.",
+    "MEMBER_CANNOT_CHANGE_OWN_ROLE": "You cannot change your own role.",
+    "MEMBER_REQUESTER_NOT_IN_GROUP": "You are not a member of this group.",
+    "MEMBER_TARGET_NOT_IN_GROUP": "User not found in the group.",
+    "MEMBER_OWNER_CANNOT_LEAVE": "The owner cannot simply leave the group. You must delete it completely.",
+    "MEMBER_ADMIN_ROLE_REQUIRED_TO_REMOVE": "Only the owner can remove other members from the group.",
+    "MEMBER_CANNOT_REMOVE_OWNER": "It is not possible to remove the group owner.",
+    "INVITE_ADMIN_ROLE_REQUIRED": "Only the owner can invite members.",
+    "INVITE_USER_ALREADY_IN_GROUP": "This user is already in the group!",
+    "INVITE_ALREADY_SENT": "An invitation to this email has already been sent and is pending confirmation.",
+    "INVITE_INVALID_OR_EXPIRED": "The invitation is invalid, already used, or has expired.",
+    "INVITE_EMAIL_REQUIRED": "Email is required.",
+    "POST_CONTENT_TOO_LONG": "The post content cannot exceed 500 characters.",
+    "POST_TAGS_LIMIT_EXCEEDED": "You can add up to 5 tags.",
+    "POST_IMAGES_LIMIT_EXCEEDED": "You can attach a maximum of 5 photos per post.",
+    "POST_ACCESS_DENIED": "You do not have access to this group.",
+    "POST_NOT_FOUND": "Post not found.",
+    "POST_PIN_LIMIT_EXCEEDED": "The group already has the maximum number of pinned posts (3). Unpin one to pin a new one.",
+    "POST_DELETE_FORBIDDEN": "You don't have permission to delete this post.",
+    "POST_DELETE_FAILED": "Failed to delete post.",
+    "POST_COMMENT_EMPTY": "Comment cannot be empty!",
+    "POST_GROUP_ID_REQUIRED": "Group ID is required.",
+    "POST_FETCH_FAILED": "Failed to fetch posts.",
+    "POST_MEMORIES_FETCH_FAILED": "Failed to fetch memories.",
+    "UPLOAD_NO_FILE": "No file was uploaded.",
+    "UPLOAD_UNSUPPORTED_FILE": "Unsupported file format. Please choose another one!",
+    "UPLOAD_FAILED": "Failed to upload the file.",
+    "UPLOAD_URL_REQUIRED": "Image URL is required.",
+    "UPLOAD_DELETE_FAILED": "Failed to delete the file.",
+    "UPLOAD_NO_FILES": "No files were uploaded.",
+    "UPLOAD_LIMIT_EXCEEDED": "You can upload a maximum of 5 files!",
+    "UPLOAD_MULTIPLE_FAILED": "Failed to upload files.",
+    "SERVER_ERROR": "Something went wrong. Please try again later."
+  },
+  "server_success": {
+    "AUTH_RESET_EMAIL_SENT": "An email with instructions has been successfully sent.",
+    "AUTH_PASSWORD_RESET_SUCCESS": "Your password has been successfully updated! Now you can log in.",
+    "GROUP_DELETED_SUCCESS": "Group has been successfully and permanently deleted.",
+    "MEMBER_LEFT_SUCCESS": "You have successfully left the group.",
+    "MEMBER_REMOVED_SUCCESS": "Member successfully removed.",
+    "MEMBER_ROLE_UPDATED_SUCCESS": "Role successfully updated!",
+    "INVITE_SENT_SUCCESS": "Invitation sent successfully!",
+    "INVITE_ACCEPTED_SUCCESS": "You have successfully joined the group!",
+    "UPLOAD_SUCCESS": "Successfully uploaded.",
+    "UPLOAD_DELETE_SUCCESS": "Image successfully removed from cloud.",
+    "UPLOAD_MULTIPLE_SUCCESS": "Photos successfully uploaded."
+  },
+  "memories": {
+    "day_one_year": "On this day exactly a year ago:",
+    "day_years": "On this day years ago:",
+    "week_one_year": "Events this week a year ago:",
+    "week_years": "Events this week years ago:",
+    "month_one_year": "Remember {{month}} last year:",
+    "month_years": "Remember {{month}} in past years:",
+    "months": {
+      "0": "January", "1": "February", "2": "March", "3": "April", 
+      "4": "May", "5": "June", "6": "July", "7": "August", 
+      "8": "September", "9": "October", "10": "November", "11": "December"
     }
   }
 }
