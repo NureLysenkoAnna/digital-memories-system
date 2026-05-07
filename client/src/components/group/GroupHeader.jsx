@@ -67,7 +67,7 @@ const GroupHeader = ({
                   <button className="dropdown-item" onClick={onEdit}><Edit size={18} /> {t('groups.header.menu_edit')}</button>
                   <button className="dropdown-item" onClick={onMembers}><Users size={18} /> {t('groups.header.menu_members')}</button>
                   <button className="dropdown-item" onClick={onToggleFavorite}>
-                    <Star size={18} fill={groupData.isFavorite ? "#E2E8F0" : "transparent"} color={groupData.isFavorite ? "#E2E8F0" : "currentColor"} /> 
+                    <Star size={18} fill={groupData.isFavorite ? "var(--accent-silver)" : "transparent"} color={groupData.isFavorite ? "var(--accent-silver)" : "currentColor"} /> 
                     {groupData.isFavorite ? t('groups.header.menu_remove_favorite') : t('groups.header.menu_add_favorite')}
                   </button>
                   <button className="dropdown-item danger" onClick={onDelete}><Trash2 size={18} /> {t('groups.header.menu_delete')}</button>
@@ -75,7 +75,7 @@ const GroupHeader = ({
               ) : (
                 <>
                   <button className="dropdown-item" onClick={onToggleFavorite}>
-                    <Star size={18} fill={groupData.isFavorite ? "#E2E8F0" : "transparent"} color={groupData.isFavorite ? "#E2E8F0" : "currentColor"} /> 
+                    <Star size={18} fill={groupData.isFavorite ? "var(--accent-silver)" : "transparent"} color={groupData.isFavorite ? "var(--accent-silver)" : "currentColor"} /> 
                     {groupData.isFavorite ? t('groups.header.menu_remove_favorite') : t('groups.header.menu_add_favorite')}
                   </button>
                   <button className="dropdown-item" onClick={onMembers}><Users size={18} /> {t('groups.header.menu_view_members')}</button>
