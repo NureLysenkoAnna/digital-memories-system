@@ -14,6 +14,10 @@
   /* Текстові кольори */
   --text-main: #E2E8F0;
   --text-muted: #94A3B8;
+
+  /* Додаткові кольори */
+  --color-success: #10b981;
+  --color-danger: #ef4444;
 }
 
 * {
@@ -31,6 +35,7 @@ body {
   background-image: radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.04), transparent 25%),
                     radial-gradient(circle at 85% 30%, rgba(226, 232, 240, 0.02), transparent 25%);
   overflow-x: hidden;
+  zoom: 0.8; /* Зменшує сайт до 80% */
 }
 
 a {
@@ -358,7 +363,7 @@ a {
 }
 
 .error-message {
-  color: #ef4444;
+  color: var(--color-danger);
   font-size: 0.85rem;
   position: absolute;
   bottom: 0;
@@ -368,7 +373,7 @@ a {
 
 /* Загальна помилка */
 .general-error {
-  color: #ef4444;
+  color: var(--color-danger);
   font-size: 0.9rem;
   min-height: 1rem; 
   text-align: center;
@@ -418,7 +423,7 @@ a {
 }
 
 .error-state-content {
-  color: #ef4444;
+  color: var(--color-danger);
   z-index: 1;
   font-size: 1.2rem;
   display: flex;
@@ -454,7 +459,7 @@ a {
 }
 
 .btn-logout:hover {
-  color: #ef4444; 
+  color: var(--color-danger); 
   border-color: rgba(239, 68, 68, 0.5);
   box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
 }
@@ -717,7 +722,7 @@ a {
 }
 
 .btn-favorite.active svg {
-  fill: #E2E8F0;
+  fill: var(--accent-silver);
 }
 
 /* --- СТИЛІ МОДАЛЬНОГО ВІКНА створення групи --- */
@@ -1041,7 +1046,7 @@ a {
 }
 
 .dropdown-item.danger {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .dropdown-item.danger:hover {
@@ -1327,12 +1332,20 @@ a {
 }
 
 .post-avatar {
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   border-radius: 9px;
   object-fit: cover;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
+}
+
+.vertical-divider {
+  width: 1px;
+  height: 14px;
+  background: var(--text-muted);
+  opacity: 0.4;
+  transform: translateY(1px);
 }
 
 .post-text {
@@ -1677,7 +1690,7 @@ a {
 
 .btn-modal-danger {
   background: #2B1F26;
-  color: #ef4444;
+  color: var(--color-danger);
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
@@ -1742,7 +1755,7 @@ a {
 }
 
 .char-counter-reverse.over-limit {
-  color: #ef4444; 
+  color: var(--color-danger); 
   font-weight: bold;
 }
 
@@ -1823,7 +1836,7 @@ a {
 }
 
 .tag-remove-btn:hover {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 /* МІНІ-ГАЛЕРЕЯ */
@@ -1870,7 +1883,7 @@ a {
 }
 
 .btn-remove-preview:hover {
-  background: #ef4444;
+  background: var(--color-danger);
 }
 
 /* СПЛИВАЮЧІ СПОВІЩЕННЯ */
@@ -2204,7 +2217,7 @@ a {
 }
 
 .members-count-badge.limit-reached {
-  color: #ef4444;
+  color: var(--color-danger);
   font-weight: 600;
 }
 
@@ -2225,7 +2238,7 @@ a {
 }
 
 .success-text {
-  color: #10b981 !important;
+  color: var(--color-success) !important;
 }
 
 .loading-text {
@@ -2387,7 +2400,7 @@ a {
 }
 .btn-icon.danger:hover {
   background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 /* --- СЕКЦІЯ ЗАПРОШЕННЯ --- */
@@ -2485,7 +2498,7 @@ a {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 10px;
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .limit-alert span {
@@ -3063,4 +3076,125 @@ a {
 
 .milestone-footer-badge svg {
   color: var(--accent-silver);
+}
+
+/* СТИЛІ СТОРІНКИ ЗАПРОШЕННЯ (INVITE PAGE)*/
+.invite-hero-panel {
+  max-width: 550px;
+  width: 100%;
+  padding: 3.5rem 2.5rem;
+  text-align: center;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.invite-status-title {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.invite-status-title.small {
+  font-size: 1.6rem;
+}
+
+.invite-status-title.smaller {
+  font-size: 1.5rem;
+}
+
+.invite-status-message {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.invite-icon-wrapper {
+  padding: 1rem;
+  border-radius: 50%;
+}
+
+.invite-icon-wrapper.success {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.invite-icon-wrapper.error {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.invite-icon-wrapper.loading {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+}
+
+.invite-icon-wrapper.unauthorized {
+  padding: 1.2rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+}
+
+.invite-group-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.invite-group-name {
+  margin: 0.8rem 0 0 0;
+  color: var(--text-main);
+}
+
+.invite-group-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.05);
+  padding: 0.5rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+}
+
+.invite-group-badge-text {
+  font-weight: bold;
+  color: var(--text-main);
+  font-size: 1.1rem;
+}
+
+.invite-action-buttons {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.invite-action-btn {
+  flex: 1;
+  padding: 0.8rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  color: var(--text-main);
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.invite-action-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--accent-silver);
+}
+
+.invite-action-btn.half {
+  margin-top: 0;
 }
