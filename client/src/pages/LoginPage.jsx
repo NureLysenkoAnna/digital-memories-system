@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Sparkles} from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 import GoogleAuthButton from '../components/ui/GoogleAuthButton';
+import { getUserFriendlyError } from '../utils/errorutils';
 
 const LoginPage = () => {
     const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -51,7 +52,7 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || t('auth.errors.login_fail'));
+        throw new Error(data.error || 'AUTH_INVALID_CREDENTIALS');
       }
 
       localStorage.setItem('token', data.token);
@@ -63,7 +64,7 @@ const LoginPage = () => {
       }
 
     } catch (err) {
-      setErrors({ general: err.message });
+      setErrors({ general: getUserFriendlyError(err.message) });
     } finally {
       setIsLoading(false);
     }
@@ -127,7 +128,7 @@ const LoginPage = () => {
 
         <div className="auth-divider">{t('auth.action.or')}</div>
         
-        <GoogleAuthButton onError={(msg) => setErrors({ general: msg })} />
+        <GoogleAuthButton onError={(msg) => setErrors({ general: getUserFriendlyError(msg) })} />
 
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0', marginBottom: '0'  }}>
           {t('auth.login.no_account')} <Link to="/register" className="auth-link">{t('auth.action.register')}</Link>

@@ -1,3 +1,5 @@
+import { getUserFriendlyError } from '../utils/errorUtils';
+
 export const useGroupPostActions = ({ API_URL, groupId, posts, setPosts, setSelectedPost, showToast }) => {
 
   const handleTogglePin = async (postId) => {
@@ -11,7 +13,7 @@ export const useGroupPostActions = ({ API_URL, groupId, posts, setPosts, setSele
     if (!isCurrentlyPinned) {
       const currentPinnedCount = posts.filter(p => p.is_pinned).length;
       if (currentPinnedCount >= 3) {
-        showToast('У групі вже закріплено максимум публікацій (3). Відкріпіть одну з них, щоб закріпити нову.');
+        showToast(getUserFriendlyError('POST_PIN_LIMIT_EXCEEDED'));
         return;
       }
     }
@@ -32,19 +34,13 @@ export const useGroupPostActions = ({ API_URL, groupId, posts, setPosts, setSele
       });
       
       if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        let errorMessage = 'Не вдалося змінити статус закріплення';
-        if (contentType && contentType.includes("application/json")) {
-          const data = await response.json();
-          errorMessage = data.error || errorMessage;
-        }
-        throw new Error(errorMessage);
+        throw new Error(data.error || 'SERVER_ERROR');
       }
     } catch (err) {
       // ВІДКАТ (ROLLBACK)
       setPosts(prev => prev.map(p => p.id === postId ? { ...p, is_pinned: isCurrentlyPinned } : p));
       setSelectedPost(prev => (prev && prev.id === postId) ? { ...prev, is_pinned: isCurrentlyPinned } : prev);
-      showToast(err.message || 'Помилка з\'єднання з сервером');
+      showToast(getUserFriendlyError(err.message));
     }
   };
 

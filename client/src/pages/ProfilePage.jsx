@@ -29,8 +29,9 @@ const ProfilePage = () => {
     const response = await fetch(`${API_URL}/groups`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!response.ok) throw new Error(t('profile.errors.fetch_groups'));
-    return await response.json();
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || t('profile.errors.fetch_groups'));
+    return data;
   };
 
   const loadData = async () => {
@@ -85,7 +86,7 @@ const ProfilePage = () => {
         const updatedGroups = await fetchGroups(token);
         setUserGroups(updatedGroups);
       } catch (err) {
-        console.error(`${t('profile.errors.update_groups_bg')} ${err}`);
+        console.error('Socket error:', err);
       }
     }
   });
@@ -123,13 +124,33 @@ const ProfilePage = () => {
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
         const realGroups = await fetchGroups(token);
         setUserGroups(realGroups);
+        throw new Error(errorData.error || 'GROUP_UPDATE_FAILED');
       }
     } catch (err) {
-      console.error(t('profile.errors.toggle_favorite'), err);
+      console.error('Error adding group to favorites:', err);
     }
   };
+
+  if (error) {
+    return (
+      <div className="profile-container error-page-wrapper">
+        <StarBackground />
+        <div className="error-state-content">
+          <AlertCircle size={40} opacity={0.8} /> {getUserFriendlyError(error)}
+        </div>
+
+        <button 
+          className="btn-profile" 
+          onClick={() => window.location.reload()}
+        >
+          {t('common.buttons.retry')}
+        </button>
+      </div>
+    );
+  }
 
   if (isLoading || !userData) {
     if (!showLoader) {
@@ -145,18 +166,6 @@ const ProfilePage = () => {
         <StarBackground />
         <div style={{ color: 'var(--text-main)', fontSize: '1.2rem', zIndex: 1 }}>
           {t('profile.loading')}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="profile-container error-page-wrapper">
-        <StarBackground />
-        <div className="error-state-content">
-          <AlertCircle size={40} opacity={0.8} />
-          {getUserFriendlyError(error)}
         </div>
       </div>
     );
@@ -271,7 +280,7 @@ const ProfilePage = () => {
                 >
                   {group.hasNewPosts ? (
                     <>
-                      <Circle size={10} color="#10b981" fill='#10b981' 
+                      <Circle size={10} color="var(--color-success)" fill='var(--color-success)' 
                       style={{ display: 'inline', marginRight: '6px' }}/>
                       {t('profile.groups.new_memories')}
                     </>

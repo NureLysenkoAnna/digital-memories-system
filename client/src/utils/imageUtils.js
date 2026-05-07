@@ -18,7 +18,7 @@ export const compressSingleImage = async (file, customOptions = {}) => {
   try {
     return await imageCompression(file, options);
   } catch (error) {
-    console.error("Помилка стиснення утилітою:", error);
+    console.error("Photo compression error:", error);
     return file; // Повертаємо оригінал (резервний варіант)
   }
 };

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
+import { getUserFriendlyError } from '../utils/errorUtils';
 
 const ResetPasswordPage = () => {
   const { token } = useParams();
@@ -27,14 +28,14 @@ const ResetPasswordPage = () => {
           throw new Error(data.error || t('auth.errors.invalid_token'));
         }
       } catch (err) {
-        setTokenError(err.message);
+        setTokenError(getUserFriendlyError(err.message));
       } finally {
         setIsVerifying(false);
       }
     };
 
     verifyToken();
-  }, [token, API_URL, t]);
+  }, [token, API_URL]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,13 +80,16 @@ const ResetPasswordPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || t('auth.errors.reset_fail'));
+        throw new Error(data.error || 'SERVER_ERROR');
       }
 
-      setGeneralMessage({ type: 'success', text: data.message });
+      setGeneralMessage({ 
+        type: 'success', 
+        text: t(`server_success.${data.message}`, { defaultValue: t('auth.reset.success_title') }) 
+      });
       setFormData({ password: '', confirmPassword: '' });
     } catch (err) {
-      setGeneralMessage({ type: 'error', text: err.message });
+      setGeneralMessage({ type: 'error', text: getUserFriendlyError(err.message) });
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +111,7 @@ const ResetPasswordPage = () => {
                width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)',
                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(239, 68, 68, 0.3)'
             }}>
-              <AlertCircle size={40} color="#ef4444" />
+              <AlertCircle size={40} color="var(--color-danger)" />
             </div>
             
             <h2 className="auth-title" style={{ fontSize: '1.7rem', margin: 0 }}>
@@ -128,7 +132,7 @@ const ResetPasswordPage = () => {
                width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)',
                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(16, 185, 129, 0.3)'
             }}>
-              <CheckCircle size={40} color="#10b981" />
+              <CheckCircle size={40} color="var(--color-success)" />
             </div>
             
             <h2 className="auth-title" style={{ fontSize: '1.8rem', margin: 0 }}>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, AlertTriangle } from 'lucide-react';
+import { getUserFriendlyError } from '../../utils/errorUtils';
 
 const ConfirmModal = ({ 
   isOpen, 
@@ -37,13 +38,13 @@ const ConfirmModal = ({
       await onConfirm(); 
       onClose();
     } catch (err) {
-      setError(err.message || t('common.errors.unexpected'));
+      setError(getUserFriendlyError(err.message));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const iconColor = isDanger ? "#ef4444" : "var(--text-main)";
+  const iconColor = isDanger ? "var(--color-danger)" : "var(--text-main)";
   const iconBg = isDanger ? "rgba(239, 68, 68, 0.08)" : "rgba(255, 255, 255, 0.08)";
   const confirmBtnClass = isDanger ? "btn-modal-action btn-modal-danger" : "btn-modal-action btn-modal-primary";
 

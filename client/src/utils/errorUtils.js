@@ -1,18 +1,21 @@
+import i18n from '../i18n';
+
 export const getUserFriendlyError = (errMessage) => {
-  if (!errMessage) return 'Виникла невідома помилка. Спробуйте оновити сторінку.';
+  if (!errMessage) return i18n.t('client_errors.unknown');
   
-  const lowerErr = String(errMessage).toLowerCase();
+  const strErr = String(errMessage);
+  const lowerErr = strErr.toLowerCase();
 
   if (lowerErr.includes('failed to fetch') || lowerErr.includes('network error')) {
-    return 'Не вдалося з\'єднатися з сервером. Будь ласка, перевірте інтернет-з\'єднання або спробуйте пізніше.';
+    return i18n.t('client_errors.network');
   }
   if (lowerErr.includes('unauthorized') || lowerErr.includes('token')) {
-    return 'Час вашої сесії минув або доступ заборонено. Будь ласка, увійдіть в акаунт знову.';
+    return i18n.t('server_errors.AUTH_TOKEN_INVALID');
   }
   if (lowerErr.includes('not found')) {
-    return 'Запитувану інформацію не знайдено. Можливо, вона була видалена.';
+    return i18n.t('client_errors.not_found');
   }
   
   // Якщо помилка не підпадає під жодну з категорій, повертаємо її як є
-  return errMessage;
+  return i18n.t(`server_errors.${strErr}`, { defaultValue: strErr });
 };

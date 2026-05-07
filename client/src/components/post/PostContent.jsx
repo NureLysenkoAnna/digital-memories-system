@@ -4,6 +4,7 @@ import { MoreVertical, Users, Sparkles, Download, Trash2, MessageCircle, SmilePl
 import { Emoji, EmojiStyle } from 'emoji-picker-react';
 import PhotoViewerModal from '../modals/PhotoViewerModal';
 import DownloadPhotosModal from '../modals/DownloadPhotosModal';
+import { getUserFriendlyError } from '../../utils/errorUtils';
 
 const REACTION_TYPES = [
   { char: '❤️', unified: '2764-fe0f' },
@@ -77,14 +78,19 @@ const PostContent = ({
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ reaction: emoji })
       });
-      if (res.ok && onPostUpdated) onPostUpdated();
-      else if (!res.ok) setLocalReactions(post.reactions || []);
-    } catch (err) {
-      console.error('Error while reacting to post:', err);
-      if (onError) {
-        onError(`${t('groups.post_content.err_reaction')} ${err.message || ''}`);
+      const data = await res.json();
+
+      if (res.ok && onPostUpdated) {
+        onPostUpdated();
+      } else if (!res.ok) {
+        throw new Error(data.error || 'SERVER_ERROR'); 
       }
-      setLocalReactions(post.reactions || []);
+    } catch (err) {
+      setLocalReactions(post.reactions || []); 
+      
+      if (onError) {
+        onError(getUserFriendlyError(err.message)); 
+      }
     }
   };
 
@@ -123,21 +129,24 @@ const PostContent = ({
             </div>
           )}
           <div>
-            <h4 style={{ margin: '0 0 0.3rem 0', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {post.author.name}
+            <h4 style={{ margin: '0 0 0.3rem 0', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', flexWrap: 'wrap' }}>
+              <span style={{ lineHeight: '1' }}>{post.author.name}</span>
               {post.author.is_member === false && (
-                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '400', opacity: '0.5' }}>
-                  {t('groups.post_content.former_member')}
-                </span>
+                <>
+                  <span className="vertical-divider"></span>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)',  fontWeight: '400', opacity: '0.7', transform: 'translateY(1px)' }}>
+                    {t('groups.post_content.former_member')}
+                  </span>
+                </>
               )}
             </h4>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: isModalView ? '0.85rem' : '0.9rem', color: 'var(--text-muted)' }}>
               <span title={t('groups.post_content.event_date_title')} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text-main)', fontWeight: '500' }}>
-                {t('groups.post_content.event_date', { date: new Date(post.date).toLocaleDateString(dateLocale) })}
+                {t('groups.post_content.event_date', {date: new Date(post.date).toLocaleDateString(dateLocale)})}
               </span>
-              <span style={{ opacity: 0.4 }}>|</span>
-              <span title={t('groups.post_content.published_date_title')} style={{ opacity: 0.7 }}>
-                {t('groups.post_content.published_date', { date: new Date(post.created_at).toLocaleDateString(dateLocale) })}
+              <span className="vertical-divider"></span>
+              <span title={t('groups.post_content.published_date_title')} style={{ opacity: 0.7}}>
+                {t('groups.post_content.published_date', {date: new Date(post.created_at).toLocaleDateString(dateLocale)})}
               </span>
             </div>
           </div>

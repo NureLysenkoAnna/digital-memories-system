@@ -10,7 +10,7 @@ export const useProfileSockets = (API_URL, { onNewPost }) => {
     const socket = io(SOCKET_URL);
 
     socket.on('new_post', (data) => {
-      console.log('Знайдено новий спогад у групі:', data.groupId);
+      console.log('A new post has been found in the group:', data.groupId);
       if (onNewPost) {
         onNewPost(data.groupId);
       }

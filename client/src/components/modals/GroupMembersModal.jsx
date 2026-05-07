@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Users, Trash2, Mail, User, UserRoundPlus} from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
+import { getUserFriendlyError } from '../../utils/errorUtils';
 
 const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUserRole, onMembersUpdated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   const [members, setMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,13 +61,17 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
       const res = await fetch(`${API_URL}/groups/${groupId}/members`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      
+      const data = await res.json(); 
+
       if (res.ok) {
-        const data = await res.json();
         setMembers(data);
+      } else {
+        throw new Error(data.error || 'GROUP_FETCH_FAILED');
       }
     } catch (err) {
       console.error(err);
-      showMessage(t('groups.members_modal.messages.fetch_err'), 'error');
+      showMessage(getUserFriendlyError(err.message), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -84,36 +89,45 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
         body: JSON.stringify({ role: newRole })
       });
       
+      const data = await res.json();
       if (res.ok) {
-        showMessage(t('groups.members_modal.messages.role_success'));
+        showMessage(t(`server_success.${data.message}`, { defaultValue: t('groups.members_modal.messages.role_success') }));
         loadMembers(); 
       } else {
-        const errorData = await res.json();
-        showMessage(errorData.error || t('groups.members_modal.messages.role_err'), 'error');
+        throw new Error(data.error || 'SERVER_ERROR');
       }
     } catch (err) {
-      showMessage(t('groups.members_modal.messages.server_err'), 'error');
+      showMessage(getUserFriendlyError(err.message), 'error');
     }
   };
 
   const executeRemoveMember = async () => {
   if (!memberToRemove) return;
+  try{
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_URL}/groups/${groupId}/members/${memberToRemove.id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-  const token = localStorage.getItem('token');
-  const res = await fetch(`${API_URL}/groups/${groupId}/members/${memberToRemove.id}`, {
-    method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
+    const data = await res.json();
 
-  if (res.ok) {
-    showMessage(t('groups.members_modal.messages.remove_success', { name: memberToRemove.name }));
-    loadMembers();
-    if (onMembersUpdated) onMembersUpdated();
-  } else {
-    const errorData = await res.json();
-    throw new Error(errorData.error || t('groups.members_modal.messages.remove_err')); 
+    if (res.ok) {
+      showMessage(t(`server_success.${data.message}`, { 
+        name: memberToRemove.name,
+        defaultValue: t('groups.members_modal.messages.remove_success', { name: memberToRemove.name })
+      }));
+      loadMembers();
+      if (onMembersUpdated) onMembersUpdated();
+    } else {
+      throw new Error(data.error || 'SERVER_ERROR');
+    }
+  } catch (err) {
+    showMessage(getUserFriendlyError(err.message), 'error');
+    
+    throw err; 
   }
-};
+  };
 
   const handleInvite = async (e) => {
     e.preventDefault();
@@ -134,7 +148,8 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept-Language': i18n.language
         },
         body: JSON.stringify({ email: emailToInvite, role: inviteRole })
       });
@@ -142,13 +157,16 @@ const GroupMembersModal = ({ isOpen, onClose, groupId, currentUserId, currentUse
       const data = await res.json();
 
       if (res.ok) {
-        showInviteMessage(t('groups.members_modal.messages.invite_success', { email: emailToInvite }));
+        showInviteMessage(t(`server_success.${data.message}`, { 
+          email: emailToInvite, 
+          defaultValue: t('groups.members_modal.messages.invite_success', { email: emailToInvite }) 
+        }));
         setInviteEmail('');
       } else {
-        showInviteMessage(data.error || t('groups.members_modal.messages.invite_err'), 'error');
+        throw new Error(data.error || 'SERVER_ERROR');
       }
     } catch (err) {
-      showInviteMessage(t('groups.members_modal.messages.server_err'), 'error');
+      showInviteMessage(getUserFriendlyError(err.message), 'error');
     } finally {
       setIsInviting(false);
     }

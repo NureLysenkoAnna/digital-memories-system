@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Sparkles, UploadCloud, Image as ImageIcon } from 'lucide-react';
 import { compressSingleImage } from '../../utils/imageUtils';
+import { getUserFriendlyError } from '../../utils/errorutils';
 
 const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -77,12 +78,14 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
 
         const contentType = uploadRes.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-          throw new Error(t('common.image_upload.err_unsupported'));
+          throw new Error('UPLOAD_UNSUPPORTED_FILE');
         }
 
         const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || t('common.image_upload.err_upload'));
-        
+        if (!uploadRes.ok){
+          throw new Error(uploadData.error || 'UPLOAD_FAILED');
+        }
+
         finalImageUrl = uploadData.imageUrl;
       }
 
@@ -100,7 +103,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || t('groups.create_modal.err_create'));
+      if (!response.ok) throw new Error(data.error || 'GROUP_CREATE_FAILED');
 
       setFormData({ name: '', description: '' });
       setSelectedFile(null);
@@ -109,7 +112,8 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
       onClose();
 
     } catch (err) {
-      setErrors({ general: err.message });
+      const translatedMessage = getUserFriendlyError(err.message);
+      setErrors({ general: translatedMessage });
     } finally {
       setIsLoading(false);
     }

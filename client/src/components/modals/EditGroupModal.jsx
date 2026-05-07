@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Sparkles, UploadCloud, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { compressSingleImage } from '../../utils/imageUtils';
+import { getUserFriendlyError } from '../../utils/errorutils';
 
 const EditGroupModal = ({ isOpen, onClose, groupData, onGroupUpdated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -97,11 +98,11 @@ const EditGroupModal = ({ isOpen, onClose, groupData, onGroupUpdated }) => {
 
         const contentType = uploadRes.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-          throw new Error(t('common.image_upload.err_unsupported'));
+          throw new Error('UPLOAD_UNSUPPORTED_FILE');
         }
 
         const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || t('common.image_upload.err_upload'));
+        if (!uploadRes.ok) throw new Error(uploadData.error || 'UPLOAD_FAILED');
         
         finalImageUrl = uploadData.imageUrl; 
       }
@@ -115,7 +116,7 @@ const EditGroupModal = ({ isOpen, onClose, groupData, onGroupUpdated }) => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ imageUrl: groupData.coverUrl })
-        }).catch(err => console.error(t('common.image_upload.err_delete_old'), err));
+        }).catch(err => console.error('Error deleting old image:', err));
       }
 
       const response = await fetch(`${API_URL}/groups/${groupData.id}`, {
@@ -132,13 +133,13 @@ const EditGroupModal = ({ isOpen, onClose, groupData, onGroupUpdated }) => {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || t('groups.edit_modal.err_update'));
+      if (!response.ok) throw new Error(data.error || 'GROUP_UPDATE_FAILED');
 
       onGroupUpdated(); 
       onClose();
 
     } catch (err) {
-      setErrors({ general: err.message });
+      setErrors({ general: getUserFriendlyError(err.message) });
     } finally {
       setIsLoading(false);
     }
@@ -204,7 +205,7 @@ const EditGroupModal = ({ isOpen, onClose, groupData, onGroupUpdated }) => {
                   type="button" 
                   onClick={handleRemoveCover}
                   style={{ 
-                    background: 'transparent', border: 'none', color: '#ef4444', 
+                    background: 'transparent', border: 'none', color: 'var(--color-danger)', 
                     cursor: 'pointer', display: 'flex', alignItems: 'center', 
                     justifyContent: 'center', gap: '0.4rem', fontSize: '0.85rem', 
                     padding: '0.5rem', borderRadius: '8px', transition: 'all 0.2s'

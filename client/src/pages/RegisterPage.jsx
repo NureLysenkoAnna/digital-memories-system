@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Sparkles} from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 import GoogleAuthButton from '../components/ui/GoogleAuthButton';
+import { getUserFriendlyError } from '../utils/errorutils';
 
 const RegisterPage = () => {
     const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -75,7 +76,7 @@ const RegisterPage = () => {
       }
       
     } catch (err) {
-      setErrors({ general: err.message });
+      setErrors({ general: getUserFriendlyError(err.message) });
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +139,7 @@ const RegisterPage = () => {
 
         <div className="auth-divider">{t('auth.action.or')}</div>
 
-        <GoogleAuthButton onError={(msg) => setErrors({ general: msg })} />
+        <GoogleAuthButton onError={(msg) => setErrors({ general: getUserFriendlyError(msg) })} />
         
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0', marginBottom: '0' }}>
           {t('auth.register.has_account')} <Link to="/login" className="auth-link">{t('auth.action.login')}</Link>

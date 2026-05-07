@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { getUserFriendlyError } from '../utils/errorUtils';
 
 export const useGroupPosts = (groupId, API_URL) => {
   const [posts, setPosts] = useState([]);
@@ -44,9 +45,11 @@ export const useGroupPosts = (groupId, API_URL) => {
         }
         setHasMore(data.hasMore);
         setPage(currentPage + 1);
+      } else {
+        throw new Error(data.error || 'POST_FETCH_FAILED');
       }
     } catch (err) {
-      console.error('Помилка завантаження публікацій', err);
+      console.error('Error loading posts:', err);
     } finally {
       setIsLoadingMore(false);
     }

@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useTranslation } from 'react-i18next';
+import { getUserFriendlyError } from '../../utils/errorUtils';
 
 const GoogleAuthButton = ({ onError }) => {
   const navigate = useNavigate();
@@ -19,14 +20,14 @@ const GoogleAuthButton = ({ onError }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || t('auth.err_google_auth'));
+        throw new Error(data.error || 'AUTH_GOOGLE_FAILED');
       }
 
       localStorage.setItem('token', data.token);
       navigate('/profile');
 
     } catch (err) {
-      onError(err.message);
+      onError(getUserFriendlyError(err.message));
     }
   };
 
@@ -34,7 +35,7 @@ const GoogleAuthButton = ({ onError }) => {
     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.1rem' }}>
       <GoogleLogin 
         onSuccess={handleGoogleSuccess} 
-        onError={() => onError(t('auth.err_google_network'))}
+        onError={() => onError(t('auth.errors.google_network'))}
         theme="filled_black"
         shape="pill"
         text="continue_with"

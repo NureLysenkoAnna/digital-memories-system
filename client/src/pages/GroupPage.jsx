@@ -89,14 +89,14 @@ const GroupPage = () => {
     onMemberRemoved: (removedUserId) => {
       if (String(removedUserId) === String(currentUserId)) {
         forceCloseAllModals(); 
-        setError(t('groups.page.err_access')); 
+        setError('GROUP_NO_ACCESS'); 
       } else {
         loadGroupData(); 
       }
     },
     onGroupDeleted: () => {
       forceCloseAllModals();
-      setError(t('groups.page.err_deleted'));
+      setError('GROUP_DELETED');
     }
   });
 
@@ -116,7 +116,7 @@ const GroupPage = () => {
       });
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || t('groups.page.err_fetch'));
+      if (!response.ok) throw new Error(data.error || 'GROUP_FETCH_FAILED');
 
       setGroupData(data);
     } catch (err) {
@@ -167,9 +167,15 @@ const GroupPage = () => {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!response.ok) loadGroupData();
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'SERVER_ERROR'); 
+      }
     } catch (err) {
-      console.error(t('groups.page.err_favorite'), err);
+      console.error('Error adding group to favorites:', err);
+      setGroupData({ ...groupData, isFavorite: previousFavoriteStatus });
+      showToast(getUserFriendlyError(err.message));
     }
   };
 
@@ -231,16 +237,41 @@ const GroupPage = () => {
   }
 
   if (error) {
+    const isFatalError = [
+      'GROUP_NO_ACCESS',
+      'GROUP_NOT_FOUND',
+      'GROUP_NOT_FOUND_OR_NO_ACCESS',
+      'GROUP_DELETED', 
+      'MEMBER_REQUESTER_NOT_IN_GROUP'
+    ].includes(error);
+
     return (
       <div className="profile-container error-page-wrapper">
         <StarBackground />
+        
         <div className="error-state-content">
           <AlertCircle size={40} opacity={0.8} />
-          {getUserFriendlyError(error)}
+          <span style={{ textAlign: 'center' }}>{getUserFriendlyError(error)}</span>
         </div>
-        <button className="btn-profile" onClick={() => navigate('/profile')} style={{ zIndex: 1, marginTop: '1rem' }}>
-          {t('groups.page.btn_back_to_profile')}
-        </button>
+
+        <div style={{ display: 'flex', gap: '1rem', zIndex: 1, marginTop: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          
+          {!isFatalError && (
+            <button 
+              className="btn-profile" 
+              onClick={() => window.location.reload()} 
+            >
+              {t('common.buttons.retry')}
+            </button>
+          )}
+          
+          <button 
+            className="btn-profile" 
+            onClick={() => navigate('/profile')}
+          >
+            {t('groups.page.btn_back_to_profile')}
+          </button>
+        </div>
       </div>
     );
   }

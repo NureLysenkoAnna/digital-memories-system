@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Send, Users } from 'lucide-react';
 import PostContent from '../post/PostContent';
+import { getUserFriendlyError } from '../../utils/errorUtils';
 
 const PostDetailModal = (props) => {
   const { isOpen, onClose, post, currentUserId, onPostUpdated } = props;
@@ -41,8 +42,18 @@ const PostDetailModal = (props) => {
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/posts/${post.id}/comments`, { headers: { 'Authorization': `Bearer ${token}` } });
-      if (res.ok) setComments(await res.json());
-    } catch (err) { console.error(err); }
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setComments(data);
+      } else {
+        throw new Error(data.error || 'SERVER_ERROR'); 
+      }
+    } catch (err) { 
+      console.error(err);
+      if (onError) onError(getUserFriendlyError(err.message));
+    }
   };
 
   const handleSendComment = async (e) => {
@@ -56,14 +67,23 @@ const PostDetailModal = (props) => {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: newComment })
       });
+
+      const data = await res.json();
+
       if (res.ok) {
-        const addedComment = await res.json();
-        setComments([...comments, addedComment]);
+        setComments([...comments, data]);
         setNewComment('');
         if (onPostUpdated) onPostUpdated();
+      } else {
+        throw new Error(data.error || 'POST_COMMENT_EMPTY'); 
       }
-    } catch (err) { console.error(err); } 
-    finally { setIsLoading(false); }
+    } catch (err) { 
+      console.error(err);
+      if (onError) onError(getUserFriendlyError(err.message));
+    } 
+    finally { 
+      setIsLoading(false); 
+    }
   };
 
   return (

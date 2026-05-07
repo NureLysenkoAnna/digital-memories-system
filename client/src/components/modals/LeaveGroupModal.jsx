@@ -19,7 +19,7 @@ const LeaveGroupModal = ({ isOpen, onClose, groupId, currentUserId }) => {
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.error || t('groups.leave_group_modal.err_leave'));
+      throw new Error(data.error || 'SERVER_ERROR');
     }
     
     navigate('/profile');

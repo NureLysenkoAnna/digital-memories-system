@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Sparkles, UploadCloud, User, Trash2 } from 'lucide-react';
 import { compressSingleImage } from '../../utils/imageUtils';
+import { getUserFriendlyError } from '../../utils/errorutils';
 
 const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -98,11 +99,11 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
 
         const contentType = uploadRes.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-          throw new Error(t('common.image_upload.err_unsupported'));
+          throw new Error('UPLOAD_UNSUPPORTED_FILE');
         }
 
         const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || t('common.image_upload.err_upload'));
+        if (!uploadRes.ok) throw new Error(uploadData.error || 'UPLOAD_FAILED');
         
         finalAvatarUrl = uploadData.imageUrl;
       }
@@ -115,7 +116,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ imageUrl: currentUserData.avatarUrl })
-        }).catch(err => console.error(t('common.image_upload.err_delete_old'), err));
+        }).catch(err => console.error('Error deleting old avatar:', err));
       }
 
       const response = await fetch(`${API_URL}/users/profile`, {
@@ -132,13 +133,13 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || t('profile.edit_modal.err_update'));
+      if (!response.ok) throw new Error(data.error || 'USER_UPDATE_FAILED');
 
       onProfileUpdated(); 
       onClose();
 
     } catch (err) {
-      setErrors({ general: err.message });
+      setErrors({ general: getUserFriendlyError(err.message) });
     } finally {
       setIsLoading(false);
     }
@@ -190,7 +191,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUserData, onProfileUpdated }
                 type="button" 
                 onClick={handleRemoveAvatar}
                 style={{ 
-                  background: 'transparent', border: 'none', color: '#ef4444', 
+                  background: 'transparent', border: 'none', color: 'var(--color-danger)', 
                   cursor: 'pointer', display: 'flex', alignItems: 'center', 
                   gap: '0.4rem', fontSize: '0.85rem', fontWeight: '500',
                   padding: '0.3rem 0.6rem', borderRadius: '6px', transition: 'all 0.2s'

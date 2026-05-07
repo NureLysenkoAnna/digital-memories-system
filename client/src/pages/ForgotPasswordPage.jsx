@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, Mail, MailCheck } from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
+import { getUserFriendlyError } from '../utils/errorUtils';
 
 const ForgotPasswordPage = () => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -43,13 +44,16 @@ const ForgotPasswordPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || t('auth.errors.generic'));
+        throw new Error(data.error || 'SERVER_ERROR');
       }
 
-      setGeneralMessage({ type: 'success', text: data.message });
+      setGeneralMessage({ 
+        type: 'success', 
+        text: t(`server_success.${data.message}`, { defaultValue: t('auth.forgot.sent_title') }) 
+      });
       setEmail('');
     } catch (err) {
-      setGeneralMessage({ type: 'error', text: err.message });
+      setGeneralMessage({ type: 'error', text: getUserFriendlyError(err.message) });
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +71,7 @@ const ForgotPasswordPage = () => {
                width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)',
                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(16, 185, 129, 0.3)'
             }}>
-              <MailCheck size={40} color="#10b981" />
+              <MailCheck size={40} color="var(--color-success)" />
             </div>
             
             <h2 className="auth-title" style={{ fontSize: '1.8rem', margin: 0 }}>

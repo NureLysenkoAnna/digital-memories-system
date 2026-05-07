@@ -18,7 +18,7 @@ const DeleteGroupModal = ({ isOpen, onClose, groupData, onGroupDeleted }) => {
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.error || t('groups.delete_group_modal.err_delete'));
+      throw new Error(data.error || 'GROUP_DELETE_FAILED');
     }
 
     onGroupDeleted(); 

@@ -16,7 +16,7 @@ const DeletePostModal = ({ isOpen, onClose, post, groupId, onPostDeleted }) => {
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.error || t('groups.delete_post_modal.err_delete'));
+      throw new Error(data.error || 'POST_DELETE_FAILED');
     }
     
     onPostDeleted(); 

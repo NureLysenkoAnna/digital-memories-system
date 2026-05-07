@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Sparkles, UploadCloud, Calendar, Hash, Image as ImageIcon, Plus } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
+import { getUserFriendlyError } from '../../utils/errorutils';
 
 const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -172,11 +173,11 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
 
         const contentType = uploadRes.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-          throw new Error(t('groups.create_post_modal.errors.unsupported_file'));
+          throw new Error('UPLOAD_MULTIPLE_FAILED');
         }
 
         const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || t('groups.create_post_modal.errors.upload_fail'));
+        if (!uploadRes.ok) throw new Error(uploadData.error || 'UPLOAD_MULTIPLE_FAILED');
         finalImageUrls = uploadData.imageUrls;
       }
       const response = await fetch(`${API_URL}/posts`, {
@@ -185,11 +186,11 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
         body: JSON.stringify({ groupId, content: content.trim(), tags, eventDate, imageUrls: finalImageUrls })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || t('groups.create_post_modal.errors.create_fail'));
+      if (!response.ok) throw new Error(data.error || 'SERVER_ERROR');
       onPostCreated(); 
       onClose();
     } catch (err) {
-      setErrors({ general: err.message });
+      setErrors({ general: getUserFriendlyError(err.message) });
     } finally {
       setIsLoading(false);
     }

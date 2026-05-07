@@ -1,10 +1,10 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, ChevronLeft, CalendarHeart, WandSparkles,
-   Star, Flame, Heart, Clock, MessageCircle, MessageCircleHeart } from 'lucide-react';
+import { ChevronRight, ChevronLeft, CalendarHeart, WandSparkles, Star, Flame, Heart, 
+  Clock, MessageCircle, MessageCircleHeart } from 'lucide-react';
+import { getUserFriendlyError } from '../../utils/errorUtils';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
-
 
 // Словник іконок
 const MILESTONE_ICONS = {
@@ -41,24 +41,26 @@ const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) =
         const response = await fetch(`${API_URL}/posts/group/${groupId}/memories?role=${userRole}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setPersonalMilestones(data.milestones || []);
-          setMemoryData(data.calendarMemories || null);
-        }else {
-          setFetchError(true);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+           throw new Error(data.error || 'POST_MEMORIES_FETCH_FAILED');
         }
+        
+        setPersonalMilestones(data.milestones || []);
+        setMemoryData(data.calendarMemories || null);
+
       } catch (error) {
         console.error('Memory loading error:', error);
-        setFetchError(true);
+        setFetchError(getUserFriendlyError(error.message));
       } finally {
         setIsLoadingMilestones(false);
       }
     };
 
     fetchMemoriesData();
-  }, [groupId, userRole, t]);
+  }, [groupId, userRole]);
 
   // Перевірка скролу для стрілочок
   const checkScroll = () => {
@@ -87,10 +89,25 @@ const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) =
     }
   };
 
+  const getMemoryTitle = (data) => {
+    if (!data) return '';
+    
+    // Формування ключа (наприклад: 'day_one_year' або 'month_years')
+    const keySuffix = data.isExactlyOneYear ? 'one_year' : 'years';
+    const translationKey = `memories.${data.type}_${keySuffix}`;
+
+    if (data.type === 'month') {
+        const monthName = t(`memories.months.${data.monthIndex}`);
+        return t(translationKey, { month: monthName });
+    }
+
+    return t(translationKey);
+  };
+
   if (fetchError && !isLoadingMilestones) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-muted)' }}>
-        <h3 style={{ marginBottom: '0.5rem', color: '#ef4444' }}>
+        <h3 style={{ marginBottom: '0.5rem', color: 'var(--color-danger)' }}>
           {t('groups.memories_tab.err_fetch_title')}
         </h3>
         <p>{t('groups.memories_tab.err_fetch_desc')}</p>
@@ -114,7 +131,7 @@ const MemoriesTab = ({ groupId, posts, currentUserId, userRole, onPostClick }) =
         <div className="memory-section">
           <h3 className="memory-title">
             <CalendarHeart size={25} className="memory-icon" />
-            {memoryData.title}
+            {getMemoryTitle(memoryData)}
           </h3>
           
           <div className="memory-carousel-wrapper">
