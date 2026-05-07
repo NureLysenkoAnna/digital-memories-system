@@ -7,13 +7,31 @@ import { useTranslation } from 'react-i18next';
 const MainHeader = ({ pageType, onLogout }) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // Функція для зміни мови
-  const handleLanguageChange = (lang) => {
+  const handleLanguageChange = async (lang) => {
     i18n.changeLanguage(lang);
+
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+      try {
+        const API_URL = import.meta.env.VITE_API_BASE_URL;
+        await fetch(`${API_URL}/users/language`, {
+          method: 'PATCH',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          },
+          body: JSON.stringify({ language: lang })
+        });
+      } catch (error) {
+        console.error('Failed to save the language on the server:', error);
+      }
+    }
   };
 
-  const currentLang = i18n.language || 'uk';
+  const currentLang = i18n.resolvedLanguage || i18n.language || 'uk';
 
   return (
     <header className="glass-header">
