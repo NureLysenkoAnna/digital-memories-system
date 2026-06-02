@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sparkles} from 'lucide-react';
+import { Sparkles, ArrowLeft} from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 import GoogleAuthButton from '../components/ui/GoogleAuthButton';
 import { getUserFriendlyError } from '../utils/errorutils';
@@ -73,7 +73,13 @@ const LoginPage = () => {
   return (
     <div className="auth-page">
       <StarBackground />
-      <div className="glass-panel auth-glass-card">
+      
+      <div className="glass-panel auth-glass-card" style={{ position: 'relative' }}>
+        <Link to="/" className="btn-back-to-main">
+          <ArrowLeft size={24} className="back-icon" />
+          <span className="back-text">На головну</span>
+        </Link>
+
         <h2 className="auth-title">
           {t('auth.login.title')} 
           <Sparkles className="logo-icon" size={28} style={{ marginLeft: '0.5rem' }} /> 
@@ -96,7 +102,16 @@ const LoginPage = () => {
           </div>
 
           <div className="input-group">
-            <label>{t('auth.form.password_label')}</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+              <label style={{ margin: 0 }}>{t('auth.form.password_label')}</label>
+              <Link to="/forgot-password" 
+                style={{ 
+                  marginRight: '0.2rem',
+                  fontSize: '0.95rem'
+                }}>
+                <span className="auth-link">{t('auth.login.forgot_password')}</span>
+              </Link>
+            </div>
             <input 
               type="password" 
               name="password" 
@@ -104,16 +119,6 @@ const LoginPage = () => {
               value={formData.password} 
               onChange={handleChange} 
             />
-            <Link to="/forgot-password" 
-            style={{ 
-              color: 'var(--text-muted)', 
-              fontSize: '0.85rem', 
-              alignSelf: 'flex-end', 
-              marginTop: '0.5rem',
-              marginRight: '0.5rem',
-              textDecoration: 'none' }}>
-              <span className="auth-link">{t('auth.login.forgot_password')}</span>
-            </Link>
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
 
@@ -130,7 +135,7 @@ const LoginPage = () => {
         
         <GoogleAuthButton onError={(msg) => setErrors({ general: getUserFriendlyError(msg) })} />
 
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0', marginBottom: '0'  }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0', marginBottom: '0'}}>
           {t('auth.login.no_account')} <Link to="/register" className="auth-link">{t('auth.action.register')}</Link>
         </p>
       </div>
