@@ -5,7 +5,7 @@ import PostContent from '../post/PostContent';
 import { getUserFriendlyError } from '../../utils/errorUtils';
 
 const PostDetailModal = (props) => {
-  const { isOpen, onClose, post, currentUserId, onPostUpdated } = props;
+  const { isOpen, onClose, post, currentUserId, onPostUpdated, onCommentCountUpdate, onError } = props;
   const API_URL = import.meta.env.VITE_API_BASE_URL;
   const { t, i18n } = useTranslation();
   const dateLocale = i18n.language === 'uk' ? 'uk-UA' : 'en-US';
@@ -73,6 +73,11 @@ const PostDetailModal = (props) => {
       if (res.ok) {
         setComments([...comments, data]);
         setNewComment('');
+
+        if (onCommentCountUpdate && post) {
+          onCommentCountUpdate(post.id, 1);
+        }
+
         if (onPostUpdated) onPostUpdated();
       } else {
         throw new Error(data.error || 'POST_COMMENT_EMPTY'); 
