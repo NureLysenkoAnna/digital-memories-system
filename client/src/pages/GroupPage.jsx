@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {Sparkles, Plus, Dices, AlertCircle, ArrowUp} from 'lucide-react';
+import {Sparkles, Plus, Dices, AlertCircle, ArrowUp, CheckCircle} from 'lucide-react';
 
 import StarBackground from '../components/layout/StarBackground';
 import MainHeader from '../components/layout/MainHeader';
@@ -46,6 +46,7 @@ const GroupPage = () => {
   // UI Стани
   const [activeTab, setActiveTab] = useState('posts');
   const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('error');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const searchBarRef = useRef(null);
 
@@ -65,11 +66,12 @@ const GroupPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const showToast = (message) => {
+  const showToast = (message, type = 'error') => {
     setToastMessage(message);
+    setToastType(type);
     setTimeout(() => {
       setToastMessage('');
-    }, 4000); // Зникне через 4 сек
+    }, 4500); // Зникне через 4 сек
   };
 
   // ХУК ЧИТАННЯ (Posts Fetching)
@@ -222,6 +224,16 @@ const GroupPage = () => {
     setIsPostDetailModalOpen(true);
   };
 
+  const handleCommentCountUpdate = (postId, count) => {
+    setPosts(prevPosts => 
+      prevPosts.map(p => 
+        p.id === postId
+          ? { ...p, commentsCount: Math.max(0, (p.commentsCount || 0) + count) } 
+          : p
+      )
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="profile-container" style={{ 
@@ -291,17 +303,19 @@ const GroupPage = () => {
       />
       <CreatePostModal
         isOpen={isCreatePostModalOpen} onClose={() => setIsCreatePostModalOpen(false)}
-        groupId={groupId} onPostCreated={handlePostsChanged}
+        groupId={groupId} onPostCreated={handlePostsChanged} showToast={showToast}
       />
       <DeletePostModal 
         isOpen={isDeletePostModalOpen} onClose={() => setIsDeletePostModalOpen(false)} 
         post={postToDelete} groupId={groupId} onPostDeleted={handlePostsChanged} 
+        showToast={showToast}
       />
       <PostDetailModal 
         isOpen={isPostDetailModalOpen} onClose={() => setIsPostDetailModalOpen(false)} 
         post={selectedPost} currentUserId={currentUserId}
         userRole={groupData?.userRole || 'reader'} onPinToggle={handleTogglePin} 
         onDeleteClick={openDeletePostModal} onPostUpdated={loadPosts} onError={showToast}
+        onCommentCountUpdate={handleCommentCountUpdate}
       />
       <GroupMembersModal 
         isOpen={isMembersModalOpen} onClose={() => setIsMembersModalOpen(false)} 
@@ -408,8 +422,8 @@ const GroupPage = () => {
 
       {toastMessage && (
         <div className="toast-container">
-          <div className="toast-notification">
-            <AlertCircle size={20} />
+          <div className={`toast-notification ${toastType}`}>
+            {toastType === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
             <span>{toastMessage}</span>
           </div>
         </div>
