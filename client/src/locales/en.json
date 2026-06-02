@@ -329,6 +329,7 @@
     },
     "create_post_modal": {
       "title": "Add memory",
+      "success_message": "The post has been successfully saved! Check it out!",
       "photos": {
         "label": "Photos ({{count}}/5)",
         "click_to_add": "Click to select photos",
@@ -367,11 +368,12 @@
     "delete_group_modal": {
       "title": "Delete group?",
       "desc_start": "Are you sure you want to delete the group ",
-      "desc_end": "? This action cannot be undone. All posts, photos, and comments will be permanently destroyed."
+      "desc_end": "? This action cannot be undone. All posts, photos, and comments will be permanently deleted."
     },
     "delete_post_modal": {
       "title": "Delete this memory?",
-      "desc": "Are you sure you want to permanently delete this post? All photos, comments, and reactions attached to it will also be destroyed."
+      "desc": "Are you sure you want to permanently delete this post? All photos, comments, and reactions attached to it will also be deleted.",
+      "success_message": "The post was successfully deleted."
     },
     "leave_group_modal": {
       "title": "Leave group?",
