@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sparkles} from 'lucide-react';
+import { Sparkles, ArrowLeft} from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 import GoogleAuthButton from '../components/ui/GoogleAuthButton';
 import { getUserFriendlyError } from '../utils/errorutils';
@@ -85,7 +85,12 @@ const RegisterPage = () => {
   return (
     <div className="auth-page">
       <StarBackground />
-      <div className="glass-panel auth-glass-card">
+      <div className="glass-panel auth-glass-card" style={{ position: 'relative' }}>
+        <Link to="/" className="btn-back-to-main">
+          <ArrowLeft size={24} className="back-icon" />
+          <span className="back-text">На головну</span>
+        </Link>
+
         <h2 className="auth-title">{t('auth.register.title')}</h2>
         
         <form className="auth-form" onSubmit={handleSubmit} noValidate>

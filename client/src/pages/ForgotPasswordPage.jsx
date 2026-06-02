@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, Mail, MailCheck } from 'lucide-react';
+import { Sparkles, Mail, MailCheck, ArrowLeft } from 'lucide-react';
 import StarBackground from '../components/layout/StarBackground';
 import { getUserFriendlyError } from '../utils/errorUtils';
 
@@ -62,7 +62,12 @@ const ForgotPasswordPage = () => {
   return (
     <div className="auth-page">
       <StarBackground />
-      <div className="glass-panel auth-glass-card">
+      <div className="glass-panel auth-glass-card" style={{ position: 'relative' }}>
+
+        <Link to="/" className="btn-back-to-main">
+          <ArrowLeft size={24} className="back-icon" />
+          <span className="back-text">На головну</span>
+        </Link>
         
         {generalMessage.type === 'success' ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', padding: '1rem 0' }}>
