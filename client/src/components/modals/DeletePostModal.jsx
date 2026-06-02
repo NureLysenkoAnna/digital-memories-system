@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import ConfirmModal from './ConfirmModal';
 
-const DeletePostModal = ({ isOpen, onClose, post, groupId, onPostDeleted }) => {
+const DeletePostModal = ({ isOpen, onClose, post, groupId, onPostDeleted, showToast }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
   const { t } = useTranslation();
 
@@ -19,6 +19,7 @@ const DeletePostModal = ({ isOpen, onClose, post, groupId, onPostDeleted }) => {
       throw new Error(data.error || 'POST_DELETE_FAILED');
     }
     
+    showToast((t('groups.delete_post_modal.success_message')), 'success');
     onPostDeleted(); 
   };
 

@@ -4,7 +4,7 @@ import { X, Sparkles, UploadCloud, Calendar, Hash, Image as ImageIcon, Plus } fr
 import imageCompression from 'browser-image-compression';
 import { getUserFriendlyError } from '../../utils/errorutils';
 
-const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
+const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated, showToast }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
   const { t } = useTranslation();
 
@@ -187,6 +187,7 @@ const CreatePostModal = ({ isOpen, onClose, groupId, onPostCreated }) => {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'SERVER_ERROR');
+      showToast((t('groups.create_post_modal.success_message')), 'success');
       onPostCreated(); 
       onClose();
     } catch (err) {
