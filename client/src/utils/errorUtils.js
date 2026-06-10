@@ -9,7 +9,7 @@ export const getUserFriendlyError = (errMessage) => {
   if (lowerErr.includes('failed to fetch') || lowerErr.includes('network error')) {
     return i18n.t('client_errors.network');
   }
-  if (lowerErr.includes('unauthorized') || lowerErr.includes('token')) {
+  if (lowerErr.includes('unauthorized') || (lowerErr.includes('token') && !lowerErr.includes('reset_token'))) {
     return i18n.t('server_errors.AUTH_TOKEN_INVALID');
   }
   if (lowerErr.includes('not found')) {
