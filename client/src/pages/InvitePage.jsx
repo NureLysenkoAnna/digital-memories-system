@@ -33,7 +33,7 @@ const InvitePage = () => {
 
       if (!verifyRes.ok) {
         setStatus('invalid');
-        setMessageKey(verifyData.error || t('invite.status.invalid_default'));
+        setMessageKey(verifyData.error || 'invite.status.invalid_default');
         localStorage.removeItem('pendingInviteToken');
         return;
       }
@@ -43,13 +43,13 @@ const InvitePage = () => {
       const authToken = localStorage.getItem('token');
       if (!authToken || authToken === 'undefined' || authToken === 'null') {
         setStatus('unauthorized');
-        setMessageKey(t('invite.status.invited'));
+        setMessageKey('invite.status.invited');
         localStorage.setItem('pendingInviteToken', token);
         return;
       }
 
       setStatus('loading');
-      setMessageKey(t('invite.status.joining'));
+      setMessageKey('invite.status.joining');
 
       const acceptRes = await fetch(`${API_URL}/groups/invite/${token}/accept`, {
         method: 'POST',
@@ -62,7 +62,7 @@ const InvitePage = () => {
       const contentType = acceptRes.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         setStatus('error');
-        setMessageKey(t('invite.status.server_error', { status: acceptRes.status }));
+        setMessageKey('invite.status.server_error', { status: acceptRes.status });
         localStorage.removeItem('pendingInviteToken');
         return;
       }
@@ -76,11 +76,11 @@ const InvitePage = () => {
         setGroupId(acceptData.groupId);
       } else {
         setStatus('error');
-        setMessageKey(acceptData.error || t('invite.status.accept_error'));
+        setMessageKey(acceptData.error || 'invite.status.accept_error');
       }
     } catch (err) {
       setStatus('error');
-      setMessageKey(t('invite.status.network_error'));
+      setMessageKey('invite.status.network_error');
       localStorage.removeItem('pendingInviteToken');
     }
   };
