@@ -107,6 +107,19 @@ class PostController {
     }
   }
 
+  static async getRandomPost(req, res) {
+    try {
+      const { groupId } = req.params;
+      const post = await PostService.getRandomPost(groupId);
+      if (!post) {
+        return res.status(404).json({ error: 'POST_NOT_FOUND' });
+      }
+      res.json(post);
+    } catch (error) {
+      sendSafeError(res, error, 500);
+    }
+  }
+
   static async getMemoriesData(req, res) {
     try {
       const { groupId } = req.params;

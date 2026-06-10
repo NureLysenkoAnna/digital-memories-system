@@ -7,6 +7,7 @@ router.post('/', authMiddleware, PostController.createPost);
 router.delete('/:postId', authMiddleware, PostController.deletePost);
 router.patch('/:postId/pin', authMiddleware, PostController.togglePin);
 router.get('/group/:groupId', authMiddleware, PostController.getGroupPosts);
+router.get('/group/:groupId/random', authMiddleware, PostController.getRandomPost);
 router.get('/group/:groupId/memories', authMiddleware, PostController.getMemoriesData);
 router.get('/:postId/comments', authMiddleware, PostController.getComments);
 router.post('/:postId/comments', authMiddleware, PostController.addComment);

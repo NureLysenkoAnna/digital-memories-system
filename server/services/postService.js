@@ -270,6 +270,38 @@ class PostService {
     }
   }
 
+  static async getRandomPost(groupId) {
+    const query = `
+      SELECT 
+        p.id, 
+        p.content as text, 
+        p.tags, 
+        p.event_date as date, 
+        p.is_pinned, 
+        p.created_at,
+        json_build_object(
+          'id', u.id, 
+          'name', u.username, 
+          'avatar', u.avatar_url,
+          'is_member', EXISTS(SELECT 1 FROM group_members gm WHERE gm.user_id = u.id AND gm.group_id = p.group_id)
+        ) as author,
+        COALESCE((SELECT json_agg(image_url) FROM post_images WHERE post_id = p.id), '[]'::json) as images,
+        (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id)::int as "commentsCount",
+        COALESCE((SELECT json_agg(author_id) FROM post_comments WHERE post_id = p.id), '[]'::json) as commentators,
+        COALESCE((SELECT json_agg(json_build_object('user_id', user_id, 'reaction', reaction)) FROM post_reactions WHERE post_id = p.id), '[]'::json) as reactions
+      FROM posts p
+      JOIN users u ON p.author_id = u.id
+      WHERE p.group_id = $1
+      ORDER BY RANDOM()
+      LIMIT 1
+    `;
+
+    const result = await pool.query(query, [groupId]);
+    
+    if (result.rows.length === 0) return null;
+    return result.rows[0];
+  }
+
   static async getPersonalMilestones(groupId, userId, userRole) {
     const data = await this.getGroupPosts(groupId, 'new_published', '', 10000, 0);
     const photoPostsOnly = data.posts.filter(post => post.images && post.images.length > 0);
