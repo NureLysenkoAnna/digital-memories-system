@@ -5,7 +5,7 @@ class PostService {
     if (content && content.length > 500) {
       throw new Error('POST_CONTENT_TOO_LONG');
     }
-    if (tags && tags.length > 10) {
+    if (tags && tags.length > 5) {
       throw new Error('POST_TAGS_LIMIT_EXCEEDED');
     }
     if (imageUrls && imageUrls.length > 5) {
